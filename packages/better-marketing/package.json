@@ -1,0 +1,237 @@
+{
+  "name": "better-marketing",
+  "version": "0.1.0",
+  "description": "A comprehensive marketing framework for TypeScript applications",
+  "keywords": [
+    "marketing",
+    "email",
+    "sms", 
+    "analytics",
+    "campaigns",
+    "automation",
+    "typescript",
+    "framework"
+  ],
+  "homepage": "https://better-marketing.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/everfaz/better-marketing.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Everfaz Team",
+    "email": "hello@everfaz.com"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json",
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/types/index.js",
+      "import": "./dist/types/index.mjs"
+    },
+    "./crypto": {
+      "types": "./dist/crypto/index.d.ts",
+      "require": "./dist/crypto/index.js",
+      "import": "./dist/crypto/index.mjs"
+    },
+    "./test": {
+      "types": "./dist/test/index.d.ts",
+      "require": "./dist/test/index.js",
+      "import": "./dist/test/index.mjs"
+    },
+    "./adapters/prisma": {
+      "types": "./dist/adapters/prisma/index.d.ts",
+      "require": "./dist/adapters/prisma/index.js",
+      "import": "./dist/adapters/prisma/index.mjs"
+    },
+    "./adapters/drizzle": {
+      "types": "./dist/adapters/drizzle/index.d.ts", 
+      "require": "./dist/adapters/drizzle/index.js",
+      "import": "./dist/adapters/drizzle/index.mjs"
+    },
+    "./adapters/kysely": {
+      "types": "./dist/adapters/kysely/index.d.ts",
+      "require": "./dist/adapters/kysely/index.js", 
+      "import": "./dist/adapters/kysely/index.mjs"
+    },
+    "./adapters/mongoose": {
+      "types": "./dist/adapters/mongoose/index.d.ts",
+      "require": "./dist/adapters/mongoose/index.js",
+      "import": "./dist/adapters/mongoose/index.mjs"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "require": "./dist/client/index.js",
+      "import": "./dist/client/index.mjs"
+    },
+    "./client/react": {
+      "types": "./dist/client/react/index.d.ts",
+      "require": "./dist/client/react/index.js",
+      "import": "./dist/client/react/index.mjs"
+    },
+    "./client/vue": {
+      "types": "./dist/client/vue/index.d.ts",
+      "require": "./dist/client/vue/index.js",
+      "import": "./dist/client/vue/index.mjs"
+    },
+    "./client/svelte": {
+      "types": "./dist/client/svelte/index.d.ts",
+      "require": "./dist/client/svelte/index.js",
+      "import": "./dist/client/svelte/index.mjs"
+    },
+    "./client/angular": {
+      "types": "./dist/client/angular/index.d.ts",
+      "require": "./dist/client/angular/index.js",
+      "import": "./dist/client/angular/index.mjs"
+    },
+    "./client/nextjs": {
+      "types": "./dist/client/nextjs/index.d.ts",
+      "require": "./dist/client/nextjs/index.js",
+      "import": "./dist/client/nextjs/index.mjs"
+    },
+    "./frameworks/express": {
+      "types": "./dist/frameworks/express/index.d.ts",
+      "require": "./dist/frameworks/express/index.js", 
+      "import": "./dist/frameworks/express/index.mjs"
+    },
+    "./frameworks/fastify": {
+      "types": "./dist/frameworks/fastify/index.d.ts",
+      "require": "./dist/frameworks/fastify/index.js",
+      "import": "./dist/frameworks/fastify/index.mjs"
+    },
+    "./frameworks/hono": {
+      "types": "./dist/frameworks/hono/index.d.ts",
+      "require": "./dist/frameworks/hono/index.js",
+      "import": "./dist/frameworks/hono/index.mjs"
+    },
+    "./frameworks/nestjs": {
+      "types": "./dist/frameworks/nestjs/index.d.ts",
+      "require": "./dist/frameworks/nestjs/index.js",
+      "import": "./dist/frameworks/nestjs/index.mjs"
+    },
+    "./frameworks/nextjs": {
+      "types": "./dist/frameworks/nextjs/index.d.ts",
+      "require": "./dist/frameworks/nextjs/index.js",
+      "import": "./dist/frameworks/nextjs/index.mjs"
+    },
+    "./frameworks/sveltekit": {
+      "types": "./dist/frameworks/sveltekit/index.d.ts",
+      "require": "./dist/frameworks/sveltekit/index.js",
+      "import": "./dist/frameworks/sveltekit/index.mjs"
+    },
+    "./email-providers/resend": {
+      "types": "./dist/email-providers/resend/index.d.ts",
+      "require": "./dist/email-providers/resend/index.js",
+      "import": "./dist/email-providers/resend/index.mjs"
+    },
+    "./email-providers/sendgrid": {
+      "types": "./dist/email-providers/sendgrid/index.d.ts",
+      "require": "./dist/email-providers/sendgrid/index.js",
+      "import": "./dist/email-providers/sendgrid/index.mjs"
+    },
+    "./email-providers/mailgun": {
+      "types": "./dist/email-providers/mailgun/index.d.ts",
+      "require": "./dist/email-providers/mailgun/index.js",
+      "import": "./dist/email-providers/mailgun/index.mjs"
+    },
+    "./email-providers/postmark": {
+      "types": "./dist/email-providers/postmark/index.d.ts",
+      "require": "./dist/email-providers/postmark/index.js",
+      "import": "./dist/email-providers/postmark/index.mjs"
+    },
+    "./sms-providers/twilio": {
+      "types": "./dist/sms-providers/twilio/index.d.ts",
+      "require": "./dist/sms-providers/twilio/index.js",
+      "import": "./dist/sms-providers/twilio/index.mjs"
+    },
+    "./analytics-providers/google-analytics": {
+      "types": "./dist/analytics-providers/google-analytics/index.d.ts",
+      "require": "./dist/analytics-providers/google-analytics/index.js",
+      "import": "./dist/analytics-providers/google-analytics/index.mjs"
+    },
+    "./analytics-providers/mixpanel": {
+      "types": "./dist/analytics-providers/mixpanel/index.d.ts",
+      "require": "./dist/analytics-providers/mixpanel/index.js",
+      "import": "./dist/analytics-providers/mixpanel/index.mjs"
+    },
+    "./plugins/campaigns": {
+      "types": "./dist/plugins/campaigns/index.d.ts",
+      "require": "./dist/plugins/campaigns/index.js",
+      "import": "./dist/plugins/campaigns/index.mjs"
+    },
+    "./plugins/automation": {
+      "types": "./dist/plugins/automation/index.d.ts",
+      "require": "./dist/plugins/automation/index.js",
+      "import": "./dist/plugins/automation/index.mjs"
+    },
+    "./plugins/segmentation": {
+      "types": "./dist/plugins/segmentation/index.d.ts",
+      "require": "./dist/plugins/segmentation/index.js",
+      "import": "./dist/plugins/segmentation/index.mjs"
+    },
+    "./plugins/ab-testing": {
+      "types": "./dist/plugins/ab-testing/index.d.ts",
+      "require": "./dist/plugins/ab-testing/index.js",
+      "import": "./dist/plugins/ab-testing/index.mjs"
+    },
+    "./plugins/personalization": {
+      "types": "./dist/plugins/personalization/index.d.ts",
+      "require": "./dist/plugins/personalization/index.js",
+      "import": "./dist/plugins/personalization/index.mjs"
+    },
+    "./plugins/lead-scoring": {
+      "types": "./dist/plugins/lead-scoring/index.d.ts",
+      "require": "./dist/plugins/lead-scoring/index.js",
+      "import": "./dist/plugins/lead-scoring/index.mjs"
+    },
+    "./plugins/attribution": {
+      "types": "./dist/plugins/attribution/index.d.ts",
+      "require": "./dist/plugins/attribution/index.js",
+      "import": "./dist/plugins/attribution/index.mjs"
+    },
+    "./plugins/webhooks": {
+      "types": "./dist/plugins/webhooks/index.d.ts",
+      "require": "./dist/plugins/webhooks/index.js",
+      "import": "./dist/plugins/webhooks/index.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "nanostores": "^0.11.3",
+    "jose": "^5.9.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.6",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0",
+    "tsup": "^8.3.5",
+    "typescript": "5.9.2"
+  },
+  "peerDependencies": {
+    "typescript": ">=4.9.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
