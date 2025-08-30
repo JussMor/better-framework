@@ -2,7 +2,7 @@
  * Database utilities for Better Marketing
  */
 
-import { memoryAdapter } from "../adapters/memory-adapter";
+import { memoryAdapter } from "../adapters/memory";
 import type { BetterMarketingOptions, DatabaseAdapter } from "../types";
 import { getMarketingTables } from "./get-tables";
 

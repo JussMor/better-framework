@@ -1,16 +1,14 @@
+import { getEndpoints, router } from "./api";
 import { BetterMarketingError } from "./error";
-import { init, type MarketingContext } from "./init";
-import type { BetterMarketingOptions } from "./types";
-import { getBaseURL } from "./utils/url";
+import { init } from "./init";
+import type { BetterMarketingOptions, InferAPI } from "./types";
+import { getBaseURL, getOrigin } from "./utils/url";
 
 export const betterMarketing = <O extends BetterMarketingOptions>(
   options: O & Record<never, never>
-): {
-  handler: (request: Request) => Promise<Response>;
-  api: MarketingContext["api"];
-  context: Promise<MarketingContext>;
-} => {
+) => {
   const marketingContext = init(options as O);
+  const { api } = getEndpoints(marketingContext, options as O);
 
   return {
     handler: async (request: Request) => {
@@ -21,7 +19,8 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
         const baseURL = getBaseURL(undefined, basePath, request);
         if (baseURL) {
           // Update context with resolved base URL
-          ctx.options.baseURL = baseURL;
+          ctx.baseURL = baseURL;
+          ctx.options.baseURL = getOrigin(ctx.baseURL) || undefined;
         } else {
           throw new BetterMarketingError(
             "Could not get base URL from request. Please provide a valid base URL."
@@ -40,29 +39,12 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
         }
       }
 
-      return ctx.handler(request);
+      const { handler } = router(ctx, ctx.options as any);
+      return handler(request);
     },
-
-    get api() {
-      // Return a proxy that waits for context to be ready
-      return new Proxy({} as MarketingContext["api"], {
-        get: (_, prop) => {
-          return async (...args: any[]) => {
-            const ctx = await marketingContext;
-            const apiMethod = (ctx.api as any)[prop];
-            if (typeof apiMethod === "function") {
-              return apiMethod(...args);
-            }
-            if (typeof apiMethod === "object" && apiMethod !== null) {
-              return apiMethod;
-            }
-            throw new Error(`API method ${String(prop)} not found`);
-          };
-        },
-      });
-    },
-
-    context: marketingContext,
+    api: api as InferAPI<typeof api>,
+    $context: marketingContext,
+    options: options as O,
   };
 };
 

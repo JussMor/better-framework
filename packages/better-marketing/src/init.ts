@@ -1,36 +1,16 @@
-import { createMarketingAPI } from "./core/api";
-import { createMarketingHandler } from "./core/handler";
 import { PluginManager } from "./core/plugin-manager";
 import { generateId, validateConfig } from "./core/utils";
 import { getMarketingTables } from "./db/get-tables";
 import { createInternalAdapter } from "./db/internal-adapter";
 import { getMarketingAdapter } from "./db/utils";
-import type {
-  BetterMarketingConfig,
-  BetterMarketingOptions,
-  DatabaseAdapter,
-  MarketingAPI,
-} from "./types";
+import type { BetterMarketingConfig, BetterMarketingOptions } from "./types";
 import { DEFAULT_SECRET } from "./utils/constants";
 import { env, isProduction } from "./utils/env";
 import { createLogger } from "./utils/logger";
 
-export interface MarketingContext {
-  adapter: DatabaseAdapter;
-  internalAdapter: ReturnType<typeof createInternalAdapter>;
-  api: MarketingAPI;
-  handler: (request: Request) => Promise<Response>;
-  pluginManager: PluginManager;
-  options: BetterMarketingConfig;
-  secret: string;
-  generateId: (options: { model: string; size?: number }) => string;
-  tables: ReturnType<typeof getMarketingTables>;
-  logger: ReturnType<typeof createLogger>;
-}
 
-export const init = async (
-  options: BetterMarketingOptions
-): Promise<MarketingContext> => {
+
+export const init = async (options: BetterMarketingOptions) => {
   const adapter = await getMarketingAdapter(options);
   const plugins = options.plugins || [];
   const logger = createLogger(options.logger);
@@ -98,22 +78,15 @@ export const init = async (
     generateId: generateIdFunc,
   });
 
-  // Create API instance
-  const api = createMarketingAPI(finalConfig, pluginManager, internalAdapter);
-
-  // Create request handler
-  const handler = createMarketingHandler(finalConfig, api, pluginManager);
-
   return {
     adapter,
     internalAdapter,
-    api,
-    handler,
     pluginManager,
     options: finalConfig,
     secret,
     generateId: generateIdFunc,
     tables,
     logger,
+    baseURL: processedOptions.baseURL,
   };
 };

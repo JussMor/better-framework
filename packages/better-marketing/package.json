@@ -66,6 +66,11 @@
       "require": "./dist/adapters/mongoose/index.js",
       "import": "./dist/adapters/mongoose/index.mjs"
     },
+    "./adapters/memory":{
+      "types": "./dist/adapters/memory/index.d.ts",
+      "require": "./dist/adapters/memory/index.js",
+      "import": "./dist/adapters/memory/index.mjs"
+    },
     "./client": {
       "types": "./dist/client/index.d.ts",
       "require": "./dist/client/index.js",

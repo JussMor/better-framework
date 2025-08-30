@@ -36,7 +36,7 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch("/api/marketing/track", {
+      const response = await fetch("/api/marketing/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

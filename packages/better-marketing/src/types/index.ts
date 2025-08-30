@@ -2,6 +2,11 @@
  * Core type definitions for Better Marketing
  */
 
+import { PluginManager } from "../core";
+import { getMarketingTables } from "../db/get-tables";
+import { createInternalAdapter } from "../db/internal-adapter";
+import { createLogger } from "../utils/logger";
+
 export interface MarketingUser {
   id: string;
   email: string;
@@ -365,6 +370,18 @@ export interface MarketingAPI {
   };
 }
 
+export interface MarketingContext {
+  adapter: DatabaseAdapter;
+  internalAdapter: ReturnType<typeof createInternalAdapter>;
+  pluginManager: PluginManager;
+  options: BetterMarketingConfig;
+  secret: string;
+  generateId: (options: { model: string; size?: number }) => string;
+  tables: ReturnType<typeof getMarketingTables>;
+  logger: ReturnType<typeof createLogger>;
+  baseURL?: string;
+}
+
 // Additional types for Better Marketing
 export interface BetterMarketingOptions {
   database?:
@@ -390,8 +407,26 @@ export interface BetterMarketingOptions {
   advanced?: {
     generateId?: (options: { model: string; size?: number }) => string;
   };
-  logger?: import("../utils/logger").LoggerOptions;
+  adapter: DatabaseAdapter;
+  internalAdapter: ReturnType<typeof createInternalAdapter>;
+  pluginManager: PluginManager;
+  options: BetterMarketingConfig;
+  generateId: (options: { model: string; size?: number }) => string;
+  tables: ReturnType<typeof getMarketingTables>;
+  logger: ReturnType<typeof createLogger>;
 }
+
+// Utility type to infer API shape from endpoints
+export type InferAPI<T> =
+  T extends Record<string, any>
+    ? {
+        [K in keyof T]: T[K] extends (...args: any[]) => any
+          ? T[K]
+          : T[K] extends { handler: (...args: any[]) => any }
+            ? T[K]["handler"]
+            : T[K];
+      }
+    : T;
 
 // Re-export for compatibility
 export type BetterMarketingPlugin = MarketingPlugin;

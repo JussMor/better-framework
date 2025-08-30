@@ -44,19 +44,19 @@ export const marketing = betterMarketing({
   },
 
   // Analytics providers (mock for demo)
-  analyticsProviders: [
-    {
-      name: "demo-analytics",
-      track: async (options) => {
-        console.log("📊 Analytics event:", {
-          userId: options.userId,
-          eventName: options.eventName,
-          properties: options.properties,
-        });
-        return { success: true };
-      },
-    },
-  ],
+  // analyticsProviders: [
+  //   {
+  //     name: "demo-analytics",
+  //     track: async (options) => {
+  //       console.log("📊 Analytics event:", {
+  //         userId: options.userId,
+  //         eventName: options.eventName,
+  //         properties: options.properties,
+  //       });
+  //       return { success: true };
+  //     },
+  //   },
+  // ],
 
   // Session configuration
   session: {

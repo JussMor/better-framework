@@ -3,7 +3,7 @@
  * This file demonstrates how to use the Better Marketing framework
  */
 
-import { memoryAdapter } from "./adapters/memory-adapter";
+import { memoryAdapter } from "./adapters/memory";
 import { betterMarketing } from "./marketing";
 
 // Example configuration

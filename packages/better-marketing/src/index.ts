@@ -7,7 +7,7 @@ export * from "./types";
 // Core functionality
 export * from "./core";
 export { createMarketingHandler } from "./core/handler";
-export { init, type MarketingContext } from "./init";
+export { init } from "./init";
 export { betterMarketing, type BetterMarketingOptions } from "./marketing";
 
 // Database adapters
@@ -55,5 +55,7 @@ export { reactIntegration } from "./client/react";
 // export { vueIntegration } from "./client/vue";
 
 // Utilities
+export * from "./api/call";
+export * from "./api/to-marketing-endpoints";
 export { generateApiKey } from "./crypto";
 export * from "./test";
