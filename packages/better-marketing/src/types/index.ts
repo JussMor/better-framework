@@ -6,8 +6,11 @@ import { PluginManager } from "../core";
 import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import { createLogger } from "../utils/logger";
+import { AdapterInstance } from "./adapter";
+import { GenericEndpointContext } from "./context";
 
 export * from "./adapter";
+export * from "./context";
 export * from "./helper";
 
 export interface MarketingUser {
@@ -220,47 +223,6 @@ export interface AnalyticsResult {
   error?: string;
 }
 
-export interface DatabaseAdapter {
-  name: string;
-  // User operations
-  createUser: (
-    user: Omit<MarketingUser, "id" | "createdAt" | "updatedAt">
-  ) => Promise<MarketingUser>;
-  getUserById: (id: string) => Promise<MarketingUser | null>;
-  getUserByEmail: (email: string) => Promise<MarketingUser | null>;
-  updateUser: (
-    id: string,
-    updates: Partial<MarketingUser>
-  ) => Promise<MarketingUser>;
-  deleteUser: (id: string) => Promise<void>;
-
-  // Event operations
-  createEvent: (
-    event: Omit<MarketingEvent, "id" | "timestamp">
-  ) => Promise<MarketingEvent>;
-  getEventsByUserId: (
-    userId: string,
-    limit?: number
-  ) => Promise<MarketingEvent[]>;
-
-  // Campaign operations
-  createCampaign: (
-    campaign: Omit<Campaign, "id" | "createdAt" | "updatedAt">
-  ) => Promise<Campaign>;
-  getCampaignById: (id: string) => Promise<Campaign | null>;
-  updateCampaign: (id: string, updates: Partial<Campaign>) => Promise<Campaign>;
-  deleteCampaign: (id: string) => Promise<void>;
-
-  // Segment operations
-  createSegment: (
-    segment: Omit<Segment, "id" | "createdAt" | "updatedAt">
-  ) => Promise<Segment>;
-  getSegmentById: (id: string) => Promise<Segment | null>;
-  updateSegment: (id: string, updates: Partial<Segment>) => Promise<Segment>;
-  deleteSegment: (id: string) => Promise<void>;
-  getUsersInSegment: (segmentId: string) => Promise<MarketingUser[]>;
-}
-
 export interface MarketingPlugin {
   name: string;
   version?: string;
@@ -291,93 +253,11 @@ export interface PluginHooks {
   ) => Promise<void> | void;
 }
 
-export interface BetterMarketingConfig {
-  database: DatabaseAdapter;
-  emailProvider?: EmailProvider;
-  smsProvider?: SMSProvider;
-  analyticsProviders?: AnalyticsProvider[];
-  plugins?: MarketingPlugin[];
-  secret: string;
-  baseURL?: string;
-  basePath?: string;
-  trustedOrigins?: string[];
-  session?: {
-    expiresIn?: number;
-    updateAge?: number;
-  };
-  rateLimit?: {
-    window?: number;
-    max?: number;
-  };
-}
-
-export interface BetterMarketingInstance {
-  config: BetterMarketingConfig;
-  api: MarketingAPI;
-  handler: (request: Request) => Promise<Response>;
-}
-
-export interface MarketingAPI {
-  // User management
-  user: {
-    create: (
-      user: Omit<MarketingUser, "id" | "createdAt" | "updatedAt">
-    ) => Promise<MarketingUser>;
-    get: (id: string) => Promise<MarketingUser | null>;
-    update: (
-      id: string,
-      updates: Partial<MarketingUser>
-    ) => Promise<MarketingUser>;
-    delete: (id: string) => Promise<void>;
-    getByEmail: (email: string) => Promise<MarketingUser | null>;
-  };
-
-  // Event tracking
-  track: (
-    event: Omit<MarketingEvent, "id" | "timestamp">
-  ) => Promise<MarketingEvent>;
-
-  // Campaign management
-  campaign: {
-    create: (
-      campaign: Omit<Campaign, "id" | "createdAt" | "updatedAt">
-    ) => Promise<Campaign>;
-    get: (id: string) => Promise<Campaign | null>;
-    update: (id: string, updates: Partial<Campaign>) => Promise<Campaign>;
-    delete: (id: string) => Promise<void>;
-    send: (
-      id: string
-    ) => Promise<{ success: boolean; sentCount: number; errors?: string[] }>;
-  };
-
-  // Segmentation
-  segment: {
-    create: (
-      segment: Omit<Segment, "id" | "createdAt" | "updatedAt">
-    ) => Promise<Segment>;
-    get: (id: string) => Promise<Segment | null>;
-    update: (id: string, updates: Partial<Segment>) => Promise<Segment>;
-    delete: (id: string) => Promise<void>;
-    getUsers: (id: string) => Promise<MarketingUser[]>;
-  };
-
-  // Direct messaging
-  email: {
-    send: (options: SendEmailOptions) => Promise<EmailResult>;
-    sendBulk: (options: SendBulkEmailOptions) => Promise<BulkEmailResult>;
-  };
-
-  sms: {
-    send: (options: SendSMSOptions) => Promise<SMSResult>;
-    sendBulk: (options: SendBulkSMSOptions) => Promise<BulkSMSResult>;
-  };
-}
-
 export interface MarketingContext {
-  adapter: DatabaseAdapter;
+  adapter: AdapterInstance;
   internalAdapter: ReturnType<typeof createInternalAdapter>;
   pluginManager: PluginManager;
-  options: BetterMarketingConfig;
+  options: BetterMarketingOptions;
   secret: string;
   generateId: (options: { model: string; size?: number }) => string;
   tables: ReturnType<typeof getMarketingTables>;
@@ -385,15 +265,91 @@ export interface MarketingContext {
   baseURL?: string;
 }
 
+// Database hooks for marketing operations
+export interface MarketingDatabaseHooks {
+  user?: {
+    create?: {
+      before?: (
+        user: MarketingUser & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+      >;
+      after?: (
+        user: MarketingUser & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+    update?: {
+      before?: (
+        userData: Partial<MarketingUser & Record<string, unknown>>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+      >;
+      after?: (
+        user: MarketingUser & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+  };
+  campaign?: {
+    create?: {
+      before?: (
+        campaign: Campaign & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<Campaign & Record<string, unknown>> }
+      >;
+      after?: (
+        campaign: Campaign & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+    update?: {
+      before?: (
+        campaignData: Partial<Campaign & Record<string, unknown>>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<Campaign & Record<string, unknown>> }
+      >;
+      after?: (
+        campaign: Campaign & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+  };
+  segment?: {
+    create?: {
+      before?: (
+        segment: Segment & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<Segment & Record<string, unknown>> }
+      >;
+      after?: (
+        segment: Segment & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+    update?: {
+      before?: (
+        segmentData: Partial<Segment & Record<string, unknown>>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<Segment & Record<string, unknown>> }
+      >;
+      after?: (
+        segment: Segment & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+  };
+}
+
 // Additional types for Better Marketing
 export interface BetterMarketingOptions {
-  database?:
-    | DatabaseAdapter
-    | ((options: BetterMarketingOptions) => DatabaseAdapter)
-    | {
-        useNumberId?: boolean;
-        generateId?: (options: { model: string; size?: number }) => string;
-      };
+  database?: AdapterInstance;
   emailProvider?: EmailProvider;
   smsProvider?: SMSProvider;
   analyticsProviders?: AnalyticsProvider[];
@@ -419,6 +375,7 @@ export interface BetterMarketingOptions {
   advanced?: {
     generateId?: (options: { model: string; size?: number }) => string;
   };
+  databaseHooks?: MarketingDatabaseHooks;
 }
 
 // Utility type to infer API shape from endpoints

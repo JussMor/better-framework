@@ -2,12 +2,12 @@
  * Core utility functions
  */
 
-import type { BetterMarketingConfig } from "../types";
+import type { BetterMarketingOptions } from "../types";
 
 /**
  * Validate Better Marketing configuration
  */
-export function validateConfig(config: BetterMarketingConfig): void {
+export function validateConfig(config: BetterMarketingOptions): void {
   if (!config.database) {
     throw new Error("Database adapter is required");
   }

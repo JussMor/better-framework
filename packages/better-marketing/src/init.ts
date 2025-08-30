@@ -3,13 +3,11 @@ import { generateId, validateConfig } from "./core/utils";
 import { getMarketingTables } from "./db/get-tables";
 import { createInternalAdapter } from "./db/internal-adapter";
 import { getMarketingAdapter } from "./db/utils";
-import type { BetterMarketingConfig, BetterMarketingOptions } from "./types";
+import type { BetterMarketingOptions } from "./types";
 import { DEFAULT_SECRET } from "./utils/constants";
 import { env, isProduction } from "./utils/env";
 import { createLogger } from "./utils/logger";
 import { getBaseURL } from "./utils/url";
-
-
 
 export const init = async (options: BetterMarketingOptions) => {
   const adapter = await getMarketingAdapter(options);
@@ -51,7 +49,7 @@ export const init = async (options: BetterMarketingOptions) => {
   };
 
   // Create final config with resolved adapter for validation and API creation
-  const finalConfig: BetterMarketingConfig = {
+  const finalConfig: BetterMarketingOptions = {
     ...processedOptions,
     database: adapter,
     secret,
@@ -76,6 +74,9 @@ export const init = async (options: BetterMarketingOptions) => {
   // Create internal adapter with enhanced functionality
   const internalAdapter = createInternalAdapter(adapter, {
     options: processedOptions,
+    hooks: processedOptions.databaseHooks
+      ? [processedOptions.databaseHooks]
+      : [],
     logger,
     generateId: generateIdFunc,
   });
