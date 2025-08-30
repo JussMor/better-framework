@@ -1,7 +1,8 @@
 import type { BetterFetchError } from "@better-fetch/fetch";
-import type { PrettifyDeep, UnionToIntersection } from "../../types/helper";
-import { getClientConfig } from "../config";
-import { createDynamicPathProxy } from "../proxy";
+import type { Atom } from "nanostores";
+import type { PrettifyDeep, UnionToIntersection } from "../types/helper";
+import { getClientConfig } from "./config";
+import { createDynamicPathProxy } from "./proxy";
 import type {
   ClientOptions,
   InferActions,
@@ -9,9 +10,7 @@ import type {
   InferErrorCodes,
   IsSignal,
   MarketingClientPlugin,
-} from "../types";
-import { capitalizeFirstLetter } from "../vanilla";
-import { useStore } from "./react-store";
+} from "./types";
 
 type InferResolvedHooks<O extends ClientOptions> =
   O["plugins"] extends Array<infer Plugin>
@@ -23,7 +22,7 @@ type InferResolvedHooks<O extends ClientOptions> =
                 ? never
                 : key extends string
                   ? `use${Capitalize<key>}`
-                  : never]: () => ReturnType<Atoms[key]["get"]>;
+                  : never]: Atoms[key];
             }
           : {}
         : {}
@@ -31,9 +30,9 @@ type InferResolvedHooks<O extends ClientOptions> =
     : {};
 
 /**
- * Creates a marketing client with React hooks integration
+ * Creates a marketing client for client-side usage
  */
-export function createAuthClient<Option extends ClientOptions>(
+export function createMarketingClient<Option extends ClientOptions>(
   options?: Option
 ) {
   const {
@@ -41,13 +40,13 @@ export function createAuthClient<Option extends ClientOptions>(
     pluginsActions,
     pluginsAtoms,
     $fetch,
-    $store,
     atomListeners,
+    $store,
   } = getClientConfig(options);
 
   let resolvedHooks: Record<string, any> = {};
   for (const [key, value] of Object.entries(pluginsAtoms)) {
-    resolvedHooks[`use${capitalizeFirstLetter(key)}`] = () => useStore(value);
+    resolvedHooks[`use${capitalizeFirstLetter(key)}`] = value;
   }
 
   const routes = {
@@ -138,14 +137,17 @@ export function createAuthClient<Option extends ClientOptions>(
   return proxy as UnionToIntersection<InferResolvedHooks<Option>> &
     ClientAPI &
     InferActions<Option> & {
-      useSession: () => {
+      useSession: Atom<{
         data: UserData | null;
-        isPending: boolean;
         error: BetterFetchError | null;
-        refetch: () => void;
-      };
+        isPending: boolean;
+      }>;
       $fetch: typeof $fetch;
       $store: typeof $store;
       $ERROR_CODES: PrettifyDeep<InferErrorCodes<Option>>;
     };
+}
+
+export function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

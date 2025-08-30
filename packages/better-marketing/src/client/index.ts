@@ -2,17 +2,11 @@
  * Better Marketing client-side SDK
  */
 
-export function createMarketingClient(config: {
-  baseURL: string;
-  apiKey: string;
-}) {
-  return {
-    // TODO: Implement client-side SDK
-    track: async (eventName: string, properties?: Record<string, any>) => {
-      throw new Error("Client not implemented yet");
-    },
-    identify: async (userId: string, traits?: Record<string, any>) => {
-      throw new Error("Client not implemented yet");
-    },
-  };
-}
+export * from "./types";
+export * from "./vanilla";
+
+// Export createMarketingClient as the default client
+export { createMarketingClient } from "./vanilla";
+
+// Also provide access to the React-specific client
+export { createAuthClient as createReactAuthClient } from "./react";

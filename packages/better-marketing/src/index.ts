@@ -6,7 +6,6 @@ export * from "./types";
 
 // Core functionality
 export * from "./core";
-export { createMarketingHandler } from "./core/handler";
 export { init } from "./init";
 export { betterMarketing, type BetterMarketingOptions } from "./marketing";
 
@@ -46,13 +45,6 @@ export { kyselyAdapter } from "./adapters/kysely";
 // export { personalizationPlugin } from "./plugins/personalization";
 // export { segmentationPlugin } from "./plugins/segmentation";
 // export { webhooksPlugin } from "./plugins/webhooks";
-
-// Client integrations
-// export { angularIntegration } from "./client/angular";
-// export { nextjsIntegration } from "./client/nextjs";
-export { reactIntegration } from "./client/react";
-// export { svelteIntegration } from "./client/svelte";
-// export { vueIntegration } from "./client/vue";
 
 // Utilities
 export * from "./api/call";

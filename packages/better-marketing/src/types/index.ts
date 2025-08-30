@@ -7,6 +7,8 @@ import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import { createLogger } from "../utils/logger";
 
+export * from "./helper";
+
 export interface MarketingUser {
   id: string;
   email: string;
