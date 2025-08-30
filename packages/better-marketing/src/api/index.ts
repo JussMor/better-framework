@@ -9,7 +9,7 @@ import {
 } from "./routes/campaign";
 import { sendBulkEmail, sendEmail } from "./routes/email";
 import { createUser, deleteUser, getUser, updateUser } from "./routes/user";
-import { toMarketingEndpoints } from "./to-marketing-endpoints";
+import { toMarketingEndpoints } from "./to-marketing-endpoints-hooks";
 
 function originCheckMiddlewareFactory(ctx: MarketingContext): Middleware {
   const m: Middleware = async (

@@ -1,178 +1,388 @@
-/**
- * Memory adapter for Better Marketing - for development and testing
- */
+import { createAdapter } from "../create-adapter";
+import type { CleanedWhere } from "../create-adapter/types";
 
-import type {
-  BetterMarketingOptions,
-  Campaign,
-  DatabaseAdapter,
-  MarketingEvent,
-  MarketingUser,
-  Segment,
-} from "../../types";
+// In-memory storage for all tables
+const memoryStore: Record<string, Record<string, any>[]> = {};
 
-interface MemoryDB {
-  marketingUser: MarketingUser[];
-  marketingEvent: MarketingEvent[];
-  campaign: Campaign[];
-  segment: Segment[];
+// Helper function to match where conditions
+function matchesWhere(
+  record: Record<string, any>,
+  where: CleanedWhere[]
+): boolean {
+  if (!where || where.length === 0) return true;
+
+  // Group conditions by connector
+  const andConditions: CleanedWhere[] = [];
+  const orConditions: CleanedWhere[] = [];
+
+  where.forEach((condition) => {
+    if (condition.connector === "OR") {
+      orConditions.push(condition);
+    } else {
+      andConditions.push(condition);
+    }
+  });
+
+  // All AND conditions must be true
+  const andResult = andConditions.every((condition) => {
+    const fieldValue = record[condition.field];
+    const conditionValue = condition.value;
+
+    switch (condition.operator) {
+      case "eq":
+        return fieldValue === conditionValue;
+      case "ne":
+        return fieldValue !== conditionValue;
+      case "gt":
+        return conditionValue != null && fieldValue > conditionValue;
+      case "gte":
+        return conditionValue != null && fieldValue >= conditionValue;
+      case "lt":
+        return conditionValue != null && fieldValue < conditionValue;
+      case "lte":
+        return conditionValue != null && fieldValue <= conditionValue;
+      case "in":
+        return (
+          Array.isArray(conditionValue) &&
+          (conditionValue as any[]).includes(fieldValue)
+        );
+      case "contains":
+        return typeof fieldValue === "string" &&
+          typeof conditionValue === "string"
+          ? fieldValue.includes(conditionValue)
+          : false;
+      case "starts_with":
+        return typeof fieldValue === "string" &&
+          typeof conditionValue === "string"
+          ? fieldValue.startsWith(conditionValue)
+          : false;
+      case "ends_with":
+        return typeof fieldValue === "string" &&
+          typeof conditionValue === "string"
+          ? fieldValue.endsWith(conditionValue)
+          : false;
+      default:
+        return false;
+    }
+  });
+
+  // If there are no OR conditions, just return AND result
+  if (orConditions.length === 0) {
+    return andResult;
+  }
+
+  // At least one OR condition must be true
+  const orResult = orConditions.some((condition) => {
+    const fieldValue = record[condition.field];
+    const conditionValue = condition.value;
+
+    switch (condition.operator) {
+      case "eq":
+        return fieldValue === conditionValue;
+      case "ne":
+        return fieldValue !== conditionValue;
+      case "gt":
+        return conditionValue != null && fieldValue > conditionValue;
+      case "gte":
+        return conditionValue != null && fieldValue >= conditionValue;
+      case "lt":
+        return conditionValue != null && fieldValue < conditionValue;
+      case "lte":
+        return conditionValue != null && fieldValue <= conditionValue;
+      case "in":
+        return (
+          Array.isArray(conditionValue) &&
+          (conditionValue as any[]).includes(fieldValue)
+        );
+      case "contains":
+        return typeof fieldValue === "string" &&
+          typeof conditionValue === "string"
+          ? fieldValue.includes(conditionValue)
+          : false;
+      case "starts_with":
+        return typeof fieldValue === "string" &&
+          typeof conditionValue === "string"
+          ? fieldValue.startsWith(conditionValue)
+          : false;
+      case "ends_with":
+        return typeof fieldValue === "string" &&
+          typeof conditionValue === "string"
+          ? fieldValue.endsWith(conditionValue)
+          : false;
+      default:
+        return false;
+    }
+  });
+
+  // Both AND and OR conditions must be satisfied
+  return andResult && (orConditions.length === 0 || orResult);
 }
 
-export const memoryAdapter =
-  (memoryDB: Partial<MemoryDB> = {}) =>
-  (options: BetterMarketingOptions): DatabaseAdapter => {
-    const db: MemoryDB = {
-      marketingUser: [],
-      marketingEvent: [],
-      campaign: [],
-      segment: [],
-      ...memoryDB,
-    };
+// Helper function to select specific fields from a record
+function selectFields(
+  record: Record<string, any>,
+  select?: string[]
+): Record<string, any> {
+  if (!select || select.length === 0) {
+    return record;
+  }
 
-    return {
-      name: "memory-adapter",
+  const result: Record<string, any> = {};
+  select.forEach((field) => {
+    if (field in record) {
+      result[field] = record[field];
+    }
+  });
+  return result;
+}
 
-      // User operations
-      async createUser(
-        user: Omit<MarketingUser, "id" | "createdAt" | "updatedAt">
-      ): Promise<MarketingUser> {
-        const fullUser: MarketingUser = {
-          id: crypto.randomUUID(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ...user,
-        };
-        db.marketingUser.push(fullUser);
-        return fullUser;
-      },
+// Helper function to sort records
+function sortRecords<T extends Record<string, any>>(
+  records: T[],
+  sortBy?: { field: string; direction: "asc" | "desc" }
+): T[] {
+  if (!sortBy) return records;
 
-      async getUserById(id: string): Promise<MarketingUser | null> {
-        return db.marketingUser.find((u) => u.id === id) || null;
-      },
+  return [...records].sort((a, b) => {
+    const aVal = a[sortBy.field];
+    const bVal = b[sortBy.field];
 
-      async getUserByEmail(email: string): Promise<MarketingUser | null> {
-        return db.marketingUser.find((u) => u.email === email) || null;
-      },
+    if (aVal === bVal) return 0;
 
-      async updateUser(
-        id: string,
-        updates: Partial<MarketingUser>
-      ): Promise<MarketingUser> {
-        const index = db.marketingUser.findIndex((u) => u.id === id);
-        if (index === -1) {
-          throw new Error(`User with id ${id} not found`);
-        }
+    if (sortBy.direction === "desc") {
+      return aVal > bVal ? -1 : 1;
+    }
+    return aVal < bVal ? -1 : 1;
+  });
+}
 
-        const user = { ...db.marketingUser[index], ...updates };
-        db.marketingUser[index] = user;
-        return user;
-      },
+export const memoryAdapter = () => {
+  return createAdapter({
+    config: {
+      adapterId: "memory",
+      adapterName: "Memory Adapter",
+      supportsNumericIds: true,
+      supportsJSON: true,
+      supportsDates: true,
+      supportsBooleans: true,
+    },
+    adapter: ({ debugLog }) => {
+      return {
+        create: async ({ data, model, select }) => {
+          debugLog("Creating record in model:", model, "with data:", data);
 
-      async deleteUser(id: string): Promise<void> {
-        const index = db.marketingUser.findIndex((u) => u.id === id);
-        if (index !== -1) {
-          db.marketingUser.splice(index, 1);
-        }
-      },
+          // Initialize table if it doesn't exist
+          if (!memoryStore[model]) {
+            memoryStore[model] = [];
+          }
 
-      // Event operations
-      async createEvent(
-        event: Omit<MarketingEvent, "id" | "timestamp">
-      ): Promise<MarketingEvent> {
-        const fullEvent: MarketingEvent = {
-          id: crypto.randomUUID(),
-          timestamp: new Date(),
-          ...event,
-        };
-        db.marketingEvent.push(fullEvent);
-        return fullEvent;
-      },
+          // Create a copy of the data to avoid mutations
+          const record = { ...data } as any;
 
-      async getEventsByUserId(userId: string): Promise<MarketingEvent[]> {
-        return db.marketingEvent.filter((e) => e.userId === userId);
-      },
+          // Add timestamps if they exist in the data
+          const now = new Date();
+          if ("createdAt" in record && !record.createdAt) {
+            record.createdAt = now;
+          }
+          if ("updatedAt" in record && !record.updatedAt) {
+            record.updatedAt = now;
+          }
 
-      // Campaign operations
-      async createCampaign(
-        campaign: Omit<Campaign, "id" | "createdAt" | "updatedAt">
-      ): Promise<Campaign> {
-        const fullCampaign: Campaign = {
-          id: crypto.randomUUID(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ...campaign,
-        };
-        db.campaign.push(fullCampaign);
-        return fullCampaign;
-      },
+          // Add to store
+          memoryStore[model].push(record);
 
-      async getCampaignById(id: string): Promise<Campaign | null> {
-        return db.campaign.find((c) => c.id === id) || null;
-      },
+          debugLog("Record created successfully:", record);
+          return selectFields(record, select) as any;
+        },
 
-      async updateCampaign(
-        id: string,
-        updates: Partial<Campaign>
-      ): Promise<Campaign> {
-        const index = db.campaign.findIndex((c) => c.id === id);
-        if (index === -1) {
-          throw new Error(`Campaign with id ${id} not found`);
-        }
+        update: async ({ model, where, update }) => {
+          debugLog(
+            "Updating record in model:",
+            model,
+            "where:",
+            where,
+            "with:",
+            update
+          );
 
-        const campaign = { ...db.campaign[index], ...updates };
-        db.campaign[index] = campaign;
-        return campaign;
-      },
+          if (!memoryStore[model]) {
+            return null;
+          }
 
-      async deleteCampaign(id: string): Promise<void> {
-        const index = db.campaign.findIndex((c) => c.id === id);
-        if (index !== -1) {
-          db.campaign.splice(index, 1);
-        }
-      },
+          // Find the first matching record
+          const recordIndex = memoryStore[model].findIndex((record) =>
+            matchesWhere(record, where)
+          );
 
-      // Segment operations
-      async createSegment(
-        segment: Omit<Segment, "id" | "createdAt" | "updatedAt">
-      ): Promise<Segment> {
-        const fullSegment: Segment = {
-          id: crypto.randomUUID(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ...segment,
-        };
-        db.segment.push(fullSegment);
-        return fullSegment;
-      },
+          if (recordIndex === -1) {
+            return null;
+          }
 
-      async getSegmentById(id: string): Promise<Segment | null> {
-        return db.segment.find((s) => s.id === id) || null;
-      },
+          // Update the record
+          const updatedRecord = {
+            ...memoryStore[model][recordIndex],
+            ...update,
+          } as any;
 
-      async updateSegment(
-        id: string,
-        updates: Partial<Segment>
-      ): Promise<Segment> {
-        const index = db.segment.findIndex((s) => s.id === id);
-        if (index === -1) {
-          throw new Error(`Segment with id ${id} not found`);
-        }
+          // Add updatedAt if it exists in the update
+          if ("updatedAt" in updatedRecord) {
+            updatedRecord.updatedAt = new Date();
+          }
 
-        const segment = { ...db.segment[index], ...updates };
-        db.segment[index] = segment;
-        return segment;
-      },
+          memoryStore[model][recordIndex] = updatedRecord;
 
-      async deleteSegment(id: string): Promise<void> {
-        const index = db.segment.findIndex((s) => s.id === id);
-        if (index !== -1) {
-          db.segment.splice(index, 1);
-        }
-      },
+          debugLog("Record updated successfully:", updatedRecord);
+          return updatedRecord as any;
+        },
 
-      async getUsersInSegment(segmentId: string): Promise<MarketingUser[]> {
-        // Simple implementation - in reality this would evaluate segment conditions
-        return db.marketingUser.filter((u) => u.segments?.includes(segmentId));
-      },
-    };
-  };
+        updateMany: async ({ model, where, update }) => {
+          debugLog(
+            "Updating many records in model:",
+            model,
+            "where:",
+            where,
+            "with:",
+            update
+          );
+
+          if (!memoryStore[model]) {
+            return 0;
+          }
+
+          let updatedCount = 0;
+          const now = new Date();
+
+          for (let i = 0; i < memoryStore[model].length; i++) {
+            if (matchesWhere(memoryStore[model][i], where)) {
+              memoryStore[model][i] = {
+                ...memoryStore[model][i],
+                ...update,
+              };
+
+              // Add updatedAt if it exists
+              if ("updatedAt" in memoryStore[model][i]) {
+                memoryStore[model][i].updatedAt = now;
+              }
+
+              updatedCount++;
+            }
+          }
+
+          debugLog("Updated", updatedCount, "records");
+          return updatedCount;
+        },
+
+        findOne: async ({ model, where, select }) => {
+          debugLog("Finding one record in model:", model, "where:", where);
+
+          if (!memoryStore[model]) {
+            return null;
+          }
+
+          const record = memoryStore[model].find((record) =>
+            matchesWhere(record, where)
+          );
+
+          if (!record) {
+            return null;
+          }
+
+          const result = selectFields(record, select);
+          debugLog("Found record:", result);
+          return result as any;
+        },
+
+        findMany: async ({ model, where, limit, sortBy, offset }) => {
+          debugLog(
+            "Finding many records in model:",
+            model,
+            "where:",
+            where,
+            "limit:",
+            limit,
+            "offset:",
+            offset
+          );
+
+          if (!memoryStore[model]) {
+            return [];
+          }
+
+          let records = memoryStore[model].filter((record) =>
+            matchesWhere(record, where || [])
+          );
+
+          // Sort records if sortBy is provided
+          records = sortRecords(records, sortBy);
+
+          // Apply offset
+          if (offset && offset > 0) {
+            records = records.slice(offset);
+          }
+
+          // Apply limit
+          if (limit && limit > 0) {
+            records = records.slice(0, limit);
+          }
+
+          const results = records.map((record) => selectFields(record, []));
+          debugLog("Found", results.length, "records");
+          return results as any[];
+        },
+
+        delete: async ({ model, where }) => {
+          debugLog("Deleting record in model:", model, "where:", where);
+
+          if (!memoryStore[model]) {
+            return;
+          }
+
+          const recordIndex = memoryStore[model].findIndex((record) =>
+            matchesWhere(record, where)
+          );
+
+          if (recordIndex !== -1) {
+            memoryStore[model].splice(recordIndex, 1);
+            debugLog("Record deleted successfully");
+          }
+        },
+
+        deleteMany: async ({ model, where }) => {
+          debugLog("Deleting many records in model:", model, "where:", where);
+
+          if (!memoryStore[model]) {
+            return 0;
+          }
+
+          const initialCount = memoryStore[model].length;
+          memoryStore[model] = memoryStore[model].filter(
+            (record) => !matchesWhere(record, where)
+          );
+          const deletedCount = initialCount - memoryStore[model].length;
+
+          debugLog("Deleted", deletedCount, "records");
+          return deletedCount;
+        },
+
+        count: async ({ model, where }) => {
+          debugLog("Counting records in model:", model, "where:", where);
+
+          if (!memoryStore[model]) {
+            return 0;
+          }
+
+          const count = memoryStore[model].filter((record) =>
+            matchesWhere(record, where || [])
+          ).length;
+
+          debugLog("Count:", count);
+          return count;
+        },
+
+        options: {
+          memoryStore, // Expose the store for debugging purposes
+        },
+      };
+    },
+  });
+};

@@ -7,6 +7,7 @@ import type { BetterMarketingConfig, BetterMarketingOptions } from "./types";
 import { DEFAULT_SECRET } from "./utils/constants";
 import { env, isProduction } from "./utils/env";
 import { createLogger } from "./utils/logger";
+import { getBaseURL } from "./utils/url";
 
 
 
@@ -14,6 +15,7 @@ export const init = async (options: BetterMarketingOptions) => {
   const adapter = await getMarketingAdapter(options);
   const plugins = options.plugins || [];
   const logger = createLogger(options.logger);
+  const baseURL = getBaseURL(options.baseURL, options.basePath);
 
   const secret =
     options.secret ||
@@ -32,7 +34,7 @@ export const init = async (options: BetterMarketingOptions) => {
   // Create processed options with resolved adapter
   const processedOptions: BetterMarketingOptions = {
     baseURL: "/api/marketing",
-    basePath: options.basePath || "/api/marketing",
+    basePath: baseURL || "/api/marketing",
     trustedOrigins: ["http://localhost:3000", "https://localhost:3000"],
     session: {
       expiresIn: 60 * 60 * 24 * 7, // 7 days

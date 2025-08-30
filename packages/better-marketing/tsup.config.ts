@@ -14,7 +14,7 @@ export default defineConfig({
     "src/client/nextjs/index.ts",
     "src/adapters/prisma/index.ts",
     "src/adapters/drizzle/index.ts",
-    "src/adapters/kysely/index.ts",
+    // "src/adapters/kysely/index.ts",
     "src/adapters/mongoose/index.ts",
     "src/adapters/memory/index.ts",
     "src/api/call.ts",

@@ -7,6 +7,7 @@ import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import { createLogger } from "../utils/logger";
 
+export * from "./adapter";
 export * from "./helper";
 
 export interface MarketingUser {
@@ -388,7 +389,11 @@ export interface MarketingContext {
 export interface BetterMarketingOptions {
   database?:
     | DatabaseAdapter
-    | ((options: BetterMarketingOptions) => DatabaseAdapter);
+    | ((options: BetterMarketingOptions) => DatabaseAdapter)
+    | {
+        useNumberId?: boolean;
+        generateId?: (options: { model: string; size?: number }) => string;
+      };
   emailProvider?: EmailProvider;
   smsProvider?: SMSProvider;
   analyticsProviders?: AnalyticsProvider[];
@@ -400,22 +405,20 @@ export interface BetterMarketingOptions {
   session?: {
     expiresIn?: number;
     updateAge?: number;
+    additionalFields?: Record<string, any>;
+  };
+  user?: {
+    additionalFields?: Record<string, any>;
   };
   rateLimit?: {
     enabled?: boolean;
     window?: number;
     max?: number;
   };
+  logger?: ReturnType<typeof createLogger>;
   advanced?: {
     generateId?: (options: { model: string; size?: number }) => string;
   };
-  adapter: DatabaseAdapter;
-  internalAdapter: ReturnType<typeof createInternalAdapter>;
-  pluginManager: PluginManager;
-  options: BetterMarketingConfig;
-  generateId: (options: { model: string; size?: number }) => string;
-  tables: ReturnType<typeof getMarketingTables>;
-  logger: ReturnType<typeof createLogger>;
 }
 
 // Utility type to infer API shape from endpoints

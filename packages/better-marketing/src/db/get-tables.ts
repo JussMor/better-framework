@@ -5,6 +5,10 @@
 import type { BetterMarketingOptions } from "../types";
 
 export interface MarketingDbSchema {
+  [key: string]: {
+    tableName: string;
+    fields: Record<string, any>;
+  };
   marketingUser: {
     tableName: string;
     fields: Record<string, any>;

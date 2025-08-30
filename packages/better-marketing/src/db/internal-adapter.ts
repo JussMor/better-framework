@@ -25,158 +25,119 @@ export function createInternalAdapter(
   const { options, logger, generateId } = ctx;
 
   return {
-    // Enhanced user operations
-    user: {
-      async create(
-        data: Omit<MarketingUser, "id" | "createdAt" | "updatedAt">
-      ): Promise<MarketingUser> {
-        const now = new Date();
-        const user: MarketingUser = {
-          id: generateId({ model: "user" }),
-          ...data,
-          segments: data.segments || [],
-          createdAt: now,
-          updatedAt: now,
-        };
+    // User operations - flattened to match Better Auth pattern
+    createUser: async (
+      data:
+        | (Omit<MarketingUser, "id" | "createdAt" | "updatedAt"> & {
+            id?: string;
+          })
+        | (Partial<MarketingUser> & { id?: string })
+    ): Promise<MarketingUser> => {
+      const now = new Date();
+      const userId =
+        "id" in data && data.id ? data.id : generateId({ model: "user" });
+      const user: MarketingUser = {
+        id: userId,
+        email: data.email || "",
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        properties: data.properties || {},
+        segments: data.segments || [],
+        createdAt: now,
+        updatedAt: now,
+      };
 
-        logger.debug(`Creating user: ${user.email}`);
-        return adapter.createUser(user);
-      },
-
-      async findByEmail(email: string): Promise<MarketingUser | null> {
-        logger.debug(`Finding user by email: ${email}`);
-        return adapter.getUserByEmail(email);
-      },
-
-      async update(
-        id: string,
-        updates: Partial<MarketingUser>
-      ): Promise<MarketingUser> {
-        const updatedUser = {
-          ...updates,
-          updatedAt: new Date(),
-        };
-
-        logger.debug(`Updating user: ${id}`);
-        return adapter.updateUser(id, updatedUser);
-      },
-
-      async delete(id: string): Promise<void> {
-        logger.debug(`Deleting user: ${id}`);
-        return adapter.deleteUser(id);
-      },
-
-      async get(id: string): Promise<MarketingUser | null> {
-        return adapter.getUserById(id);
-      },
+      logger.debug(`Creating user: ${user.email}`);
+      return adapter.createUser(user);
     },
 
-    // Enhanced event operations
-    event: {
-      async create(
-        data: Omit<MarketingEvent, "id" | "timestamp">
-      ): Promise<MarketingEvent> {
-        const event: MarketingEvent = {
-          id: generateId({ model: "event" }),
-          ...data,
-          timestamp: new Date(),
-        };
-
-        logger.debug(
-          `Tracking event: ${event.eventName} for user: ${event.userId}`
-        );
-        return adapter.createEvent(event);
-      },
-
-      async findByUser(
-        userId: string,
-        limit?: number
-      ): Promise<MarketingEvent[]> {
-        logger.debug(`Finding events for user: ${userId}`);
-        return adapter.getEventsByUserId(userId);
-      },
+    findUserByEmail: async (email: string): Promise<MarketingUser | null> => {
+      logger.debug(`Finding user by email: ${email}`);
+      return adapter.getUserByEmail(email);
     },
 
-    // Enhanced campaign operations
-    campaign: {
-      async create(
-        data: Omit<Campaign, "id" | "createdAt" | "updatedAt">
-      ): Promise<Campaign> {
-        const now = new Date();
-        const campaign: Campaign = {
-          id: generateId({ model: "campaign" }),
-          ...data,
-          createdAt: now,
-          updatedAt: now,
-        };
-
-        logger.debug(`Creating campaign: ${campaign.name}`);
-        return adapter.createCampaign(campaign);
-      },
-
-      async get(id: string): Promise<Campaign | null> {
-        return adapter.getCampaignById(id);
-      },
-
-      async update(id: string, updates: Partial<Campaign>): Promise<Campaign> {
-        const updatedCampaign = {
-          ...updates,
-          updatedAt: new Date(),
-        };
-
-        logger.debug(`Updating campaign: ${id}`);
-        return adapter.updateCampaign(id, updatedCampaign);
-      },
-
-      async delete(id: string): Promise<void> {
-        logger.debug(`Deleting campaign: ${id}`);
-        return adapter.deleteCampaign(id);
-      },
+    getUserById: async (id: string): Promise<MarketingUser | null> => {
+      return adapter.getUserById(id);
     },
 
-    // Enhanced segment operations
-    segment: {
-      async create(
-        data: Omit<Segment, "id" | "createdAt" | "updatedAt">
-      ): Promise<Segment> {
-        const now = new Date();
-        const segment: Segment = {
-          id: generateId({ model: "segment" }),
-          ...data,
-          createdAt: now,
-          updatedAt: now,
-        };
+    updateUser: async (
+      id: string,
+      updates: Partial<MarketingUser>
+    ): Promise<MarketingUser> => {
+      const updatedUser = {
+        ...updates,
+        updatedAt: new Date(),
+      };
 
-        logger.debug(`Creating segment: ${segment.name}`);
-        return adapter.createSegment(segment);
-      },
-
-      async get(id: string): Promise<Segment | null> {
-        return adapter.getSegmentById(id);
-      },
-
-      async update(id: string, updates: Partial<Segment>): Promise<Segment> {
-        const updatedSegment = {
-          ...updates,
-          updatedAt: new Date(),
-        };
-
-        logger.debug(`Updating segment: ${id}`);
-        return adapter.updateSegment(id, updatedSegment);
-      },
-
-      async delete(id: string): Promise<void> {
-        logger.debug(`Deleting segment: ${id}`);
-        return adapter.deleteSegment(id);
-      },
-
-      async getUsers(segmentId: string): Promise<MarketingUser[]> {
-        logger.debug(`Getting users in segment: ${segmentId}`);
-        return adapter.getUsersInSegment(segmentId);
-      },
+      logger.debug(`Updating user: ${id}`);
+      return adapter.updateUser(id, updatedUser);
     },
 
-    // Utility methods
+    deleteUser: async (id: string): Promise<void> => {
+      logger.debug(`Deleting user: ${id}`);
+      return adapter.deleteUser(id);
+    },
+    // Event operations - flattened to match Better Auth pattern
+    createEvent: async (
+      data: Omit<MarketingEvent, "id" | "timestamp">
+    ): Promise<MarketingEvent> => {
+      const event: MarketingEvent = {
+        id: generateId({ model: "event" }),
+        ...data,
+        timestamp: new Date(),
+      };
+
+      logger.debug(
+        `Tracking event: ${event.eventName} for user: ${event.userId}`
+      );
+      return adapter.createEvent(event);
+    },
+
+    getEventsByUserId: async (
+      userId: string,
+      limit?: number
+    ): Promise<MarketingEvent[]> => {
+      logger.debug(`Finding events for user: ${userId}`);
+      return adapter.getEventsByUserId(userId);
+    },
+    // Campaign operations - flattened to match Better Auth pattern
+    createCampaign: async (
+      data: Omit<Campaign, "id" | "createdAt" | "updatedAt">
+    ): Promise<Campaign> => {
+      const now = new Date();
+      const campaign: Campaign = {
+        id: generateId({ model: "campaign" }),
+        ...data,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      logger.debug(`Creating campaign: ${campaign.name}`);
+      return adapter.createCampaign(campaign);
+    },
+
+    getCampaignById: async (id: string): Promise<Campaign | null> => {
+      return adapter.getCampaignById(id);
+    },
+
+    updateCampaign: async (
+      id: string,
+      updates: Partial<Campaign>
+    ): Promise<Campaign> => {
+      const updatedCampaign = {
+        ...updates,
+        updatedAt: new Date(),
+      };
+
+      logger.debug(`Updating campaign: ${id}`);
+      return adapter.updateCampaign(id, updatedCampaign);
+    },
+
+    deleteCampaign: async (id: string): Promise<void> => {
+      logger.debug(`Deleting campaign: ${id}`);
+      return adapter.deleteCampaign(id);
+    },
     raw: adapter,
   };
 }

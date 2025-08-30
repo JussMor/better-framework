@@ -11,7 +11,7 @@ export { betterMarketing, type BetterMarketingOptions } from "./marketing";
 
 // Database adapters
 // export { drizzleAdapter } from "./adapters/drizzle";
-export { kyselyAdapter } from "./adapters/kysely";
+// export { kyselyAdapter } from "./adapters/kysely";
 // export { mongooseAdapter } from "./adapters/mongoose";
 // export { prismaAdapter } from "./adapters/prisma";
 
@@ -48,6 +48,6 @@ export { kyselyAdapter } from "./adapters/kysely";
 
 // Utilities
 export * from "./api/call";
-export * from "./api/to-marketing-endpoints";
+export * from "./api/to-marketing-endpoints-hooks";
 export { generateApiKey } from "./crypto";
 export * from "./test";

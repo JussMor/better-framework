@@ -39,7 +39,7 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
         }
       }
 
-      const { handler } = router(ctx, ctx.options as any);
+      const { handler } = router(ctx, ctx.options);
       return handler(request);
     },
     api: api as InferAPI<typeof api>,
