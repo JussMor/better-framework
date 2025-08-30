@@ -1,12 +1,12 @@
 import { getEndpoints, router } from "./api";
 import { BetterMarketingError } from "./error";
 import { init } from "./init";
-import type { BetterMarketingOptions, InferAPI } from "./types";
+import type { BetterMarketingOptions } from "./types";
 import { getBaseURL, getOrigin } from "./utils/url";
 
-export const betterMarketing = <O extends BetterMarketingOptions>(
+export const betterMarketing = <O extends BetterMarketingOptions, A = any>(
   options: O & Record<never, never>
-) => {
+): import("./types").BetterMarketingInstance<O, A> => {
   const marketingContext = init(options as O);
   const { api } = getEndpoints(marketingContext, options as O);
 
@@ -42,7 +42,7 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
       const { handler } = router(ctx, ctx.options);
       return handler(request);
     },
-    api: api as InferAPI<typeof api>,
+    api: api as import("./types").InferAPI<typeof api>,
     $context: marketingContext,
     options: options as O,
   };

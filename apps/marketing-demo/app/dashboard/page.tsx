@@ -15,8 +15,6 @@ export default function Dashboard() {
         body: JSON.stringify({
           email: `user${Date.now()}@example.com`,
           firstName: "John",
-          lastName: "Doe",
-          properties: { signupSource: "dashboard-demo" },
         }),
       });
 

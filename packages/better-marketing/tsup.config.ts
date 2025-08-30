@@ -11,6 +11,7 @@ export default defineConfig({
     "src/types/index.ts",
     "src/adapters/memory/index.ts",
     "src/client/react/index.ts",
+    "src/integrations/nextjs/index.tsx",
   ],
   format: ["cjs", "esm"],
   dts: true,

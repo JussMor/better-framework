@@ -121,9 +121,7 @@ export function getEndpoints(
 
 export const router = (ctx: MarketingContext, options?: any) => {
   const { api, middlewares } = getEndpoints(ctx, options);
-  const basePath = new URL(
-    (ctx as any).options?.baseURL || (ctx as any).options?.basePath || "/"
-  ).pathname;
+  const basePath = (ctx as any).options?.basePath || "/api/marketing";
 
   return createRouter(api, {
     routerContext: ctx,
