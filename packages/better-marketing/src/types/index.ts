@@ -291,6 +291,7 @@ export interface BetterMarketingConfig {
   plugins?: MarketingPlugin[];
   secret: string;
   baseURL?: string;
+  basePath?: string;
   trustedOrigins?: string[];
   session?: {
     expiresIn?: number;
@@ -363,3 +364,34 @@ export interface MarketingAPI {
     sendBulk: (options: SendBulkSMSOptions) => Promise<BulkSMSResult>;
   };
 }
+
+// Additional types for Better Marketing
+export interface BetterMarketingOptions {
+  database?:
+    | DatabaseAdapter
+    | ((options: BetterMarketingOptions) => DatabaseAdapter);
+  emailProvider?: EmailProvider;
+  smsProvider?: SMSProvider;
+  analyticsProviders?: AnalyticsProvider[];
+  plugins?: MarketingPlugin[];
+  secret?: string;
+  baseURL?: string;
+  basePath?: string;
+  trustedOrigins?: string[];
+  session?: {
+    expiresIn?: number;
+    updateAge?: number;
+  };
+  rateLimit?: {
+    enabled?: boolean;
+    window?: number;
+    max?: number;
+  };
+  advanced?: {
+    generateId?: (options: { model: string; size?: number }) => string;
+  };
+  logger?: import("../utils/logger").LoggerOptions;
+}
+
+// Re-export for compatibility
+export type BetterMarketingPlugin = MarketingPlugin;

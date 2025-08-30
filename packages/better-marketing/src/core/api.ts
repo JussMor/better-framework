@@ -15,7 +15,8 @@ import { generateId, isValidEmail } from "./utils";
 
 export function createMarketingAPI(
   config: BetterMarketingConfig,
-  pluginManager: PluginManager
+  pluginManager: PluginManager,
+  internalAdapter?: any
 ): MarketingAPI {
   const {
     database,

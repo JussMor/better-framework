@@ -36,8 +36,15 @@ export function validateConfig(config: BetterMarketingConfig): void {
 /**
  * Generate a random ID
  */
-export function generateId(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+export function generateId(size?: number): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const targetSize = size || 16;
+  let result = "";
+  for (let i = 0; i < targetSize; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
 }
 
 /**
