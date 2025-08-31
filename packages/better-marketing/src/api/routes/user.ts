@@ -19,7 +19,7 @@ export const createUser = () =>
 
       // Use the internal adapter to create user
       const user = await ctx.context.internalAdapter.createUser({
-        id: ctx.context.generateId({ model: "user" }),
+        id: ctx.context.generateId({ model: "marketingUser" }),
         email: body.email,
         firstName: body.firstName,
         lastName: body.lastName,

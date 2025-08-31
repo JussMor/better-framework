@@ -34,11 +34,45 @@ export function createInternalAdapter(
           ...user,
           email: user.email?.toLowerCase(),
         },
-        "user",
+        "marketingUser",
         undefined,
         context
       );
       return createdUser as T & MarketingUser;
+    },
+
+    getUserById: async (id: string, context?: GenericEndpointContext) => {
+      const user = await adapter.findOne({
+        model: "marketingUser",
+        where: [{ field: "id", value: id }],
+      });
+      return user as MarketingUser | null;
+    },
+
+    updateUser: async <T>(
+      id: string,
+      updates: Partial<MarketingUser> & Record<string, any>,
+      context?: GenericEndpointContext
+    ) => {
+      const updatedUser = await updateWithHooks(
+        {
+          ...updates,
+          updatedAt: new Date(),
+        },
+        [{ field: "id", value: id }],
+        "marketingUser",
+        undefined,
+        context
+      );
+      return updatedUser as T & MarketingUser;
+    },
+
+    deleteUser: async (id: string, context?: GenericEndpointContext) => {
+      await adapter.delete({
+        model: "marketingUser",
+        where: [{ field: "id", value: id }],
+      });
+      return true;
     },
   };
 }

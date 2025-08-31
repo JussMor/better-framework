@@ -1,5 +1,6 @@
-import { APIError, type Middleware, createRouter } from "better-call";
+import { APIError, createRouter, type Middleware } from "better-call";
 import type { MarketingContext } from "../types";
+import { createMarketingMiddleware } from "./call";
 import { getAnalytics, trackEvent } from "./routes/analytics";
 import {
   createCampaign,
@@ -11,35 +12,45 @@ import { sendBulkEmail, sendEmail } from "./routes/email";
 import { createUser, deleteUser, getUser, updateUser } from "./routes/user";
 import { toMarketingEndpoints } from "./to-marketing-endpoints-hooks";
 
-function originCheckMiddlewareFactory(ctx: MarketingContext): Middleware {
-  const m: Middleware = async (
-    req: Request,
-    next: (r: Request) => Promise<Response>
-  ) => {
-    const origin = req.headers.get("Origin");
-    const corsHeaders: Record<string, string> = {
-      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    };
-    if (origin && ctx.options.trustedOrigins?.includes(origin)) {
-      // attach CORS header on the response via next
-      const res = await next(req);
-      res.headers.set("Access-Control-Allow-Origin", origin);
-      for (const [k, v] of Object.entries(corsHeaders)) {
-        res.headers.set(k, v);
-      }
-      return res;
+const originCheckMiddleware = createMarketingMiddleware(async (ctx) => {
+  if (ctx.request?.method !== "POST" || !ctx.request) {
+    return;
+  }
+
+  const origin =
+    ctx.headers?.get("origin") || ctx.headers?.get("referer") || "";
+  const { context } = ctx;
+  const trustedOrigins: string[] = Array.isArray(context.options.trustedOrigins)
+    ? context.options.trustedOrigins
+    : context.options.trustedOrigins || [];
+
+  const usesCookies = ctx.headers?.has("cookie");
+
+  const validateOrigin = (originToCheck: string) => {
+    if (!originToCheck) {
+      return;
     }
 
-    // Allow preflight without auth check
-    if (req.method === "OPTIONS") {
-      return new Response("", { status: 200, headers: corsHeaders });
-    }
+    const isTrustedOrigin = trustedOrigins.some(
+      (trustedOrigin) =>
+        originToCheck === trustedOrigin ||
+        originToCheck.endsWith(trustedOrigin.replace(/^https?:\/\//, ""))
+    );
 
-    return next(req);
+    if (!isTrustedOrigin) {
+      ctx.context.logger?.error(`Invalid origin: ${originToCheck}`);
+      ctx.context.logger?.info(
+        `If it's a valid URL, please add ${originToCheck} to trustedOrigins in your marketing config\n`,
+        `Current list of trustedOrigins: ${trustedOrigins}`
+      );
+      throw new APIError("FORBIDDEN", { message: "Invalid origin" });
+    }
   };
-  return m;
-}
+
+  if (usesCookies && !context.options.advanced?.disableCSRFCheck) {
+    validateOrigin(origin);
+  }
+});
 
 export function getEndpoints(
   ctx: Promise<MarketingContext> | MarketingContext,
@@ -130,7 +141,7 @@ export const router = (ctx: MarketingContext, options?: any) => {
     routerMiddleware: [
       {
         path: "/**",
-        middleware: originCheckMiddlewareFactory(ctx),
+        middleware: originCheckMiddleware,
       },
       ...middlewares,
     ],
