@@ -13,12 +13,12 @@ export default function Dashboard() {
 
   const createUser = async () => {
     try {
-      const { user } = await clientMk.api.user.create({
+      const createdUser = await clientMk.user.create({
         email: `user${Date.now()}@example.com`,
         firstName: "John",
       });
 
-      setUser(user);
+      setUser(createdUser);
       setMessage("User created successfully!");
       setMessageType("success");
     } catch (error) {
