@@ -478,30 +478,5 @@ export interface BetterMarketingOptions {
   databaseHooks?: MarketingDatabaseHooks;
 }
 
-// Utility type to infer API shape from endpoints
-export type InferAPI<T> =
-  T extends Record<string, any>
-    ? {
-        [K in keyof T]: T[K] extends (...args: any[]) => any
-          ? T[K]
-          : T[K] extends { handler: (...args: any[]) => any }
-            ? T[K]["handler"]
-            : T[K];
-      }
-    : T;
-
 // Re-export for compatibility
 export type BetterMarketingPlugin = MarketingPlugin;
-
-// Public type describing the runtime instance returned by `betterMarketing()`
-export interface BetterMarketingInstance<
-  O extends BetterMarketingOptions = BetterMarketingOptions,
-  A = any,
-> {
-  handler: (request: Request) => Promise<Response> | Promise<any>;
-  // Use a permissive api type here to avoid assignment issues from inferred internal
-  // declaration files. Consumers can still import specific types from the package.
-  api: any;
-  $context: Promise<MarketingContext> | MarketingContext;
-  options: O;
-}

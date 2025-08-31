@@ -5,12 +5,14 @@ import type {
 } from "@better-fetch/fetch";
 import type { Atom } from "nanostores";
 import { InferFieldsInputClient, InferFieldsOutput } from "../db/field";
+import type { Marketing } from "../marketing";
 import { BetterMarketingOptions, MarketingUser } from "../types";
 import type {
   LiteralString,
   StripEmptyObjects,
   UnionToIntersection,
 } from "../types/helper";
+import type { InferRoutes } from "./path-to-object";
 
 export interface ClientOptions {
   fetchOptions?: BetterFetchOption;
@@ -116,17 +118,25 @@ export type InferAdditionalFromClient<
  * into the inferred API shape. Otherwise, fall back to a minimal default
  * surface so the client remains useful without plugin types.
  */
-export type InferClientAPI<O extends ClientOptions> = O["plugins"] extends
-  | Array<infer P>
-  | undefined
-  ? UnionToIntersection<
-      P extends MarketingClientPlugin
-        ? P["$InferServerPlugin"] extends { endpoints: infer E }
-          ? E
-          : {}
-        : {}
-    >
-  : {};
+export type InferClientAPI<O extends ClientOptions> = InferRoutes<
+  O["plugins"] extends Array<any>
+    ? Marketing["api"] &
+        (O["plugins"] extends Array<infer Pl>
+          ? UnionToIntersection<
+              Pl extends {
+                $InferServerPlugin: infer Plug;
+              }
+                ? Plug extends {
+                    endpoints: infer Endpoints;
+                  }
+                  ? Endpoints
+                  : {}
+                : {}
+            >
+          : {})
+    : Marketing["api"],
+  O
+>;
 
 export type InferErrorCodes<O extends ClientOptions> = {};
 

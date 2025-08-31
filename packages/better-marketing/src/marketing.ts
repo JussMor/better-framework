@@ -1,12 +1,13 @@
 import { getEndpoints, router } from "./api";
 import { BetterMarketingError } from "./error";
 import { init } from "./init";
-import type { BetterMarketingOptions } from "./types";
+import type { BetterMarketingOptions, MarketingContext } from "./types";
+import { FilterActions, InferAPI } from "./types/api";
 import { getBaseURL, getOrigin } from "./utils/url";
 
-export const betterMarketing = <O extends BetterMarketingOptions, A = any>(
+export const betterMarketing = <O extends BetterMarketingOptions>(
   options: O & Record<never, never>
-): import("./types").BetterMarketingInstance<O, A> => {
+): Marketing => {
   const marketingContext = init(options as O);
   const { api } = getEndpoints(marketingContext, options as O);
 
@@ -42,10 +43,17 @@ export const betterMarketing = <O extends BetterMarketingOptions, A = any>(
       const { handler } = router(ctx, ctx.options);
       return handler(request);
     },
-    api: api as import("./types").InferAPI<typeof api>,
+    api: api as InferAPI<typeof api>,
     $context: marketingContext,
     options: options as O,
   };
+};
+
+export type Marketing = {
+  handler: (request: Request) => Promise<Response>;
+  api: FilterActions<ReturnType<typeof router>["endpoints"]>;
+  $context: Promise<MarketingContext>;
+  options: BetterMarketingOptions;
 };
 
 export type { BetterMarketingOptions };
