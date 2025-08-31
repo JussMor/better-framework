@@ -5,12 +5,25 @@ import type {
 } from "@better-fetch/fetch";
 import type { Atom } from "nanostores";
 import { InferFieldsInputClient, InferFieldsOutput } from "../db/field";
+import { Marketing } from "../marketing";
 import { BetterMarketingOptions, MarketingUser } from "../types";
 import type {
   LiteralString,
   StripEmptyObjects,
   UnionToIntersection,
 } from "../types/helper";
+import { InferRoutes } from "./path-to-object";
+
+export interface AtomListener {
+  matcher: (path: string) => boolean;
+  signal: "$sessionSignal" | Omit<string, "$sessionSignal">;
+}
+
+export interface Store {
+  notify: (signal: string) => void;
+  listen: (signal: string, listener: () => void) => void;
+  atoms: Record<string, Atom<any>>;
+}
 
 export interface ClientOptions {
   fetchOptions?: BetterFetchOption;
@@ -63,17 +76,6 @@ export interface MarketingClientPlugin {
   atomListeners?: AtomListener[];
 }
 
-export interface Store {
-  notify: (signal: string) => void;
-  listen: (signal: string, listener: () => void) => void;
-  atoms: Record<string, Atom<any>>;
-}
-
-export interface AtomListener {
-  matcher: (path: string) => boolean;
-  signal: "$sessionSignal" | Omit<string, "$sessionSignal">;
-}
-
 export type IsSignal<T> = T extends `$${string}` ? true : false;
 
 export type InferSessionFromClient<O extends ClientOptions> = StripEmptyObjects<
@@ -110,117 +112,54 @@ export type InferAdditionalFromClient<
       : {}
     : {};
 
-/**
- * Core marketing client API structure - directly mirrors server API
- */
-export interface MarketingClientAPI {
-  api: {
-    user: {
-      create: (data: {
-        email: string;
-        firstName?: string;
-        lastName?: string;
-        phone?: string;
-        properties?: Record<string, any>;
-      }) => Promise<{ user: any }>;
-      get: (id: string) => Promise<{ user: any }>;
-      update: (
-        id: string,
-        data: {
-          email?: string;
-          firstName?: string;
-          lastName?: string;
-          phone?: string;
-          properties?: Record<string, any>;
-        }
-      ) => Promise<{ user: any }>;
-      delete: (id: string) => Promise<{ success: boolean }>;
-    };
-    campaign: {
-      create: (data: {
-        name: string;
-        type: "email" | "sms";
-        subject?: string;
-        content: string;
-      }) => Promise<{ campaign: any }>;
-      get: (id: string) => Promise<{ campaign: any }>;
-      update: (
-        id: string,
-        data: {
-          name?: string;
-          type?: "email" | "sms";
-          subject?: string;
-          content?: string;
-        }
-      ) => Promise<{ campaign: any }>;
-      delete: (id: string) => Promise<{ success: boolean }>;
-    };
-    email: {
-      send: (data: {
-        to: string;
-        from: string;
-        subject: string;
-        html?: string;
-        text?: string;
-      }) => Promise<{ success: boolean; messageId?: string }>;
-      sendBulk: (data: {
-        emails: Array<{
-          to: string;
-          subject: string;
-          html?: string;
-          text?: string;
-        }>;
-        from: string;
-      }) => Promise<{ success: boolean; results: any[] }>;
-    };
-    track: (data: {
-      userId: string;
-      eventName: string;
-      properties?: Record<string, any>;
-    }) => Promise<{ success: boolean; eventId: string }>;
-    getAnalytics: (params?: any) => Promise<any>;
-  };
-}
-
-/**
- * Generic client API inference.
- */
-export type InferClientAPI<O extends ClientOptions> = MarketingClientAPI;
+export type InferClientAPI<O extends ClientOptions> = InferRoutes<
+  O["plugins"] extends Array<any>
+    ? Marketing["api"] &
+        (O["plugins"] extends Array<infer Pl>
+          ? UnionToIntersection<
+              Pl extends {
+                $InferServerPlugin: infer Plug;
+              }
+                ? Plug extends {
+                    endpoints: infer Endpoints;
+                  }
+                  ? Endpoints
+                  : {}
+                : {}
+            >
+          : {})
+    : Marketing["api"],
+  O
+>;
 
 export type InferErrorCodes<O extends ClientOptions> = {};
 
-export type InferActions<O extends ClientOptions> =
-  // Include the default marketing plugin actions
-  {
-    api: {
-      user: {
-        create: (data: any) => any;
-        get: (id: string) => any;
-        update: (id: string, data: any) => any;
-        delete: (id: string) => any;
-      };
-      campaign: {
-        create: (data: any) => any;
-        get: (id: string) => any;
-        update: (id: string, data: any) => any;
-        delete: (id: string) => any;
-      };
-      email: {
-        send: (data: any) => any;
-        sendBulk: (data: any) => any;
-      };
-      track: (data: any) => any;
-      getAnalytics: (params: any) => any;
-    };
-  } & (O["plugins"] extends Array<infer Plugin>
-    ? UnionToIntersection<
-        Plugin extends MarketingClientPlugin
-          ? Plugin["getActions"] extends (fetch: any) => infer Actions
-            ? Actions
-            : {}
+export type InferActions<O extends ClientOptions> = (O["plugins"] extends Array<
+  infer Plugin
+>
+  ? UnionToIntersection<
+      Plugin extends MarketingClientPlugin
+        ? Plugin["getActions"] extends (...args: any) => infer Actions
+          ? Actions
           : {}
-      >
-    : {});
+        : {}
+    >
+  : {}) &
+  //infer routes from marketing config
+  InferRoutes<
+    O["$InferMarketing"] extends {
+      plugins: infer Plugins;
+    }
+      ? Plugins extends Array<infer Plugin>
+        ? Plugin extends {
+            endpoints: infer Endpoints;
+          }
+          ? Endpoints
+          : {}
+        : {}
+      : {},
+    O
+  >;
 
 export type SessionQueryParams = {
   disableCookieCache?: boolean;

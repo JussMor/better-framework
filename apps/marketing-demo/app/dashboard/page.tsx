@@ -1,5 +1,6 @@
 "use client";
 
+import { clientMk } from "@/lib/marketing-client";
 import { useState } from "react";
 
 export default function Dashboard() {
@@ -12,27 +13,14 @@ export default function Dashboard() {
 
   const createUser = async () => {
     try {
-      const response = await fetch("/api/marketing/user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: `user${Date.now()}@example.com`,
-          firstName: "John",
-        }),
+      const { user } = await clientMk.api.user.create({
+        email: `user${Date.now()}@example.com`,
+        firstName: "John",
       });
 
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        setMessage("User created successfully!");
-        setMessageType("success");
-      } else {
-        const errorData = await response.json();
-        setMessage(
-          `Error creating user: ${errorData.message || response.statusText}`
-        );
-        setMessageType("error");
-      }
+      setUser(user);
+      setMessage("User created successfully!");
+      setMessageType("success");
     } catch (error) {
       setMessage("Error creating user");
       setMessageType("error");
@@ -48,31 +36,18 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch("/api/marketing/events", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: '222',
-          event: "button_clicked",
-          properties: {
-            button: "track_event",
-            timestamp: new Date().toISOString(),
-          },
-        }),
+      const eventData = await clientMk.api.track({
+        userId: user.id,
+        event: "button_clicked",
+        properties: {
+          button: "track_event",
+          timestamp: new Date().toISOString(),
+        },
       });
 
-      if (response.ok) {
-        const eventData = await response.json();
-        setEvents((prev) => [eventData, ...prev]);
-        setMessage("Event tracked successfully!");
-        setMessageType("success");
-      } else {
-        const errorData = await response.json();
-        setMessage(
-          `Error tracking event: ${errorData.message || response.statusText}`
-        );
-        setMessageType("error");
-      }
+      setEvents((prev) => [eventData, ...prev]);
+      setMessage("Event tracked successfully!");
+      setMessageType("success");
     } catch (error) {
       setMessage("Error tracking event");
       setMessageType("error");
@@ -88,31 +63,18 @@ export default function Dashboard() {
     }
 
     try {
-      const response = await fetch("/api/marketing/emails/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: "demo@example.com",
-          from: "demo@bettermarketing.dev",
-          subject: "Welcome to Better Marketing!",
-          content:
-            "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
-        }),
+      const result = await clientMk.api.email.send({
+        to: user.email,
+        from: "demo@bettermarketing.dev",
+        subject: "Welcome to Better Marketing!",
+        content:
+          "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setMessage(
-          `Email sent successfully! Message ID: ${result.messageId || "N/A"}`
-        );
-        setMessageType("success");
-      } else {
-        const errorData = await response.json();
-        setMessage(
-          `Error sending email: ${errorData.message || response.statusText}`
-        );
-        setMessageType("error");
-      }
+      setMessage(
+        `Email sent successfully! Message ID: ${result.messageId || "N/A"}`
+      );
+      setMessageType("success");
     } catch (error) {
       setMessage("Error sending email");
       setMessageType("error");
