@@ -1,12 +1,12 @@
 import type { BetterFetch, BetterFetchOption } from "@better-fetch/fetch";
 import type { Atom, PreinitializedWritableAtom } from "nanostores";
+import { isAtom } from "../utils/is-atom";
 import type { ProxyRequest } from "./path-to-object";
 import type { MarketingClientPlugin } from "./types";
-import { isAtom } from "../utils/is-atom";
 
 function getMethod(
   path: string,
-  knownPathMethods: Record<string, "POST" | "GET">,
+  knownPathMethods: Record<string, "POST" | "GET" | "PUT" | "DELETE">,
   args:
     | { fetchOptions?: BetterFetchOption; query?: Record<string, any> }
     | undefined
@@ -33,7 +33,7 @@ export type AuthProxySignal = {
 export function createDynamicPathProxy<T extends Record<string, any>>(
   routes: T,
   client: BetterFetch,
-  knownPathMethods: Record<string, "POST" | "GET">,
+  knownPathMethods: Record<string, "POST" | "GET" | "PUT" | "DELETE">,
   atoms: Record<string, Atom>,
   atomListeners: MarketingClientPlugin["atomListeners"]
 ): T {

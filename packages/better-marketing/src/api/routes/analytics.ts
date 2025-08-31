@@ -3,7 +3,7 @@ import { createMarketingEndpoint } from "../call";
 
 export const trackEvent = () =>
   createMarketingEndpoint(
-    "/events",
+    "/analytics/track",
     {
       method: "POST",
       body: z.object({
@@ -39,7 +39,7 @@ export const trackEvent = () =>
 
 export const getAnalytics = () =>
   createMarketingEndpoint(
-    "/analytics",
+    "/analytics/get",
     {
       method: "GET",
       query: z.object({

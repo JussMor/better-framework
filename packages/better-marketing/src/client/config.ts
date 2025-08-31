@@ -8,7 +8,7 @@ import type { AtomListener, ClientOptions } from "./types";
 export function getClientConfig(options?: ClientOptions) {
   /* check if the credentials property is supported. Useful for cf workers */
   const isCredentialsSupported = "credentials" in Request.prototype;
-  const baseURL = options?.baseURL || "";
+  const baseURL = options?.baseURL || "http://localhost:3000";
   const apiKey = options?.apiKey || "";
 
   const pluginsFetchPlugins =
@@ -77,11 +77,7 @@ export function getClientConfig(options?: ClientOptions) {
     $sessionSignal,
     session,
   } as Record<string, WritableAtom<any>>;
-  let pluginPathMethods: Record<string, "POST" | "GET"> = {
-    // Core marketing endpoints - these can be overridden by plugins
-    // "/api/track": "POST",
-    // "/api/identify": "POST",
-  };
+  let pluginPathMethods: Record<string, "POST" | "GET" | "PUT" | "DELETE"> = {};
   const atomListeners: AtomListener[] = [
     {
       signal: "$sessionSignal",
@@ -102,9 +98,9 @@ export function getClientConfig(options?: ClientOptions) {
     if (plugin.pathMethods) {
       Object.assign(pluginPathMethods, plugin.pathMethods);
     }
-    // if (plugin.atomListeners) {
-    //   atomListeners.push(...plugin.atomListeners);
-    // }
+    if (plugin.atomListeners) {
+      atomListeners.push(...plugin.atomListeners);
+    }
   }
 
   const $store = {

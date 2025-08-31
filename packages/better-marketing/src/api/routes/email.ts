@@ -3,7 +3,7 @@ import { createMarketingEndpoint } from "../call";
 
 export const sendEmail = () =>
   createMarketingEndpoint(
-    "/emails/send",
+    "/email/send",
     {
       method: "POST",
       body: z.object({

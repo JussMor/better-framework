@@ -1,5 +1,6 @@
 import type { PrettifyDeep, UnionToIntersection } from "../../types/helper";
 import { getClientConfig } from "../config";
+import { coreMarketingPlugin } from "../plugins";
 import { createDynamicPathProxy } from "../proxy";
 import type {
   ClientOptions,
@@ -9,8 +10,11 @@ import type {
   IsSignal,
   MarketingClientPlugin,
 } from "../types";
-import { capitalizeFirstLetter } from "../vanilla";
 import { useStore } from "./react-store";
+
+export function capitalizeFirstLetter(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 type InferResolvedHooks<O extends ClientOptions> =
   O["plugins"] extends Array<infer Plugin>
@@ -35,6 +39,16 @@ type InferResolvedHooks<O extends ClientOptions> =
 export function createMarketingClient<Option extends ClientOptions>(
   options?: Option
 ) {
+  // Include core marketing plugin by default unless disabled
+  const plugins = options?.disableCorePlugin
+    ? options?.plugins || []
+    : [coreMarketingPlugin(), ...(options?.plugins || [])];
+
+  const configOptions = {
+    ...options,
+    plugins,
+  };
+
   const {
     pluginPathMethods,
     pluginsActions,
@@ -42,7 +56,7 @@ export function createMarketingClient<Option extends ClientOptions>(
     $fetch,
     $store,
     atomListeners,
-  } = getClientConfig(options);
+  } = getClientConfig(configOptions);
 
   let resolvedHooks: Record<string, any> = {};
   for (const [key, value] of Object.entries(pluginsAtoms)) {

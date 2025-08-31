@@ -3,7 +3,7 @@ import { createMarketingEndpoint } from "../call";
 
 export const createCampaign = () =>
   createMarketingEndpoint(
-    "/campaign",
+    "/campaign/create",
     {
       method: "POST",
       body: z.object({
@@ -28,7 +28,7 @@ export const createCampaign = () =>
 
 export const getCampaign = () =>
   createMarketingEndpoint(
-    "/campaign/:id",
+    "/campaign/get/:id",
     {
       method: "GET",
       params: z.object({
@@ -52,7 +52,7 @@ export const getCampaign = () =>
 
 export const updateCampaign = () =>
   createMarketingEndpoint(
-    "/campaign/:id",
+    "/campaign/update/:id",
     {
       method: "PUT",
       params: z.object({
@@ -79,7 +79,7 @@ export const updateCampaign = () =>
 
 export const deleteCampaign = () =>
   createMarketingEndpoint(
-    "/campaign/:id",
+    "/campaign/delete/:id",
     {
       method: "DELETE",
       params: z.object({

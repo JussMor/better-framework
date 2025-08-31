@@ -3,7 +3,7 @@ import { createMarketingEndpoint } from "../call";
 
 export const createUser = () =>
   createMarketingEndpoint(
-    "/user",
+    "/user/create",
     {
       method: "POST",
       body: z.object({
@@ -40,7 +40,7 @@ export const createUser = () =>
 
 export const getUser = () =>
   createMarketingEndpoint(
-    "/user/:id",
+    "/user/get/:id",
     {
       method: "GET",
       params: z.object({
@@ -64,7 +64,7 @@ export const getUser = () =>
 
 export const updateUser = () =>
   createMarketingEndpoint(
-    "/user/:id",
+    "/user/update/:id",
     {
       method: "PUT",
       params: z.object({
@@ -107,7 +107,7 @@ export const updateUser = () =>
 
 export const deleteUser = () =>
   createMarketingEndpoint(
-    "/user/:id",
+    "/user/delete/:id",
     {
       method: "DELETE",
       params: z.object({
