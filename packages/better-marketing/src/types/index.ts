@@ -1,7 +1,9 @@
 /**
  * Core type definitions for Better Marketing
  */
-
+import type { Dialect, Kysely } from "kysely";
+import { AdapterDebugLogs } from "../adapters/create-adapter/types";
+import { KyselyDatabaseType } from "../adapters/kysely-adapter";
 import { PluginManager } from "../core";
 import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
@@ -449,7 +451,47 @@ export interface MarketingDatabaseHooks {
 
 // Additional types for Better Marketing
 export interface BetterMarketingOptions {
-  database?: AdapterInstance;
+  database?:
+    | Dialect
+    | AdapterInstance
+    | {
+        dialect: Dialect;
+        type: KyselyDatabaseType;
+        /**
+         * casing for table names
+         *
+         * @default "camel"
+         */
+        casing?: "snake" | "camel";
+        /**
+         * Enable debug logs for the adapter
+         *
+         * @default false
+         */
+        debugLogs?: AdapterDebugLogs;
+  }
+  		| {
+				/**
+				 * Kysely instance
+				 */
+				db: Kysely<any>;
+				/**
+				 * Database type between postgres, mysql and sqlite
+				 */
+				type: KyselyDatabaseType;
+				/**
+				 * casing for table names
+				 *
+				 * @default "camel"
+				 */
+				casing?: "snake" | "camel";
+				/**
+				 * Enable debug logs for the adapter
+				 *
+				 * @default false
+				 */
+				debugLogs?: AdapterDebugLogs;
+		  };;
   emailProvider?: EmailProvider;
   smsProvider?: SMSProvider;
   analyticsProviders?: AnalyticsProvider[];
