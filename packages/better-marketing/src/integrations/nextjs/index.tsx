@@ -1,8 +1,8 @@
-import type { BetterMarketingInstance } from "../../types";
+import { Marketing } from "../../marketing";
 
 export function toNextJsHandler(
   marketing:
-    | BetterMarketingInstance<any, any>
+    | Marketing
     | {
         handler: (request: Request) => Promise<Response>;
       }
