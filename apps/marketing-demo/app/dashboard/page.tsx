@@ -52,7 +52,7 @@ export default function Dashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user.id,
+          userId: '222',
           event: "button_clicked",
           properties: {
             button: "track_event",
@@ -92,7 +92,7 @@ export default function Dashboard() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: user.email,
+          to: "demo@example.com",
           from: "demo@bettermarketing.dev",
           subject: "Welcome to Better Marketing!",
           content:
