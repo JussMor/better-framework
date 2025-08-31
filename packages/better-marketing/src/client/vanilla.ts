@@ -1,5 +1,3 @@
-import type { BetterFetchError } from "@better-fetch/fetch";
-import type { Atom } from "nanostores";
 import type { PrettifyDeep, UnionToIntersection } from "../types/helper";
 import { getClientConfig } from "./config";
 import { createDynamicPathProxy } from "./proxy";
@@ -54,73 +52,6 @@ export function createMarketingClient<Option extends ClientOptions>(
     ...resolvedHooks,
     $fetch,
     $store,
-
-    // Core marketing client methods
-    track: async (eventName: string, properties?: Record<string, any>) => {
-      return $fetch("/api/track", {
-        method: "POST",
-        body: {
-          eventName,
-          properties,
-        },
-      });
-    },
-
-    identify: async (userId: string, traits?: Record<string, any>) => {
-      return $fetch("/api/identify", {
-        method: "POST",
-        body: {
-          userId,
-          traits,
-        },
-      });
-    },
-
-    // Authentication methods mirroring better-auth
-    signUp: {
-      email: async (
-        data: {
-          email: string;
-          password: string;
-          name?: string;
-          image?: string;
-          callbackURL?: string;
-        },
-        callbacks?: {
-          onRequest?: (ctx: any) => void;
-          onSuccess?: (ctx: any) => void;
-          onError?: (ctx: { error: { message: string } }) => void;
-        }
-      ) => {
-        try {
-          if (callbacks?.onRequest) {
-            callbacks.onRequest({});
-          }
-
-          const response = await $fetch("/api/auth/signup", {
-            method: "POST",
-            body: data,
-          });
-
-          if (callbacks?.onSuccess) {
-            callbacks.onSuccess({ data: response.data });
-          }
-
-          return response;
-        } catch (error: any) {
-          if (callbacks?.onError) {
-            callbacks.onError({
-              error: { message: error.message || "Sign up failed" },
-            });
-          }
-
-          return {
-            data: null,
-            error: error,
-          };
-        }
-      },
-    },
   };
 
   const proxy = createDynamicPathProxy(
@@ -128,20 +59,16 @@ export function createMarketingClient<Option extends ClientOptions>(
     $fetch,
     pluginPathMethods,
     pluginsAtoms,
-    atomListeners
+    Object.values(atomListeners)
   );
 
   type ClientAPI = InferClientAPI<Option>;
-  type UserData = { id: string; email: string; name?: string };
 
   return proxy as UnionToIntersection<InferResolvedHooks<Option>> &
     ClientAPI &
     InferActions<Option> & {
-      useSession: Atom<{
-        data: UserData | null;
-        error: BetterFetchError | null;
-        isPending: boolean;
-      }>;
+      // TODO: Session functionality not implemented yet - bypassing for now
+      // This should be inferred from plugins once session management is implemented
       $fetch: typeof $fetch;
       $store: typeof $store;
       $ERROR_CODES: PrettifyDeep<InferErrorCodes<Option>>;

@@ -1,75 +1,142 @@
 import { createFetch } from "@better-fetch/fetch";
-import type { Atom } from "nanostores";
+import type { WritableAtom } from "nanostores";
 import { atom } from "nanostores";
+import { redirectPlugin } from "./fetch-plugins";
+import { parseJSON } from "./parser";
 import type { AtomListener, ClientOptions } from "./types";
 
-export function getClientConfig(
-  options: ClientOptions = { baseURL: "", apiKey: "" }
-) {
-  const baseURL = options.baseURL || "";
-  const apiKey = options.apiKey || "";
+export function getClientConfig(options?: ClientOptions) {
+  /* check if the credentials property is supported. Useful for cf workers */
+  const isCredentialsSupported = "credentials" in Request.prototype;
+  const baseURL = options?.baseURL || "";
+  const apiKey = options?.apiKey || "";
 
-  const plugins = options.plugins || [];
+  const pluginsFetchPlugins =
+    options?.plugins
+      ?.flatMap((plugin) => plugin.fetchPlugins)
+      .filter((pl) => pl !== undefined) || [];
+
+  const lifeCyclePlugin = {
+    id: "lifecycle-hooks",
+    name: "lifecycle-hooks",
+    hooks: {
+      onSuccess: options?.fetchOptions?.onSuccess,
+      onError: options?.fetchOptions?.onError,
+      onRequest: options?.fetchOptions?.onRequest,
+      onResponse: options?.fetchOptions?.onResponse,
+    },
+  };
+
+  const { onSuccess, onError, onRequest, onResponse, ...restOfFetchOptions } =
+    options?.fetchOptions || {};
 
   const $fetch = createFetch({
     baseURL,
+    ...(isCredentialsSupported ? { credentials: "include" } : {}),
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "x-api-key": apiKey,
+      ...(apiKey && { "x-api-key": apiKey }),
     },
+    jsonParser(text) {
+      if (!text) {
+        return null as any;
+      }
+      return parseJSON(text, {
+        strict: false,
+      });
+    },
+    customFetchImpl: async (input, init) => {
+      try {
+        return await fetch(input, init);
+      } catch (error) {
+        return Response.error();
+      }
+    },
+    ...restOfFetchOptions,
+    plugins: [
+      lifeCyclePlugin,
+      ...(restOfFetchOptions.plugins || []),
+      ...(options?.disableDefaultFetchPlugins ? [] : [redirectPlugin]),
+      ...pluginsFetchPlugins,
+    ],
   });
 
-  // Plugin initialization and setup
-  let pluginsActions: Record<string, any> = {};
-  let pluginsAtoms: Record<string, Atom<any>> = {};
-  let pluginPathMethods: Record<string, any> = {};
-  let atomListeners: Record<string, AtomListener> = {};
-  let $store: Record<string, any> = {};
-
-  // Initialize session atom
+  // TODO: Session functionality not implemented yet - bypassing for now
+  // This should be properly implemented when session management is added
+  const $sessionSignal = atom(false);
   const session = atom({
     data: null,
     error: null,
     isPending: false,
   });
 
-  pluginsAtoms["session"] = session;
-  $store = { session };
+  const plugins = options?.plugins || [];
+  let pluginsActions = {} as Record<string, any>;
+  let pluginsAtoms = {
+    $sessionSignal,
+    session,
+  } as Record<string, WritableAtom<any>>;
+  let pluginPathMethods: Record<string, "POST" | "GET"> = {
+    // Core marketing endpoints - these can be overridden by plugins
+    // "/api/track": "POST",
+    // "/api/identify": "POST",
+  };
+  const atomListeners: AtomListener[] = [
+    {
+      signal: "$sessionSignal",
+      matcher(path) {
+        return (
+          path === "/api/track" ||
+          path === "/api/identify" ||
+          path.startsWith("/api/auth")
+        );
+      },
+    },
+  ];
 
-  // Initialize plugins
   for (const plugin of plugins) {
-    if (plugin.init) {
-      plugin.init($fetch);
-    }
-
-    if (plugin.getActions) {
-      const actions = plugin.getActions($fetch);
-      pluginsActions = { ...pluginsActions, ...actions };
-    }
-
     if (plugin.getAtoms) {
-      const atoms = plugin.getAtoms($fetch);
-      pluginsAtoms = { ...pluginsAtoms, ...atoms };
-      $store = { ...$store, ...atoms };
+      Object.assign(pluginsAtoms, plugin.getAtoms?.($fetch));
     }
-
-    if (plugin.getPathMethods) {
-      const pathMethods = plugin.getPathMethods($fetch);
-      pluginPathMethods = { ...pluginPathMethods, ...pathMethods };
+    if (plugin.pathMethods) {
+      Object.assign(pluginPathMethods, plugin.pathMethods);
     }
+    // if (plugin.atomListeners) {
+    //   atomListeners.push(...plugin.atomListeners);
+    // }
+  }
 
-    if (plugin.getAtomListeners) {
-      const listeners = plugin.getAtomListeners($fetch);
-      atomListeners = { ...atomListeners, ...listeners };
+  const $store = {
+    notify: (signal?: Omit<string, "$sessionSignal"> | "$sessionSignal") => {
+      pluginsAtoms[signal as keyof typeof pluginsAtoms].set(
+        !pluginsAtoms[signal as keyof typeof pluginsAtoms].get()
+      );
+    },
+    listen: (
+      signal: Omit<string, "$sessionSignal"> | "$sessionSignal",
+      listener: (value: boolean, oldValue?: boolean | undefined) => void
+    ) => {
+      pluginsAtoms[signal as keyof typeof pluginsAtoms].subscribe(listener);
+    },
+    atoms: pluginsAtoms,
+  };
+
+  for (const plugin of plugins) {
+    if (plugin.getActions) {
+      Object.assign(
+        pluginsActions,
+        plugin.getActions?.($fetch, $store, options)
+      );
     }
   }
 
   return {
-    pluginPathMethods,
     pluginsActions,
     pluginsAtoms,
+    pluginPathMethods,
+    atomListeners,
     $fetch,
     $store,
-    atomListeners,
   };
 }

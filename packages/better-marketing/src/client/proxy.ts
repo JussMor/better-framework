@@ -1,34 +1,114 @@
-import type { BetterFetch } from "@better-fetch/fetch";
-import type { Atom } from "nanostores";
-import type { AtomListener } from "./types";
+import type { BetterFetch, BetterFetchOption } from "@better-fetch/fetch";
+import type { Atom, PreinitializedWritableAtom } from "nanostores";
+import type { ProxyRequest } from "./path-to-object";
+import type { MarketingClientPlugin } from "./types";
+import { isAtom } from "../utils/is-atom";
 
-export function createDynamicPathProxy(
-  routes: Record<string, any>,
-  fetch: BetterFetch,
-  pathMethods: Record<string, any>,
-  atoms: Record<string, Atom<any>>,
-  atomListeners: Record<string, AtomListener>
+function getMethod(
+  path: string,
+  knownPathMethods: Record<string, "POST" | "GET">,
+  args:
+    | { fetchOptions?: BetterFetchOption; query?: Record<string, any> }
+    | undefined
 ) {
-  const handler = {
-    get: function (target: Record<string, any>, prop: string) {
-      if (prop in target) {
-        return target[prop];
-      }
+  const method = knownPathMethods[path];
+  const { fetchOptions, query, ...body } = args || {};
+  if (method) {
+    return method;
+  }
+  if (fetchOptions?.method) {
+    return fetchOptions.method;
+  }
+  if (body && Object.keys(body).length > 0) {
+    return "POST";
+  }
+  return "GET";
+}
 
-      if (prop in pathMethods) {
-        return new Proxy(
-          {},
-          {
-            get: function (_: any, methodName: string) {
-              return pathMethods[prop][methodName];
-            },
+export type AuthProxySignal = {
+  atom: PreinitializedWritableAtom<boolean>;
+  matcher: (path: string) => boolean;
+};
+
+export function createDynamicPathProxy<T extends Record<string, any>>(
+  routes: T,
+  client: BetterFetch,
+  knownPathMethods: Record<string, "POST" | "GET">,
+  atoms: Record<string, Atom>,
+  atomListeners: MarketingClientPlugin["atomListeners"]
+): T {
+  function createProxy(path: string[] = []): any {
+    return new Proxy(function () {}, {
+      get(target, prop: string) {
+        if (prop === "then" || prop === "catch" || prop === "finally") {
+          return undefined;
+        }
+        const fullPath = [...path, prop];
+        let current: any = routes;
+        for (const segment of fullPath) {
+          if (current && typeof current === "object" && segment in current) {
+            current = current[segment];
+          } else {
+            current = undefined;
+            break;
           }
-        );
-      }
-
-      return undefined;
-    },
-  };
-
-  return new Proxy(routes, handler);
+        }
+        if (typeof current === "function") {
+          return current;
+        }
+        if (isAtom(current)) {
+          return current;
+        }
+        return createProxy(fullPath);
+      },
+      apply: async (_, __, args) => {
+        const routePath =
+          "/" +
+          path
+            .map((segment) =>
+              segment.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
+            )
+            .join("/");
+        const arg = (args[0] || {}) as ProxyRequest;
+        const fetchOptions = (args[1] || {}) as BetterFetchOption;
+        const { query, fetchOptions: argFetchOptions, ...body } = arg;
+        const options = {
+          ...fetchOptions,
+          ...argFetchOptions,
+        } as BetterFetchOption;
+        const method = getMethod(routePath, knownPathMethods, arg);
+        return await client(routePath, {
+          ...options,
+          body:
+            method === "GET"
+              ? undefined
+              : {
+                  ...body,
+                  ...(options?.body || {}),
+                },
+          query: query || options?.query,
+          method,
+          async onSuccess(context) {
+            await options?.onSuccess?.(context);
+            /**
+             * We trigger listeners
+             */
+            const matches = atomListeners?.find((s) => s.matcher(routePath));
+            if (!matches) return;
+            const signal = atoms[matches.signal as any];
+            if (!signal) return;
+            /**
+             * To avoid race conditions we set the signal in a setTimeout
+             */
+            const val = signal.get();
+            setTimeout(() => {
+              //@ts-expect-error
+              signal.set(!val);
+            }, 10);
+          },
+        });
+      },
+    });
+  }
+  return createProxy() as T;
 }

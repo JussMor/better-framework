@@ -9,4 +9,4 @@ export * from "./vanilla";
 export { createMarketingClient } from "./vanilla";
 
 // Also provide access to the React-specific client
-export { createAuthClient as createReactAuthClient } from "./react";
+export { createMarketingClient as createReactMarketingClient } from "./react";
