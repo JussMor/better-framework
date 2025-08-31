@@ -26,6 +26,17 @@ export interface MarketingEvent {
   source?: string;
 }
 
+export interface MarketingEmail {
+  id: string;
+  to: string;
+  from: string;
+  subject: string;
+  content: string;
+  status: "sent" | "failed" | "pending";
+  messageId?: string;
+  createdAt: Date;
+}
+
 export interface Campaign {
   id: string;
   name: string;
@@ -229,6 +240,46 @@ export const marketingSchema = {
         defaultValue: () => new Date(),
       },
       updatedAt: {
+        type: "date" as const,
+        required: true,
+        defaultValue: () => new Date(),
+      },
+    } satisfies Record<string, FieldAttribute>,
+  },
+  marketingEmail: {
+    modelName: "marketing_emails",
+    fields: {
+      id: {
+        type: "string" as const,
+        required: true,
+        unique: true,
+      },
+      to: {
+        type: "string" as const,
+        required: true,
+      },
+      from: {
+        type: "string" as const,
+        required: true,
+      },
+      subject: {
+        type: "string" as const,
+        required: true,
+      },
+      content: {
+        type: "string" as const,
+        required: true,
+      },
+      status: {
+        type: "string" as const,
+        required: true,
+        defaultValue: "pending",
+      },
+      messageId: {
+        type: "string" as const,
+        required: false,
+      },
+      createdAt: {
         type: "date" as const,
         required: true,
         defaultValue: () => new Date(),

@@ -17,6 +17,10 @@ export interface MarketingDbSchema {
     tableName: string;
     fields: Record<string, any>;
   };
+  marketingEmail: {
+    tableName: string;
+    fields: Record<string, any>;
+  };
   campaign: {
     tableName: string;
     fields: Record<string, any>;
@@ -55,6 +59,19 @@ export function getMarketingTables(
         timestamp: { type: "date", required: true },
         sessionId: { type: "string", required: false },
         source: { type: "string", required: false },
+      },
+    },
+    marketingEmail: {
+      tableName: "marketing_emails",
+      fields: {
+        id: { type: "string", required: true, unique: true },
+        to: { type: "string", required: true },
+        from: { type: "string", required: true },
+        subject: { type: "string", required: true },
+        content: { type: "string", required: true },
+        status: { type: "string", required: true },
+        messageId: { type: "string", required: false },
+        createdAt: { type: "date", required: true },
       },
     },
     campaign: {

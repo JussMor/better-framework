@@ -20,6 +20,13 @@ export function createInternalAdapter(
     getWithHooks(adapter, ctx);
 
   return {
+    // Generic operations with hooks
+    // this should not be here endpoint using this directly must 
+    // go to an internal behaviour
+    createWithHooks,
+    updateWithHooks,
+    updateManyWithHooks,
+
     // User operations - flattened to match Better Auth pattern
     createUser: async <T>(
       user: Omit<MarketingUser, "id" | "createdAt" | "updatedAt"> &

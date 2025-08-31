@@ -3,7 +3,7 @@ import { createMarketingEndpoint } from "../call";
 
 export const trackEvent = () =>
   createMarketingEndpoint(
-    "/analytics/track",
+    "/events",
     {
       method: "POST",
       body: z.object({
@@ -13,10 +13,26 @@ export const trackEvent = () =>
       }),
     },
     async (ctx) => {
-      // Placeholder implementation
+      const { body } = ctx;
+
+      // Create event record in database
+      const event = await ctx.context.internalAdapter.createWithHooks(
+        {
+          id: ctx.context.generateId({ model: "marketingEvent" }),
+          userId: body.userId,
+          eventName: body.event,
+          properties: body.properties || {},
+          timestamp: new Date(),
+        },
+        "marketingEvent"
+      );
+
+      // Execute plugin hooks for event tracking
+      await ctx.context.pluginManager.executeEventTrackedHooks?.(event);
+
       return {
         success: true,
-        eventId: ctx.context.generateId({ model: "event" }),
+        eventId: event.id,
       };
     }
   );

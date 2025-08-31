@@ -6,6 +6,9 @@ export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success"
+  );
 
   const createUser = async () => {
     try {
@@ -18,11 +21,21 @@ export default function Dashboard() {
         }),
       });
 
-      const userData = await response.json();
-      setUser(userData);
-      setMessage("User created successfully!");
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        setMessage("User created successfully!");
+        setMessageType("success");
+      } else {
+        const errorData = await response.json();
+        setMessage(
+          `Error creating user: ${errorData.message || response.statusText}`
+        );
+        setMessageType("error");
+      }
     } catch (error) {
       setMessage("Error creating user");
+      setMessageType("error");
       console.error(error);
     }
   };
@@ -30,6 +43,7 @@ export default function Dashboard() {
   const trackEvent = async () => {
     if (!user) {
       setMessage("Please create a user first");
+      setMessageType("error");
       return;
     }
 
@@ -39,7 +53,7 @@ export default function Dashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
-          eventName: "button_clicked",
+          event: "button_clicked",
           properties: {
             button: "track_event",
             timestamp: new Date().toISOString(),
@@ -47,11 +61,21 @@ export default function Dashboard() {
         }),
       });
 
-      const eventData = await response.json();
-      setEvents((prev) => [eventData, ...prev]);
-      setMessage("Event tracked successfully!");
+      if (response.ok) {
+        const eventData = await response.json();
+        setEvents((prev) => [eventData, ...prev]);
+        setMessage("Event tracked successfully!");
+        setMessageType("success");
+      } else {
+        const errorData = await response.json();
+        setMessage(
+          `Error tracking event: ${errorData.message || response.statusText}`
+        );
+        setMessageType("error");
+      }
     } catch (error) {
       setMessage("Error tracking event");
+      setMessageType("error");
       console.error(error);
     }
   };
@@ -59,26 +83,39 @@ export default function Dashboard() {
   const sendEmail = async () => {
     if (!user) {
       setMessage("Please create a user first");
+      setMessageType("error");
       return;
     }
 
     try {
-      const response = await fetch("/api/marketing/email/send", {
+      const response = await fetch("/api/marketing/emails/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           to: user.email,
           from: "demo@bettermarketing.dev",
           subject: "Welcome to Better Marketing!",
-          html: "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
-          text: "Welcome! Thank you for trying Better Marketing.",
+          content:
+            "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
         }),
       });
 
-      const result = await response.json();
-      setMessage(`Email sent successfully! Message ID: ${result.messageId}`);
+      if (response.ok) {
+        const result = await response.json();
+        setMessage(
+          `Email sent successfully! Message ID: ${result.messageId || "N/A"}`
+        );
+        setMessageType("success");
+      } else {
+        const errorData = await response.json();
+        setMessage(
+          `Error sending email: ${errorData.message || response.statusText}`
+        );
+        setMessageType("error");
+      }
     } catch (error) {
       setMessage("Error sending email");
+      setMessageType("error");
       console.error(error);
     }
   };
@@ -88,7 +125,9 @@ export default function Dashboard() {
       <h1 className="text-3xl font-bold">Marketing Dashboard</h1>
 
       {message && (
-        <div className="p-4 bg-blue-100 border border-blue-400 rounded">
+        <div
+          className={`p-4 rounded ${messageType === "success" ? "bg-green-100 border border-green-400 text-green-700" : "bg-red-100 border border-red-400 text-red-700"}`}
+        >
           {message}
         </div>
       )}
@@ -103,7 +142,6 @@ export default function Dashboard() {
           >
             Create Test User
           </button>
-
           <button
             onClick={trackEvent}
             disabled={!user}
@@ -152,7 +190,7 @@ export default function Dashboard() {
             {events.map((event, index) => (
               <div key={index} className="p-4 bg-gray-100 rounded">
                 <p>
-                  <strong>Event:</strong> {event.eventName}
+                  <strong>Event:</strong> {event.eventName || event.event}
                 </p>
                 <p>
                   <strong>User:</strong> {event.userId}

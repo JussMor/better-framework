@@ -13,6 +13,17 @@ export * from "./adapter";
 export * from "./context";
 export * from "./helper";
 
+export type Models =
+  | "marketingUser"
+  | "marketingEvent"
+  | "marketingEmail"
+  | "campaign"
+  | "segment"
+  | "user"
+  | "account"
+  | "session"
+  | "verification";
+
 export interface MarketingUser {
   id: string;
   email: string;
@@ -33,6 +44,17 @@ export interface MarketingEvent {
   timestamp: Date;
   sessionId?: string;
   source?: string;
+}
+
+export interface MarketingEmail {
+  id: string;
+  to: string;
+  from: string;
+  subject: string;
+  content: string;
+  status: "sent" | "failed" | "pending";
+  messageId?: string;
+  createdAt: Date;
 }
 
 export interface Campaign {
@@ -267,6 +289,84 @@ export interface MarketingContext {
 
 // Database hooks for marketing operations
 export interface MarketingDatabaseHooks {
+  marketingUser?: {
+    create?: {
+      before?: (
+        user: MarketingUser & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+      >;
+      after?: (
+        user: MarketingUser & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+    update?: {
+      before?: (
+        userData: Partial<MarketingUser & Record<string, unknown>>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+      >;
+      after?: (
+        user: MarketingUser & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+  };
+  marketingEvent?: {
+    create?: {
+      before?: (
+        event: MarketingEvent & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingEvent & Record<string, unknown>> }
+      >;
+      after?: (
+        event: MarketingEvent & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+    update?: {
+      before?: (
+        eventData: Partial<MarketingEvent & Record<string, unknown>>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingEvent & Record<string, unknown>> }
+      >;
+      after?: (
+        event: MarketingEvent & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+  };
+  marketingEmail?: {
+    create?: {
+      before?: (
+        email: MarketingEmail & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingEmail & Record<string, unknown>> }
+      >;
+      after?: (
+        email: MarketingEmail & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+    update?: {
+      before?: (
+        emailData: Partial<MarketingEmail & Record<string, unknown>>,
+        context?: GenericEndpointContext
+      ) => Promise<
+        boolean | { data: Partial<MarketingEmail & Record<string, unknown>> }
+      >;
+      after?: (
+        email: MarketingEmail & Record<string, unknown>,
+        context?: GenericEndpointContext
+      ) => Promise<void> | void;
+    };
+  };
   user?: {
     create?: {
       before?: (

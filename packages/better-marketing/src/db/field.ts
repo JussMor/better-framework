@@ -1,12 +1,13 @@
 import type { ZodSchema } from "zod/v4";
-import type { LiteralString } from "../types/helper";
 import { BetterMarketingOptions } from "../types";
+import type { LiteralString } from "../types/helper";
 
 export type FieldType =
   | "string"
   | "number"
   | "boolean"
   | "date"
+  | "json"
   | `${"string" | "number"}[]`
   | Array<LiteralString>;
 
