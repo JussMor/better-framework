@@ -1,9 +1,9 @@
-import { PluginManager } from "./core/plugin-manager";
+import defu from "defu";
 import { generateId, validateConfig } from "./core/utils";
 import { getMarketingTables } from "./db/get-tables";
 import { createInternalAdapter } from "./db/internal-adapter";
 import { getMarketingAdapter } from "./db/utils";
-import type { BetterMarketingOptions } from "./types";
+import type { BetterMarketingOptions, MarketingContext } from "./types";
 import { DEFAULT_SECRET } from "./utils/constants";
 import { env, isProduction } from "./utils/env";
 import { createLogger } from "./utils/logger";
@@ -46,8 +46,6 @@ export const init = async (options: BetterMarketingOptions) => {
     plugins,
   };
 
-
-
   // Validate configuration
   validateConfig(processedOptions);
 
@@ -61,9 +59,6 @@ export const init = async (options: BetterMarketingOptions) => {
   // Get database tables schema
   const tables = getMarketingTables(processedOptions);
 
-  // Initialize plugin manager
-  const pluginManager = new PluginManager(plugins);
-
   // Create internal adapter with enhanced functionality
   const internalAdapter = createInternalAdapter(adapter, {
     options: processedOptions,
@@ -74,10 +69,11 @@ export const init = async (options: BetterMarketingOptions) => {
     generateId: generateIdFunc,
   });
 
-  return {
+  let ctx: MarketingContext = {
+    appName: (options as any).appName || "better-marketing",
+    session: null,
     adapter,
     internalAdapter,
-    pluginManager,
     options: processedOptions,
     secret,
     generateId: generateIdFunc,
@@ -85,4 +81,45 @@ export const init = async (options: BetterMarketingOptions) => {
     logger,
     baseURL: processedOptions.baseURL,
   };
+
+  const { context: pluginContext } = runPluginInit(ctx);
+
+  return pluginContext;
 };
+
+function runPluginInit(ctx: MarketingContext) {
+  let options = ctx.options;
+  const plugins = options.plugins || [];
+  let context: MarketingContext = ctx;
+  const dbHooks: BetterMarketingOptions["databaseHooks"][] = [];
+  for (const plugin of plugins) {
+    if (plugin.init) {
+      const result = plugin.init(context);
+      if (typeof result === "object") {
+        if (result.options) {
+          const { databaseHooks, ...restOpts } = result.options;
+          if (databaseHooks) {
+            dbHooks.push(databaseHooks);
+          }
+          options = defu(options, restOpts);
+        }
+        if (result.context) {
+          context = {
+            ...context,
+            ...(result.context as Partial<MarketingContext>),
+          };
+        }
+      }
+    }
+  }
+  // Add the global database hooks last
+  dbHooks.push(options.databaseHooks);
+  context.internalAdapter = createInternalAdapter(ctx.adapter, {
+    options,
+    logger: ctx.logger,
+    hooks: dbHooks.filter((u) => u !== undefined),
+    generateId: ctx.generateId,
+  });
+  context.options = options;
+  return { context };
+}

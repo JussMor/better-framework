@@ -1,5 +1,5 @@
 import { HIDE_METADATA } from "../../utils/hide-metadata";
-import { createAuthEndpoint } from "../call";
+import { createMarketingEndpoint } from "../call";
 
 function sanitize(input: string): string {
 	return input
@@ -93,7 +93,7 @@ const html = (errorCode: string = "Unknown") => `<!DOCTYPE html>
     </div>
 </body>
 </html>`;
-export const error = createAuthEndpoint(
+export const error = createMarketingEndpoint(
 	"/error",
 	{
 		method: "GET",

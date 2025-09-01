@@ -3,14 +3,14 @@ import type { MarketingContext } from "../types";
 import { createMarketingMiddleware } from "./call";
 import { ok } from "./routes/ok";
 import { error } from "./routes/error";
-import { getAnalytics, trackEvent } from "./routes/analytics";
-import {
-  createCampaign,
-  deleteCampaign,
-  getCampaign,
-  updateCampaign,
-} from "./routes/campaign";
-import { sendBulkEmail, sendEmail } from "./routes/email";
+// import { getAnalytics, trackEvent } from "./routes/analytics";
+// import {
+//   createCampaign,
+//   deleteCampaign,
+//   getCampaign,
+//   updateCampaign,
+// } from "./routes/campaign";
+// import { sendBulkEmail, sendEmail } from "./routes/email";
 import { createUser, deleteUser, getUser, updateUser } from "./routes/user";
 import { toMarketingEndpoints } from "./to-marketing-endpoints";
 
@@ -100,19 +100,19 @@ export function getEndpoints(
     updateUser: updateUser(),
     deleteUser: deleteUser(),
 
-    // Campaign management
-    createCampaign: createCampaign(),
-    getCampaign: getCampaign(),
-    updateCampaign: updateCampaign(),
-    deleteCampaign: deleteCampaign(),
+    // // Campaign management
+    // createCampaign: createCampaign(),
+    // getCampaign: getCampaign(),
+    // updateCampaign: updateCampaign(),
+    // deleteCampaign: deleteCampaign(),
 
-    // Email operations
-    sendEmail: sendEmail(),
-    sendBulkEmail: sendBulkEmail(),
+    // // Email operations
+    // sendEmail: sendEmail(),
+    // sendBulkEmail: sendBulkEmail(),
 
-    // Analytics
-    trackEvent: trackEvent(),
-    getAnalytics: getAnalytics(),
+    // // Analytics
+    // trackEvent: trackEvent(),
+    // getAnalytics: getAnalytics(),
   };
 
   const endpoints = {

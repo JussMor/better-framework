@@ -9,7 +9,6 @@ import { DatabaseSync } from "node:sqlite";
 import { AdapterDebugLogs } from "../adapters/create-adapter/types";
 import { KyselyDatabaseType } from "../adapters/kysely-adapter";
 import { MarketingMiddleware } from "../api/call";
-import { PluginManager } from "../core";
 import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import type { Logger } from "../utils/logger";
@@ -263,7 +262,6 @@ export interface MarketingContext {
   } | null;
   adapter: Adapter;
   internalAdapter: ReturnType<typeof createInternalAdapter>;
-  pluginManager: PluginManager;
   options: BetterMarketingOptions;
   secret: string;
   generateId: (options: {

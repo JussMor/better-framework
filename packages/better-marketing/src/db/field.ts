@@ -19,7 +19,9 @@ type Primitive =
   | null
   | undefined
   | string[]
-  | number[];
+  | number[]
+  | Record<string, any>
+  | any[];
 
 export type FieldAttributeConfig<T extends FieldType = FieldType> = {
   /**
@@ -55,8 +57,8 @@ export type FieldAttributeConfig<T extends FieldType = FieldType> = {
    * transform the value before storing it.
    */
   transform?: {
-    input?: (value: Primitive) => Primitive | Promise<Primitive>;
-    output?: (value: Primitive) => Primitive | Promise<Primitive>;
+    input?: (value: any) => Primitive | Promise<Primitive>;
+    output?: (value: any) => Primitive | Promise<Primitive>;
   };
   /**
    * Reference to another model.

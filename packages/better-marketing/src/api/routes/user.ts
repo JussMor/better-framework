@@ -18,8 +18,16 @@ export const createUser = () =>
       const { body } = ctx;
 
       // Use the internal adapter to create user
+      const generatedId = ctx.context.generateId({ model: "marketingUser" });
+      const fallbackId = ctx.context.generateId({
+        model: "marketingUser",
+        size: 16,
+      });
       const user = await ctx.context.internalAdapter.createUser({
-        id: ctx.context.generateId({ model: "marketingUser" }),
+        id:
+          (typeof generatedId === "string" && generatedId) ||
+          (typeof fallbackId === "string" && fallbackId) ||
+          "mk_" + Math.random().toString(36).slice(2, 10),
         email: body.email,
         firstName: body.firstName,
         lastName: body.lastName,
@@ -28,9 +36,6 @@ export const createUser = () =>
         createdAt: new Date(),
         updatedAt: new Date(),
       });
-
-      // Execute plugin hooks
-      await ctx.context.pluginManager.executeUserCreatedHooks?.(user);
 
       return {
         user,
@@ -93,12 +98,6 @@ export const updateUser = () =>
         updatedAt: new Date(),
       });
 
-      // Execute plugin hooks
-      await ctx.context.pluginManager.executeUserUpdatedHooks?.(
-        user,
-        existingUser
-      );
-
       return {
         user,
       };
@@ -124,9 +123,6 @@ export const deleteUser = () =>
       }
 
       await ctx.context.internalAdapter.deleteUser(id);
-
-      // Execute plugin hooks
-      await ctx.context.pluginManager.executeUserDeletedHooks?.(user);
 
       return {
         success: true,

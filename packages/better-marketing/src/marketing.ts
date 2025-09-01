@@ -8,12 +8,12 @@ import { getBaseURL, getOrigin } from "./utils/url";
 export const betterMarketing = <O extends BetterMarketingOptions>(
   options: O & Record<never, never>
 ): Marketing => {
-  const marketingContext = init(options as O);
-  const { api } = getEndpoints(marketingContext, options as O);
+  const marketingContextPromise = init(options as O);
+  const { api } = getEndpoints(marketingContextPromise, options as O);
 
   return {
     handler: async (request: Request) => {
-      const ctx = await marketingContext;
+      const ctx = await marketingContextPromise;
       const basePath = ctx.options.basePath || "/api/marketing";
 
       if (!ctx.options.baseURL) {
@@ -44,7 +44,7 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
       return handler(request);
     },
     api: api as InferAPI<typeof api>,
-    $context: marketingContext,
+    $context: marketingContextPromise,
     options: options as O,
   };
 };

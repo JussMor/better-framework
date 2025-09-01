@@ -2,6 +2,7 @@ import type {
   Adapter,
   BetterMarketingOptions,
   GenericEndpointContext,
+  MarketingDatabaseHooks,
   Models,
   Where,
 } from "../types";
@@ -14,6 +15,7 @@ export function getWithHooks(
   }
 ) {
   const hooks = ctx.hooks;
+  type HookModels = keyof MarketingDatabaseHooks;
   type BaseModels = Extract<
     Models,
     | "user"
@@ -25,7 +27,12 @@ export function getWithHooks(
     | "marketingEmail"
     | "campaign"
     | "segment"
-  >;
+  > &
+    HookModels;
+
+  const getHook = (hookObj: MarketingDatabaseHooks, model: BaseModels) => {
+    return hookObj[model as HookModels];
+  };
   async function createWithHooks<T extends Record<string, any>>(
     data: T,
     model: BaseModels,
@@ -37,7 +44,7 @@ export function getWithHooks(
   ) {
     let actualData = data;
     for (const hook of hooks || []) {
-      const toRun = hook[model]?.create?.before;
+      const toRun = getHook(hook, model)?.create?.before;
       if (toRun) {
         const result = await toRun(actualData as any, context);
         if (result === false) {
@@ -66,7 +73,7 @@ export function getWithHooks(
         : customCreated;
 
     for (const hook of hooks || []) {
-      const toRun = hook[model]?.create?.after;
+      const toRun = getHook(hook, model)?.create?.after;
       if (toRun) {
         await toRun(created as any, context);
       }
@@ -88,7 +95,7 @@ export function getWithHooks(
     let actualData = data;
 
     for (const hook of hooks || []) {
-      const toRun = hook[model]?.update?.before;
+      const toRun = getHook(hook, model)?.update?.before;
       if (toRun) {
         const result = await toRun(data as any, context);
         if (result === false) {
@@ -113,7 +120,7 @@ export function getWithHooks(
         : customUpdated;
 
     for (const hook of hooks || []) {
-      const toRun = hook[model]?.update?.after;
+      const toRun = getHook(hook, model)?.update?.after;
       if (toRun) {
         await toRun(updated as any, context);
       }
@@ -134,7 +141,7 @@ export function getWithHooks(
     let actualData = data;
 
     for (const hook of hooks || []) {
-      const toRun = hook[model]?.update?.before;
+      const toRun = getHook(hook, model)?.update?.before;
       if (toRun) {
         const result = await toRun(data as any, context);
         if (result === false) {
@@ -159,7 +166,7 @@ export function getWithHooks(
         : customUpdated;
 
     for (const hook of hooks || []) {
-      const toRun = hook[model]?.update?.after;
+      const toRun = getHook(hook, model)?.update?.after;
       if (toRun) {
         await toRun(updated as any, context);
       }
