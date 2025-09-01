@@ -82,9 +82,7 @@ export function getClientConfig(options?: ClientOptions) {
       signal: "$sessionSignal",
       matcher(path) {
         return (
-          path === "/api/track" ||
-          path === "/api/identify" ||
-          path.startsWith("/api/auth")
+          path === "/user/create" 
         );
       },
     },

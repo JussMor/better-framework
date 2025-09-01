@@ -115,18 +115,16 @@ export function getEndpoints(
 
   const endpoints = {
     ...baseEndpoints,
-    ...(pluginEndpoints || {}),
-  } as Record<string, any>;
+    ...pluginEndpoints,
+    ok,
+    error
+  } ;
 
-  const api = toMarketingEndpoints(
-    { ...(endpoints as any) } as any,
-    ctx as any
-  );
+  const api = toMarketingEndpoints(endpoints , ctx);
 
   return {
     api: api as typeof endpoints,
     middlewares,
-    baseApi: baseEndpoints,
   };
 }
 

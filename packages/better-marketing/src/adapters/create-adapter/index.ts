@@ -65,15 +65,8 @@ export const createAdapter =
       supportsNumericIds: cfg.supportsNumericIds ?? true,
     };
 
-    const databaseOptions =
-      typeof options.database === "object" &&
-      !("name" in options.database) &&
-      !("createUser" in options.database)
-        ? options.database
-        : {};
-
-    if (
-      databaseOptions.useNumberId === true &&
+		if (
+      options.advanced?.database?.useNumberId === true &&
       config.supportsNumericIds === false
     ) {
       throw new Error(
@@ -256,18 +249,18 @@ export const createAdapter =
     }) => {
       const shouldGenerateId =
         !config.disableIdGeneration &&
-        !databaseOptions.useNumberId &&
+        !options.advanced?.database?.useNumberId &&
         !forceAllowId;
       const model = getDefaultModelName(customModelName ?? "id");
       return {
-        type: databaseOptions.useNumberId ? "number" : "string",
+        type: !options.advanced?.database?.useNumberId ? "number" : "string",
         required: shouldGenerateId ? true : false,
         ...(shouldGenerateId
           ? {
               defaultValue() {
                 if (config.disableIdGeneration) return undefined;
-                const useNumberId = databaseOptions.useNumberId;
-                let generateId = databaseOptions.generateId;
+                const useNumberId = !options.advanced?.database?.useNumberId;
+                let generateId = options.advanced?.database?.generateId;
 
                 if (!generateId || useNumberId) return undefined;
                 if (generateId) {
@@ -324,7 +317,10 @@ export const createAdapter =
       const fields = schema[unsafe_model].fields;
       const newMappedKeys = config.mapKeysTransformInput ?? {};
 
-      if (!config.disableIdGeneration && !databaseOptions.useNumberId) {
+      if (
+        !config.disableIdGeneration &&
+        !options.advanced?.database?.useNumberId
+      ) {
         fields.id = idField({
           customModelName: unsafe_model,
           forceAllowId: forceAllowId && "id" in data,
@@ -358,7 +354,7 @@ export const createAdapter =
 
         if (
           fieldAttributes.references?.field === "id" &&
-          databaseOptions.useNumberId
+          options.advanced?.database?.useNumberId
         ) {
           if (Array.isArray(newValue)) {
             newValue = newValue.map(Number);
@@ -368,7 +364,6 @@ export const createAdapter =
         } else if (
           config.supportsJSON === false &&
           typeof newValue === "object" &&
-          //@ts-expect-error -Future proofing
           fieldAttributes.type === "json"
         ) {
           newValue = JSON.stringify(newValue);
@@ -415,7 +410,7 @@ export const createAdapter =
         ([_, v]) => v === "id"
       )?.[0];
       tableSchema[idKey ?? "id"] = {
-        type: databaseOptions.useNumberId ? "number" : "string",
+        type: options.advanced?.database?.useNumberId ? "number" : "string",
       };
 
       for (const key in tableSchema) {
@@ -445,7 +440,6 @@ export const createAdapter =
           } else if (
             config.supportsJSON === false &&
             typeof newValue === "string" &&
-            //@ts-expect-error - Future proofing
             field.type === "json"
           ) {
             newValue = safeJSONParse(newValue);
@@ -522,7 +516,7 @@ export const createAdapter =
         });
 
         if (defaultFieldName === "id" || fieldAttr.references?.field === "id") {
-          if (databaseOptions.useNumberId) {
+          if (options.advanced?.database?.useNumberId) {
             if (Array.isArray(value)) {
               return {
                 operator,

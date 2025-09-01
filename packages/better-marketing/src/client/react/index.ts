@@ -13,31 +13,29 @@ import type {
 import { useStore } from "./react-store";
 
 function getAtomKey(str: string) {
-	return `use${capitalizeFirstLetter(str)}`;
+  return `use${capitalizeFirstLetter(str)}`;
 }
 
 export function capitalizeFirstLetter(str: string) {
-	return str.charAt(0).toUpperCase() + str.slice(1);
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-type InferResolvedHooks<O extends ClientOptions> = O["plugins"] extends Array<
-	infer Plugin
->
-	? Plugin extends MarketingClientPlugin
-		? Plugin["getAtoms"] extends (fetch: any) => infer Atoms
-			? Atoms extends Record<string, any>
-				? {
-						[key in keyof Atoms as IsSignal<key> extends true
-							? never
-							: key extends string
-								? `use${Capitalize<key>}`
-								: never]: () => ReturnType<Atoms[key]["get"]>;
-					}
-				: {}
-			: {}
-		: {}
-	: {};
-
+type InferResolvedHooks<O extends ClientOptions> =
+  O["plugins"] extends Array<infer Plugin>
+    ? Plugin extends MarketingClientPlugin
+      ? Plugin["getAtoms"] extends (fetch: any) => infer Atoms
+        ? Atoms extends Record<string, any>
+          ? {
+              [key in keyof Atoms as IsSignal<key> extends true
+                ? never
+                : key extends string
+                  ? `use${Capitalize<key>}`
+                  : never]: () => ReturnType<Atoms[key]["get"]>;
+            }
+          : {}
+        : {}
+      : {}
+    : {};
 
 /**
  * Creates a marketing client with React hooks integration
@@ -81,7 +79,7 @@ export function createMarketingClient<Option extends ClientOptions>(
     $fetch,
     pluginPathMethods,
     pluginsAtoms,
-    Object.values(atomListeners)
+    atomListeners
   );
 
   type ClientAPI = InferClientAPI<Option>;
@@ -98,4 +96,3 @@ export function createMarketingClient<Option extends ClientOptions>(
 export type * from "@better-fetch/fetch";
 export type * from "nanostores";
 export { useStore };
-
