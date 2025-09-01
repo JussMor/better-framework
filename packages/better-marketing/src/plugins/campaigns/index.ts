@@ -120,12 +120,6 @@ export const campaignsPlugin = () =>
       deleteCampaign: deleteCampaign(),
       listCampaigns: listCampaigns(),
     },
-  }) satisfies BetterMarketingPlugin<{
-    createCampaign: ReturnType<typeof createCampaign>;
-    getCampaign: ReturnType<typeof getCampaign>;
-    updateCampaign: ReturnType<typeof updateCampaign>;
-    deleteCampaign: ReturnType<typeof deleteCampaign>;
-    listCampaigns: ReturnType<typeof listCampaigns>;
-  }>;
+  }) satisfies BetterMarketingPlugin;
 
 export type CampaignsPlugin = ReturnType<typeof campaignsPlugin>;

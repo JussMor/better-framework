@@ -52,22 +52,22 @@ client.campaign // Property 'campaign' does not exist on type ...
 1. **Server plugin shape mismatch**: The campaigns plugin exported a `routes` object instead of the expected `endpoints` property (`BetterMarketingPlugin['endpoints']`), so `getEndpoints` ignored it.
 2. **Generic widening**: Declaring `campaignsPlugin` as `(): BetterMarketingPlugin => ({ ... })` erased literal endpoint key types; they widened to `Record<string, Endpoint>` and were lost to the client inference utility.
 3. **Client plugin assertion collapse**: `campaignsClientPlugin` used `$InferServerPlugin: {} as ReturnType<typeof campaignsPlugin>` without preserving the narrowed generic, so `$InferServerPlugin.endpoints` again widened.
-4. **Path-to-object reliance**: The client only builds nested objects from endpoint *paths* discovered in the endpoint union. With plugin endpoints excluded (points 1–3), no `/campaign/*` paths were available to map to `client.campaign.*`.
+4. **Path-to-object reliance**: The client only builds nested objects from endpoint _paths_ discovered in the endpoint union. With plugin endpoints excluded (points 1–3), no `/campaign/*` paths were available to map to `client.campaign.*`.
 
 ### Plugin Fixes Applied
 
-| Order | Change | Purpose |
-| ----- | ------ | ------- |
-| P1 | Rewrote `campaignsPlugin` to expose `endpoints` built with `createMarketingEndpoint` + `metadata.isAction = true` | Makes plugin endpoints eligible for filtering & inference |
-| P2 | Used `satisfies BetterMarketingPlugin<{ explicit endpoint map }>` | Preserves literal endpoint keys for `$InferServerPlugin` |
-| P3 | Updated client plugin to `satisfies MarketingClientPlugin` | Prevents widening of `$InferServerPlugin` type |
-| P4 | Added compile-time test `campaigns-plugin-infer.test.ts` | Guards presence of `client.campaign.create` & friends |
-| P5 | (Deferred) Param segment handling improvement | Not yet replacing `:id` segment dynamically in proxy |
+| Order | Change                                                                                                            | Purpose                                                   |
+| ----- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| P1    | Rewrote `campaignsPlugin` to expose `endpoints` built with `createMarketingEndpoint` + `metadata.isAction = true` | Makes plugin endpoints eligible for filtering & inference |
+| P2    | Used `satisfies BetterMarketingPlugin<{ explicit endpoint map }>`                                                 | Preserves literal endpoint keys for `$InferServerPlugin`  |
+| P3    | Updated client plugin to `satisfies MarketingClientPlugin`                                                        | Prevents widening of `$InferServerPlugin` type            |
+| P4    | Added compile-time test `campaigns-plugin-infer.test.ts`                                                          | Guards presence of `client.campaign.create` & friends     |
+| P5    | (Deferred) Param segment handling improvement                                                                     | Not yet replacing `:id` segment dynamically in proxy      |
 
 ### Current Plugin Inference Status
 
 - `client.campaign.create` and `client.campaign.list` are now typed & callable.
-- Endpoint keys (`createCampaign`, etc.) are *implementation* names; client nesting derives from paths (`/campaign/create` → `client.campaign.create`).
+- Endpoint keys (`createCampaign`, etc.) are _implementation_ names; client nesting derives from paths (`/campaign/create` → `client.campaign.create`).
 - Param endpoints (`/campaign/get/:id`) appear as `client.campaign.get[":id"]` (temporary ergonomic limitation).
 
 ### Remaining Gaps / Technical Debt
@@ -75,7 +75,7 @@ client.campaign // Property 'campaign' does not exist on type ...
 1. **Param interpolation**: Dynamic replacement for `:id` in proxy calls (e.g. `client.campaign.get({ id })`) not implemented.
 2. **Stricter plugin endpoint typing**: Could add a `MarketingClientPluginWithEndpoints<E>` helper generic to reduce repetitive `satisfies` patterns.
 3. **Optional runtime validation**: Verify plugin endpoint collisions and emit compile-time diagnostics (e.g. duplicate paths across plugins).
-4. **Docs clarity**: Need a dedicated section describing how plugin endpoint paths become nested client properties and why the *paths*, not the endpoint object keys, drive nesting.
+4. **Docs clarity**: Need a dedicated section describing how plugin endpoint paths become nested client properties and why the _paths_, not the endpoint object keys, drive nesting.
 5. **Test coverage**: Add a negative test ensuring absent plugin doesn’t expose `client.campaign`.
 
 ## Recommended Next Steps

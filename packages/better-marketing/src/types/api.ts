@@ -10,8 +10,7 @@ type ActionKeys<API> = {
     : never;
 }[keyof API];
 
-export type FilteredAPI<API> = Pick<API, ActionKeys<API>>;
-export type FilterActions<API> = FilteredAPI<API>; // alias for backwards compatibility
+export type FilteredAPI<API> = Pick<API, ActionKeys<API>>; // kept for potential future use
 
 export type InferSessionAPI<API> = API extends {
   [key: string]: infer E;

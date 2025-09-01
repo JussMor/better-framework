@@ -11,20 +11,23 @@ export default function Dashboard() {
     "success"
   );
 
-  const createUser = async () => {
+  const createCampaign = async () => {
     try {
-      const createdUser = await clientMk.user.create({
-        email: `user${Date.now()}@example.com`,
-        firstName: "John",
+      // const client = clientMk.user.create({
+      //   lastName: "Doe",
+      //   firstName: "John",
+      //   email: "john.doe@example.com",
+      // });
+      // Create a campaign via plugin endpoint (response shape: { campaign: { ... } })
+      const campaign  = await clientMk.campaign.create({
+        name: "My Campaign",
       });
-      const campaign = await clientMk.campaign.create({ name: "My Campaign" });
-    
-
+      // Reusing `user` state to display campaign info for now
       setUser(campaign);
-      setMessage("User created successfully!");
+      setMessage("Campaign created successfully!");
       setMessageType("success");
     } catch (error) {
-      setMessage("Error creating user");
+      setMessage("Error creating campaign");
       setMessageType("error");
       console.error(error);
     }
@@ -101,10 +104,10 @@ export default function Dashboard() {
           <h2 className="text-2xl font-semibold">Actions</h2>
 
           <button
-            onClick={createUser}
+            onClick={createCampaign}
             className="w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
           >
-            Create Test User
+            Create Test Campaign
           </button>
           {/* <button
             onClick={trackEvent}

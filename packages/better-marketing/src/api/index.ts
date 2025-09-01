@@ -89,41 +89,23 @@ export function getEndpoints<
         );
         if (plugin?.endpoints && typeof plugin.endpoints === "object") {
           for (const [k, v] of Object.entries(plugin.endpoints)) {
-            console.log(`Checking endpoint ${k}:`, {
-              exists: !!v,
-              type: typeof v,
-              hasHandler:
-                v &&
-                (typeof v === "object" || typeof v === "function") &&
-                "handler" in (v as any),
-              hasPath:
-                v &&
-                (typeof v === "object" || typeof v === "function") &&
-                "path" in (v as any),
-              hasOptions:
-                v &&
-                (typeof v === "object" || typeof v === "function") &&
-                "options" in (v as any),
-            });
-            if (v && (typeof v === "object" || typeof v === "function")) {
-              console.log(`Endpoint ${k} details:`, {
-                keys: Object.keys(v as any),
-                handlerType: typeof (v as any).handler,
-                path: (v as any).path,
-                options: (v as any).options,
-              });
-            }
-            if (
-              v &&
-              (typeof v === "object" || typeof v === "function") &&
-              "handler" in (v as any) &&
-              "path" in (v as any) &&
-              "options" in (v as any)
-            ) {
-              console.log(`Adding plugin endpoint: ${k} -> ${(v as any).path}`);
+            const isFn = typeof v === "function";
+            const hasPath = !!(v as any)?.path;
+            const hasOptions = !!(v as any)?.options;
+            const hasHandlerProp = !!(v as any)?.handler;
+            if ((isFn || typeof v === "object") && hasPath && hasOptions) {
+              console.log(
+                `Adding plugin endpoint ${k} -> ${(v as any).path} (isFn=${isFn})`
+              );
               acc[k] = v as unknown as Endpoint;
             } else {
-              console.log(`Skipping endpoint ${k} - validation failed`);
+              console.log(`Skipping endpoint ${k} - invalid shape`, {
+                isFn,
+                hasPath,
+                hasOptions,
+                hasHandlerProp,
+                keys: v ? Object.keys(v as any) : null,
+              });
             }
           }
         }
@@ -135,15 +117,12 @@ export function getEndpoints<
   type PluginEndpoints = UnionToIntersection<
     Option["plugins"] extends Array<infer T>
       ? T extends BetterMarketingPlugin
-        ? T extends {
-            endpoints: infer E;
-          }
+        ? T extends { endpoints: infer E }
           ? E
           : {}
         : {}
       : {}
   >;
-
   const middlewares =
     options?.plugins
       ?.map((plugin: any) =>

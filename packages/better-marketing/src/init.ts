@@ -8,118 +8,119 @@ import { DEFAULT_SECRET } from "./utils/constants";
 import { env, isProduction } from "./utils/env";
 import { createLogger } from "./utils/logger";
 
-export const init = async (options: BetterMarketingOptions) => {
-  const adapter = await getMarketingAdapter(options);
-  const plugins = options.plugins || [];
-  const logger = createLogger(options.logger);
+/**
+ * Initialize core marketing context (adapter, options, plugins, hooks, etc.).
+ * Keeps logic linear & explicit for easier debugging.
+ */
+export const init = async (rawOptions: BetterMarketingOptions) => {
+  const adapter = await getMarketingAdapter(rawOptions);
+  const logger = createLogger(rawOptions.logger);
+  const plugins = rawOptions.plugins || [];
 
+  // Resolve secret with fallbacks
   const secret =
-    options.secret ||
+    rawOptions.secret ||
     env.BETTER_MARKETING_SECRET ||
     env.MARKETING_SECRET ||
     DEFAULT_SECRET;
-
-  if (secret === DEFAULT_SECRET) {
-    if (isProduction) {
-      logger.error(
-        "You are using the default secret. Please set `BETTER_MARKETING_SECRET` in your environment variables or pass `secret` in your marketing config."
-      );
-    }
+  if (secret === DEFAULT_SECRET && isProduction) {
+    logger.error(
+      "Using default secret. Set BETTER_MARKETING_SECRET env variable or provide options.secret."
+    );
   }
 
-  // Create processed options with resolved adapter
-  const processedOptions: BetterMarketingOptions = {
-    baseURL: options.baseURL,
-    basePath: options.basePath || "/api/marketing",
+  // Defaults (computed where needed) merged with user options
+  const defaults: BetterMarketingOptions = {
+    basePath: "/api/marketing",
     trustedOrigins: ["http://localhost:3001", "https://localhost:3000"],
     session: {
-      expiresIn: 60 * 60 * 24 * 7, // 7 days
-      updateAge: 60 * 60 * 24, // 1 day
+      expiresIn: 60 * 60 * 24 * 7,
+      updateAge: 60 * 60 * 24,
     },
     rateLimit: {
-      enabled: options.rateLimit?.enabled ?? isProduction,
-      window: options.rateLimit?.window || 15 * 60 * 1000, // 15 minutes
-      max: options.rateLimit?.max || 100,
+      enabled: rawOptions.rateLimit?.enabled ?? isProduction,
+      window: rawOptions.rateLimit?.window || 15 * 60 * 1000,
+      max: rawOptions.rateLimit?.max || 100,
     },
-    ...options,
-    secret,
     plugins,
-  };
+    secret,
+  } as BetterMarketingOptions;
 
-  // Validate configuration
-  validateConfig(processedOptions);
+  // defu preserves existing keys on left (rawOptions) and fills from defaults
+  const options = defu(rawOptions, defaults) as BetterMarketingOptions;
 
-  const generateIdFunc = (options: { model: string; size?: number }) => {
-    if (typeof processedOptions.advanced?.generateId === "function") {
-      return processedOptions.advanced.generateId(options);
-    }
-    return generateId(options.size || 16);
-  };
+  // Validate merged options
+  validateConfig(options);
 
-  // Get database tables schema
-  const tables = getMarketingTables(processedOptions);
+  // ID generator (user override > default util)
+  const generateIdFn = (o: { model: string; size?: number }) =>
+    typeof options.advanced?.generateId === "function"
+      ? options.advanced.generateId(o)
+      : generateId(o.size || 16);
 
-  // Create internal adapter with enhanced functionality
-  const internalAdapter = createInternalAdapter(adapter, {
-    options: processedOptions,
-    hooks: processedOptions.databaseHooks
-      ? [processedOptions.databaseHooks]
-      : [],
+  const tables = getMarketingTables(options);
+
+  // Initial internal adapter (before plugin-added hooks)
+  const baseInternalAdapter = createInternalAdapter(adapter, {
+    options,
+    hooks: options.databaseHooks ? [options.databaseHooks] : [],
     logger,
-    generateId: generateIdFunc,
+    generateId: generateIdFn,
   });
 
-  let ctx: MarketingContext = {
-    appName: (options as any).appName || "better-marketing",
+  let context: MarketingContext = {
+    appName: (rawOptions as any).appName || "better-marketing",
     session: null,
     adapter,
-    internalAdapter,
-    options: processedOptions,
+    internalAdapter: baseInternalAdapter,
+    options,
     secret,
-    generateId: generateIdFunc,
+    generateId: generateIdFn,
     tables,
     logger,
-    baseURL: processedOptions.baseURL,
+    baseURL: options.baseURL,
   };
 
-  const { context: pluginContext } = runPluginInit(ctx);
+  // Apply plugin init (options/context layering + DB hooks aggregation)
+  context = applyPluginInit(context);
 
-  return pluginContext;
+  return context;
 };
 
-function runPluginInit(ctx: MarketingContext) {
-  let options = ctx.options;
-  const plugins = options.plugins || [];
-  let context: MarketingContext = ctx;
+/**
+ * Run plugin init lifecycle: merges plugin-provided option fragments & context,
+ * aggregates database hooks, then rebuilds the internal adapter with all hooks.
+ */
+function applyPluginInit(baseCtx: MarketingContext): MarketingContext {
+  let mergedOptions = baseCtx.options;
+  let ctx = baseCtx;
   const dbHooks: BetterMarketingOptions["databaseHooks"][] = [];
-  for (const plugin of plugins) {
-    if (plugin.init) {
-      const result = plugin.init(context);
-      if (typeof result === "object") {
-        if (result.options) {
-          const { databaseHooks, ...restOpts } = result.options;
-          if (databaseHooks) {
-            dbHooks.push(databaseHooks);
-          }
-          options = defu(options, restOpts);
-        }
-        if (result.context) {
-          context = {
-            ...context,
-            ...(result.context as Partial<MarketingContext>),
-          };
-        }
+
+  for (const plugin of mergedOptions.plugins || []) {
+    if (!plugin.init) continue;
+    const result = plugin.init(ctx);
+    if (result && typeof result === "object") {
+      if (result.options) {
+        const { databaseHooks, ...rest } = result.options;
+        if (databaseHooks) dbHooks.push(databaseHooks);
+        mergedOptions = defu(mergedOptions, rest);
+      }
+      if (result.context) {
+        ctx = { ...ctx, ...(result.context as Partial<MarketingContext>) };
       }
     }
   }
-  // Add the global database hooks last
-  dbHooks.push(options.databaseHooks);
-  context.internalAdapter = createInternalAdapter(ctx.adapter, {
-    options,
+
+  // Include original global database hooks last so they can override earlier ones if needed
+  if (mergedOptions.databaseHooks) dbHooks.push(mergedOptions.databaseHooks);
+
+  const mergedHooks = dbHooks.filter((h): h is NonNullable<typeof h> => !!h);
+  ctx.internalAdapter = createInternalAdapter(ctx.adapter, {
+    options: mergedOptions,
     logger: ctx.logger,
-    hooks: dbHooks.filter((u) => u !== undefined),
+    hooks: mergedHooks,
     generateId: ctx.generateId,
   });
-  context.options = options;
-  return { context };
+  ctx.options = mergedOptions;
+  return ctx;
 }
