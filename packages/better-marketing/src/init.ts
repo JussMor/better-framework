@@ -46,15 +46,10 @@ export const init = async (options: BetterMarketingOptions) => {
     plugins,
   };
 
-  // Create final config with resolved adapter for validation and API creation
-  const finalConfig: BetterMarketingOptions = {
-    ...processedOptions,
-    database: adapter,
-    secret,
-  };
+
 
   // Validate configuration
-  validateConfig(finalConfig);
+  validateConfig(processedOptions);
 
   const generateIdFunc = (options: { model: string; size?: number }) => {
     if (typeof processedOptions.advanced?.generateId === "function") {
@@ -83,7 +78,7 @@ export const init = async (options: BetterMarketingOptions) => {
     adapter,
     internalAdapter,
     pluginManager,
-    options: finalConfig,
+    options: processedOptions,
     secret,
     generateId: generateIdFunc,
     tables,

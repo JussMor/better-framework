@@ -2,31 +2,24 @@
  * Internal adapter with enhanced functionality for Better Marketing
  */
 
-import type { Adapter, BetterMarketingOptions, MarketingUser } from "../types";
+import type { Adapter, BetterMarketingOptions, MarketingContext, MarketingUser } from "../types";
 import { GenericEndpointContext } from "../types/context";
-import type { Logger } from "../utils/logger";
+import type { InternalLogger, Logger } from "../utils/logger";
 import { getWithHooks } from "./with-hooks";
 
 export function createInternalAdapter(
   adapter: Adapter,
   ctx: {
-    options: BetterMarketingOptions;
+    options: Omit<BetterMarketingOptions, "logger">;
     hooks: Exclude<BetterMarketingOptions["databaseHooks"], undefined>[];
-    logger: Logger;
-    generateId: (options: { model: string; size?: number }) => string;
+    logger: InternalLogger;
+    generateId: MarketingContext["generateId"];
   }
 ) {
   const { createWithHooks, updateWithHooks, updateManyWithHooks } =
     getWithHooks(adapter, ctx);
 
   return {
-    // Generic operations with hooks
-    // this should not be here endpoint using this directly must 
-    // go to an internal behaviour
-    createWithHooks,
-    updateWithHooks,
-    updateManyWithHooks,
-
     // User operations - flattened to match Better Auth pattern
     createUser: async <T>(
       user: Omit<MarketingUser, "id" | "createdAt" | "updatedAt"> &
@@ -83,3 +76,5 @@ export function createInternalAdapter(
     },
   };
 }
+
+export type InternalAdapter = ReturnType<typeof createInternalAdapter>;

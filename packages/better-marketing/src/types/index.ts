@@ -1,22 +1,23 @@
 /**
  * Core type definitions for Better Marketing
  */
+import { CookieOptions } from "better-call";
+import type { Database } from "better-sqlite3";
+import type { Database as BunDatabase } from "bun:sqlite";
 import type { Dialect, Kysely, MysqlPool, PostgresPool } from "kysely";
+import { DatabaseSync } from "node:sqlite";
 import { AdapterDebugLogs } from "../adapters/create-adapter/types";
 import { KyselyDatabaseType } from "../adapters/kysely-adapter";
+import { MarketingMiddleware } from "../api/call";
 import { PluginManager } from "../core";
 import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
+import type { Logger } from "../utils/logger";
 import { createLogger } from "../utils/logger";
-import { AdapterInstance } from "./adapter";
+import { Adapter, AdapterInstance } from "./adapter";
 import { GenericEndpointContext } from "./context";
 import { LiteralUnion } from "./helper";
 import { BetterMarketingPlugin } from "./plugins";
-import { CookieOptions } from "better-call";
-import type { Database } from "better-sqlite3";
-import { DatabaseSync } from "node:sqlite";
-import type { Database as BunDatabase } from "bun:sqlite";
-import { MarketingMiddleware } from "../api/call";
 
 export * from "./adapter";
 export * from "./context";
@@ -255,12 +256,20 @@ export interface AnalyticsResult {
 }
 
 export interface MarketingContext {
-  adapter: AdapterInstance;
+  appName: string;
+  session: {
+    session: Record<string, any>;
+    user: MarketingUser & Record<string, any>;
+  } | null;
+  adapter: Adapter;
   internalAdapter: ReturnType<typeof createInternalAdapter>;
   pluginManager: PluginManager;
   options: BetterMarketingOptions;
   secret: string;
-  generateId: (options: { model: string; size?: number }) => string;
+  generateId: (options: {
+    model: LiteralUnion<Models, string>;
+    size?: number;
+  }) => string | false;
   tables: ReturnType<typeof getMarketingTables>;
   logger: ReturnType<typeof createLogger>;
   baseURL?: string;
@@ -560,7 +569,7 @@ export interface BetterMarketingOptions {
     window?: number;
     max?: number;
   };
-  logger?: ReturnType<typeof createLogger>;
+  logger?: Logger;
   advanced?: {
     /**
      * Ip address configuration
