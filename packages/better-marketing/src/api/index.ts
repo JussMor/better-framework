@@ -1,8 +1,8 @@
 import { APIError, createRouter, type Middleware } from "better-call";
 import type { MarketingContext } from "../types";
 import { createMarketingMiddleware } from "./call";
-import { ok } from "./routes/ok";
 import { error } from "./routes/error";
+import { ok } from "./routes/ok";
 // import { getAnalytics, trackEvent } from "./routes/analytics";
 // import {
 //   createCampaign,
@@ -58,15 +58,17 @@ export function getEndpoints(
   ctx: Promise<MarketingContext> | MarketingContext,
   options?: any
 ) {
-  const pluginEndpoints = options?.plugins?.reduce(
-    (acc: any, plugin: any) => {
-      return {
-        ...acc,
-        ...plugin.endpoints,
-      };
-    },
-    {} as Record<string, any>
-  );
+  // Keep plugin endpoints out of the compile-time type (they are dynamic)
+  const pluginEndpoints =
+    options?.plugins?.reduce(
+      (acc: Record<string, unknown>, plugin: any) => {
+        if (plugin?.endpoints && typeof plugin.endpoints === "object") {
+          Object.assign(acc, plugin.endpoints);
+        }
+        return acc;
+      },
+      {} as Record<string, unknown>
+    ) || {};
 
   const middlewares =
     options?.plugins
@@ -117,15 +119,22 @@ export function getEndpoints(
 
   const endpoints = {
     ...baseEndpoints,
+    // runtime-only plugin endpoints (excluded from static type)
     ...pluginEndpoints,
     ok,
     error,
+  } as const;
+
+  type BaseEndpoints = typeof baseEndpoints & {
+    ok: typeof ok;
+    error: typeof error;
   };
 
-  const api = toMarketingEndpoints(endpoints, ctx);
+  // Narrow api type to base (and ok/error) endpoints so literal paths propagate
+  const api = toMarketingEndpoints(endpoints, ctx) as BaseEndpoints;
 
   return {
-    api: api as typeof endpoints,
+    api,
     middlewares,
   };
 }

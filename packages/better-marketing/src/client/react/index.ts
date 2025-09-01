@@ -36,6 +36,9 @@ type InferResolvedHooks<O extends ClientOptions> =
       : {}
     : {};
 
+// Force all first-level properties to be required so TS doesn't treat them as possibly undefined
+type RequireTopLevel<T> = T extends object ? { [K in keyof T]-?: T[K] } : T;
+
 /**
  * Creates a marketing client with React hooks integration
  */
@@ -73,13 +76,15 @@ export function createMarketingClient<Option extends ClientOptions>(
 
   type ClientAPI = InferClientAPI<Option>;
 
-  return proxy as UnionToIntersection<InferResolvedHooks<Option>> &
-    ClientAPI &
-    InferActions<Option> & {
-      $fetch: typeof $fetch;
-      $store: typeof $store;
-      $ERROR_CODES: PrettifyDeep<InferErrorCodes<Option>>;
-    };
+  return proxy as RequireTopLevel<
+    UnionToIntersection<InferResolvedHooks<Option>> &
+      ClientAPI &
+      InferActions<Option>
+  > & {
+    $fetch: typeof $fetch;
+    $store: typeof $store;
+    $ERROR_CODES: PrettifyDeep<InferErrorCodes<Option>>;
+  };
 }
 
 export type * from "@better-fetch/fetch";

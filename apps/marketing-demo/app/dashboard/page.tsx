@@ -104,7 +104,7 @@ export default function Dashboard() {
           >
             Create Test User
           </button>
-          <button
+          {/* <button
             onClick={trackEvent}
             disabled={!user}
             className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -118,7 +118,7 @@ export default function Dashboard() {
             className="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Send Email
-          </button>
+          </button> */}
         </div>
 
         <div className="space-y-4">
