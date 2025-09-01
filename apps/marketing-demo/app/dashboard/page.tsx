@@ -28,59 +28,59 @@ export default function Dashboard() {
     }
   };
 
-  const trackEvent = async () => {
-    if (!user) {
-      setMessage("Please create a user first");
-      setMessageType("error");
-      return;
-    }
+  // const trackEvent = async () => {
+  //   if (!user) {
+  //     setMessage("Please create a user first");
+  //     setMessageType("error");
+  //     return;
+  //   }
 
-    try {
-      const eventData = await clientMk.api.track({
-        userId: user.id,
-        event: "button_clicked",
-        properties: {
-          button: "track_event",
-          timestamp: new Date().toISOString(),
-        },
-      });
+  //   try {
+  //     const eventData = await clientMk.api.track({
+  //       userId: user.id,
+  //       event: "button_clicked",
+  //       properties: {
+  //         button: "track_event",
+  //         timestamp: new Date().toISOString(),
+  //       },
+  //     });
 
-      setEvents((prev) => [eventData, ...prev]);
-      setMessage("Event tracked successfully!");
-      setMessageType("success");
-    } catch (error) {
-      setMessage("Error tracking event");
-      setMessageType("error");
-      console.error(error);
-    }
-  };
+  //     setEvents((prev) => [eventData, ...prev]);
+  //     setMessage("Event tracked successfully!");
+  //     setMessageType("success");
+  //   } catch (error) {
+  //     setMessage("Error tracking event");
+  //     setMessageType("error");
+  //     console.error(error);
+  //   }
+  // };
 
-  const sendEmail = async () => {
-    if (!user) {
-      setMessage("Please create a user first");
-      setMessageType("error");
-      return;
-    }
+  // const sendEmail = async () => {
+  //   if (!user) {
+  //     setMessage("Please create a user first");
+  //     setMessageType("error");
+  //     return;
+  //   }
 
-    try {
-      const result = await clientMk.api.email.send({
-        to: user.email,
-        from: "demo@bettermarketing.dev",
-        subject: "Welcome to Better Marketing!",
-        content:
-          "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
-      });
+  //   try {
+  //     const result = await clientMk.api.email.send({
+  //       to: user.email,
+  //       from: "demo@bettermarketing.dev",
+  //       subject: "Welcome to Better Marketing!",
+  //       content:
+  //         "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
+  //     });
 
-      setMessage(
-        `Email sent successfully! Message ID: ${result.messageId || "N/A"}`
-      );
-      setMessageType("success");
-    } catch (error) {
-      setMessage("Error sending email");
-      setMessageType("error");
-      console.error(error);
-    }
-  };
+  //     setMessage(
+  //       `Email sent successfully! Message ID: ${result.messageId || "N/A"}`
+  //     );
+  //     setMessageType("success");
+  //   } catch (error) {
+  //     setMessage("Error sending email");
+  //     setMessageType("error");
+  //     console.error(error);
+  //   }
+  // };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">

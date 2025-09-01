@@ -1,6 +1,5 @@
 import type { PrettifyDeep, UnionToIntersection } from "../../types/helper";
 import { getClientConfig } from "../config";
-import { coreMarketingPlugin } from "../plugins";
 import { createDynamicPathProxy } from "../proxy";
 import type {
   ClientOptions,
@@ -43,16 +42,6 @@ type InferResolvedHooks<O extends ClientOptions> =
 export function createMarketingClient<Option extends ClientOptions>(
   options?: Option
 ) {
-  // Include core marketing plugin by default unless disabled
-  const plugins = options?.disableCorePlugin
-    ? options?.plugins || []
-    : [coreMarketingPlugin(), ...(options?.plugins || [])];
-
-  const configOptions = {
-    ...options,
-    plugins,
-  };
-
   const {
     pluginPathMethods,
     pluginsActions,
@@ -60,7 +49,7 @@ export function createMarketingClient<Option extends ClientOptions>(
     $fetch,
     $store,
     atomListeners,
-  } = getClientConfig(configOptions);
+  } = getClientConfig(options);
 
   let resolvedHooks: Record<string, any> = {};
   for (const [key, value] of Object.entries(pluginsAtoms)) {

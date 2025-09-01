@@ -6,6 +6,7 @@ export const createUser = () =>
     "/user/create",
     {
       method: "POST",
+      metadata: { isAction: true },
       body: z.object({
         email: z.string().email(),
         firstName: z.string().optional(),
@@ -48,6 +49,7 @@ export const getUser = () =>
     "/user/get/:id",
     {
       method: "GET",
+      metadata: { isAction: true },
       params: z.object({
         id: z.string(),
       }),
@@ -72,6 +74,7 @@ export const updateUser = () =>
     "/user/update/:id",
     {
       method: "PUT",
+      metadata: { isAction: true },
       params: z.object({
         id: z.string(),
       }),
@@ -109,6 +112,7 @@ export const deleteUser = () =>
     "/user/delete/:id",
     {
       method: "DELETE",
+      metadata: { isAction: true },
       params: z.object({
         id: z.string(),
       }),

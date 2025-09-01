@@ -1,8 +1,10 @@
 import { betterMarketing } from "better-marketing";
 import { memoryAdapter } from "better-marketing/adapters/memory";
+import { memoryDB } from "./memory-db";
 
 export const marketing: ReturnType<typeof betterMarketing> = betterMarketing({
-  database: memoryAdapter(),
+  // Properly initialized in-memory database adapter
+  database: memoryAdapter(memoryDB),
   secret: process.env.MARKETING_SECRET || "your-secret-key-for-development",
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
   basePath: "/api/marketing",
