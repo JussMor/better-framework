@@ -2,13 +2,15 @@
  * Database utilities for Better Marketing
  */
 
+import { createKyselyAdapter, kyselyAdapter } from "../adapters/kysely-adapter";
 import { memoryAdapter } from "../adapters/memory";
-import type { BetterMarketingOptions, DatabaseAdapter } from "../types";
+import type { BetterMarketingOptions } from "../types";
+import { Adapter } from "../types";
 import { getMarketingTables } from "./get-tables";
 
 export async function getMarketingAdapter(
   options: BetterMarketingOptions
-): Promise<DatabaseAdapter> {
+): Promise<Adapter> {
   if (!options.database) {
     const tables = getMarketingTables(options);
     const memoryDB = Object.keys(tables).reduce((acc, key) => {
@@ -27,8 +29,14 @@ export async function getMarketingAdapter(
     return options.database(options);
   }
 
-  // TODO: Add support for other database types like Better Auth does
-  throw new Error(
-    "Database configuration not yet supported. Please use a database adapter function."
-  );
+  const { kysely, databaseType } = await createKyselyAdapter(options);
+  if (!kysely) {
+    throw new Error("Failed to initialize database adapter");
+  }
+  return kyselyAdapter(kysely, {
+    type: databaseType || "sqlite",
+    debugLogs:
+      "debugLogs" in options.database ? options.database.debugLogs : false,
+  })(options);
+
 }
