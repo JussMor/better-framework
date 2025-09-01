@@ -113,22 +113,22 @@ export type InferAdditionalFromClient<
     : {};
 
 export type InferClientAPI<O extends ClientOptions> = InferRoutes<
-  O["plugins"] extends Array<any>
-    ? Marketing["api"] &
-        (O["plugins"] extends Array<infer Pl>
-          ? UnionToIntersection<
-              Pl extends {
-                $InferServerPlugin: infer Plug;
-              }
-                ? Plug extends {
-                    endpoints: infer Endpoints;
-                  }
-                  ? Endpoints
-                  : {}
-                : {}
-            >
-          : {})
-    : Marketing["api"],
+  // Always include plugin endpoints from client options
+  (O["plugins"] extends Array<infer Pl>
+    ? UnionToIntersection<
+        Pl extends {
+          $InferServerPlugin: infer Plug;
+        }
+          ? Plug extends {
+              endpoints: infer Endpoints;
+            }
+            ? Endpoints
+            : {}
+          : {}
+      >
+    : {}) &
+    // Include base Marketing API endpoints
+    Marketing["api"],
   O
 >;
 

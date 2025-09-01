@@ -1,15 +1,15 @@
 import type { Migration } from "kysely";
+import type { HookEndpointContext } from ".";
 import { type MarketingMiddleware } from "../api/call";
 import type { FieldAttribute } from "../db/field";
-import type { HookEndpointContext } from ".";
 import type {
   DeepPartial,
   LiteralString,
   UnionToIntersection,
 } from "../types/helper";
 
-import type { MarketingContext , BetterMarketingOptions } from ".";
 import type { Endpoint, Middleware } from "better-call";
+import type { BetterMarketingOptions, MarketingContext } from ".";
 
 export type AuthPluginSchema = {
   [table in string]: {
@@ -21,7 +21,9 @@ export type AuthPluginSchema = {
   };
 };
 
-export type BetterMarketingPlugin = {
+export type BetterMarketingPlugin<
+  Endpoints extends Record<string, Endpoint> = Record<string, Endpoint>,
+> = {
   id: LiteralString;
   /**
    * The init function is called when the plugin is initialized.
@@ -31,9 +33,7 @@ export type BetterMarketingPlugin = {
     context?: DeepPartial<Omit<MarketingContext, "options">>;
     options?: Partial<BetterMarketingOptions>;
   } | void;
-  endpoints?: {
-    [key: string]: Endpoint;
-  };
+  endpoints?: Endpoints; // preserve literal keys via generic
   middlewares?: {
     path: string;
     middleware: Middleware;
@@ -59,11 +59,11 @@ export type BetterMarketingPlugin = {
   hooks?: {
     before?: {
       matcher: (context: HookEndpointContext) => boolean;
-      handler: MarketingMiddleware ;
+      handler: MarketingMiddleware;
     }[];
     after?: {
       matcher: (context: HookEndpointContext) => boolean;
-      handler: MarketingMiddleware ;
+      handler: MarketingMiddleware;
     }[];
   };
   /**

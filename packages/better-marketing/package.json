@@ -66,6 +66,11 @@
       "require": "./dist/api/index.js",
       "import": "./dist/api/index.mjs"
     },
+    "./plugins/campaigns": {
+      "types": "./dist/plugins/campaigns/index.d.ts",
+      "require": "./dist/plugins/campaigns/index.js",
+      "import": "./dist/plugins/campaigns/index.mjs"
+    },
     "./api/call": {
       "types": "./dist/api/call.d.ts",
       "require": "./dist/api/call.js",

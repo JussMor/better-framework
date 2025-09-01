@@ -1,39 +1,131 @@
-// Server-side campaigns plugin skeleton
-// Export handlers that will be mounted by the core router. Keep minimal for now.
+import { z } from "zod";
+import { createMarketingEndpoint } from "../../api/call";
+import type { BetterMarketingPlugin } from "../../types/plugins";
 
-export const routes = {
-  "POST /campaign/create": async (ctx: any) => {
-    // simple echo create
-    const body = ctx.req?.body || ctx.request?.body || ctx.body;
-    // pretend we created an id
-    const created = { id: String(Date.now()), ...body };
-    return { campaign: created };
-  },
+/**
+ * Campaign endpoints (minimal stub implementation).
+ * Replace internalAdapter usage with real persistence later.
+ */
+const createCampaign = () =>
+  createMarketingEndpoint(
+    "/campaign/create",
+    {
+      method: "POST",
+      metadata: { isAction: true },
+      body: z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
+      }),
+    },
+    async (ctx) => {
+      const id = ctx.context.generateId({ model: "campaign", size: 16 });
+      const now = new Date();
+      return {
+        campaign: {
+          id: typeof id === "string" ? id : "cmp_" + Date.now().toString(36),
+          name: ctx.body.name,
+          description: ctx.body.description || null,
+          metadata: ctx.body.metadata || {},
+          createdAt: now,
+          updatedAt: now,
+        },
+      };
+    }
+  );
 
-  "GET /campaign/get/:id": async (ctx: any) => {
-    const { id } = ctx.params || ctx;
-    // stubbed example
-    return { campaign: { id, name: `Campaign ${id}` } };
-  },
+const getCampaign = () =>
+  createMarketingEndpoint(
+    "/campaign/get/:id",
+    {
+      method: "GET",
+      metadata: { isAction: true },
+      params: z.object({ id: z.string() }),
+    },
+    async (ctx) => {
+      // Placeholder (no DB yet)
+      return {
+        campaign: {
+          id: ctx.params.id,
+          name: `Campaign ${ctx.params.id}`,
+          description: null,
+          metadata: {},
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      };
+    }
+  );
 
-  "PUT /campaign/update/:id": async (ctx: any) => {
-    const { id } = ctx.params || ctx;
-    const body = ctx.req?.body || ctx.request?.body || ctx.body;
-    return { campaign: { id, ...body } };
-  },
+const updateCampaign = () =>
+  createMarketingEndpoint(
+    "/campaign/update/:id",
+    {
+      method: "PUT",
+      metadata: { isAction: true },
+      params: z.object({ id: z.string() }),
+      body: z.object({
+        name: z.string().optional(),
+        description: z.string().optional(),
+        metadata: z.record(z.string(), z.any()).optional(),
+      }),
+    },
+    async (ctx) => {
+      return {
+        campaign: {
+          id: ctx.params.id,
+          // Keep provided fields else stub fallback
+          name: ctx.body.name || `Campaign ${ctx.params.id}`,
+          description: ctx.body.description || null,
+          metadata: ctx.body.metadata || {},
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      };
+    }
+  );
 
-  "DELETE /campaign/delete/:id": async (ctx: any) => {
-    const { id } = ctx.params || ctx;
-    return { success: true, id };
-  },
+const deleteCampaign = () =>
+  createMarketingEndpoint(
+    "/campaign/delete/:id",
+    {
+      method: "DELETE",
+      metadata: { isAction: true },
+      params: z.object({ id: z.string() }),
+    },
+    async (ctx) => {
+      return { success: true };
+    }
+  );
 
-  "GET /campaign/list": async (ctx: any) => {
-    // return an empty list placeholder
-    return { campaigns: [] };
-  },
-};
+const listCampaigns = () =>
+  createMarketingEndpoint(
+    "/campaign/list",
+    {
+      method: "GET",
+      metadata: { isAction: true },
+    },
+    async () => {
+      return { campaigns: [] };
+    }
+  );
 
-export default {
-  id: "campaigns",
-  routes,
-};
+export const campaignsPlugin = () =>
+  ({
+    id: "campaigns",
+    endpoints: {
+      createCampaign: createCampaign(),
+      getCampaign: getCampaign(),
+      updateCampaign: updateCampaign(),
+      deleteCampaign: deleteCampaign(),
+      listCampaigns: listCampaigns(),
+    },
+  }) satisfies BetterMarketingPlugin<{
+    createCampaign: ReturnType<typeof createCampaign>;
+    getCampaign: ReturnType<typeof getCampaign>;
+    updateCampaign: ReturnType<typeof updateCampaign>;
+    deleteCampaign: ReturnType<typeof deleteCampaign>;
+    listCampaigns: ReturnType<typeof listCampaigns>;
+  }>;
+
+export type CampaignsPlugin = ReturnType<typeof campaignsPlugin>;

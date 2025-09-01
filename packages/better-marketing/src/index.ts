@@ -8,9 +8,12 @@ export * from "./types";
 export * from "./core";
 export { init } from "./init";
 export { betterMarketing, type BetterMarketingOptions } from "./marketing";
+export type { Marketing } from "./marketing";
 
 // Utilities
 export * from "./api/call";
 export * from "./api/to-marketing-endpoints";
 export { generateApiKey } from "./crypto";
 export * from "./test";
+// Plugins
+export * from "./plugins";

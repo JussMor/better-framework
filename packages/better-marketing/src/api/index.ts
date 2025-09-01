@@ -1,5 +1,14 @@
-import { APIError, createRouter, type Middleware } from "better-call";
-import type { MarketingContext } from "../types";
+import {
+  APIError,
+  createRouter,
+  type Endpoint,
+  type Middleware,
+} from "better-call";
+import type {
+  BetterMarketingOptions,
+  MarketingContext,
+  UnionToIntersection,
+} from "../types";
 import { createMarketingMiddleware } from "./call";
 import { error } from "./routes/error";
 import { ok } from "./routes/ok";
@@ -11,6 +20,7 @@ import { ok } from "./routes/ok";
 //   updateCampaign,
 // } from "./routes/campaign";
 // import { sendBulkEmail, sendEmail } from "./routes/email";
+import { BetterMarketingPlugin } from "../types/plugins";
 import { createUser, deleteUser, getUser, updateUser } from "./routes/user";
 import { toMarketingEndpoints } from "./to-marketing-endpoints";
 
@@ -54,21 +64,85 @@ const originCheckMiddleware = createMarketingMiddleware(async (ctx) => {
   }
 });
 
-export function getEndpoints(
-  ctx: Promise<MarketingContext> | MarketingContext,
-  options?: any
-) {
-  // Keep plugin endpoints out of the compile-time type (they are dynamic)
-  const pluginEndpoints =
+export function getEndpoints<
+  C extends MarketingContext,
+  Option extends BetterMarketingOptions,
+>(ctx: Promise<C> | C, options?: Option) {
+  console.log(
+    "Processing plugins:",
+    options?.plugins?.map((p: any) => ({
+      id: p.id,
+      hasEndpoints: !!p.endpoints,
+      endpointKeys: p.endpoints ? Object.keys(p.endpoints) : [],
+    }))
+  );
+
+  // Collect plugin endpoints; keep them typed as Endpoint where possible
+  const pluginEndpoints: Record<string, Endpoint> =
     options?.plugins?.reduce(
-      (acc: Record<string, unknown>, plugin: any) => {
+      (acc: Record<string, Endpoint>, plugin: any) => {
+        console.log(
+          "Processing plugin:",
+          plugin.id,
+          "with endpoints:",
+          Object.keys(plugin.endpoints || {})
+        );
         if (plugin?.endpoints && typeof plugin.endpoints === "object") {
-          Object.assign(acc, plugin.endpoints);
+          for (const [k, v] of Object.entries(plugin.endpoints)) {
+            console.log(`Checking endpoint ${k}:`, {
+              exists: !!v,
+              type: typeof v,
+              hasHandler:
+                v &&
+                (typeof v === "object" || typeof v === "function") &&
+                "handler" in (v as any),
+              hasPath:
+                v &&
+                (typeof v === "object" || typeof v === "function") &&
+                "path" in (v as any),
+              hasOptions:
+                v &&
+                (typeof v === "object" || typeof v === "function") &&
+                "options" in (v as any),
+            });
+            if (v && (typeof v === "object" || typeof v === "function")) {
+              console.log(`Endpoint ${k} details:`, {
+                keys: Object.keys(v as any),
+                handlerType: typeof (v as any).handler,
+                path: (v as any).path,
+                options: (v as any).options,
+              });
+            }
+            if (
+              v &&
+              (typeof v === "object" || typeof v === "function") &&
+              "handler" in (v as any) &&
+              "path" in (v as any) &&
+              "options" in (v as any)
+            ) {
+              console.log(`Adding plugin endpoint: ${k} -> ${(v as any).path}`);
+              acc[k] = v as unknown as Endpoint;
+            } else {
+              console.log(`Skipping endpoint ${k} - validation failed`);
+            }
+          }
         }
         return acc;
       },
-      {} as Record<string, unknown>
+      {} as Record<string, Endpoint>
     ) || {};
+
+  type PluginEndpoints = UnionToIntersection<
+    Option["plugins"] extends Array<infer T>
+      ? T extends BetterMarketingPlugin
+        ? T extends {
+            endpoints: infer E;
+          }
+          ? E
+          : {}
+        : {}
+      : {}
+  >;
 
   const middlewares =
     options?.plugins
@@ -119,24 +193,17 @@ export function getEndpoints(
 
   const endpoints = {
     ...baseEndpoints,
-    // runtime-only plugin endpoints (excluded from static type)
     ...pluginEndpoints,
     ok,
     error,
   } as const;
 
-  type BaseEndpoints = typeof baseEndpoints & {
-    ok: typeof ok;
-    error: typeof error;
-  };
+  console.log("Final endpoints:", Object.keys(endpoints));
+  console.log("Plugin endpoints:", Object.keys(pluginEndpoints));
 
-  // Narrow api type to base (and ok/error) endpoints so literal paths propagate
-  const api = toMarketingEndpoints(endpoints, ctx) as BaseEndpoints;
+  const api = toMarketingEndpoints(endpoints, ctx);
 
-  return {
-    api,
-    middlewares,
-  };
+  return { api: api as typeof endpoints & PluginEndpoints, middlewares };
 }
 
 export const router = (ctx: MarketingContext, options?: any) => {

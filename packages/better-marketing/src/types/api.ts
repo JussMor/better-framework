@@ -1,29 +1,17 @@
 import type { Endpoint } from "better-call";
 import type { PrettifyDeep, UnionToIntersection } from "../types/helper";
 
-export type FilteredAPI<API> = Omit<
-  API,
-  API extends { [key in infer K]: Endpoint }
-    ? K extends string
-      ? K extends "getSession"
-        ? K
-        : API[K]["options"]["metadata"] extends { isAction: false }
-          ? K
-          : never
-      : never
-    : never
->;
+// Helper to extract keys that are considered "actions" (isAction !== false)
+type ActionKeys<API> = {
+  [K in keyof API]: API[K] extends Endpoint
+    ? API[K] extends { options: { metadata: { isAction: false } } }
+      ? never // explicitly not an action
+      : K // treat unknown / true / missing as action so we don't accidentally drop endpoints
+    : never;
+}[keyof API];
 
-export type FilterActions<API> = Omit<
-  API,
-  API extends { [key in infer K]: Endpoint }
-    ? K extends string
-      ? API[K]["options"]["metadata"] extends { isAction: false }
-        ? K
-        : never
-      : never
-    : never
->;
+export type FilteredAPI<API> = Pick<API, ActionKeys<API>>;
+export type FilterActions<API> = FilteredAPI<API>; // alias for backwards compatibility
 
 export type InferSessionAPI<API> = API extends {
   [key: string]: infer E;
@@ -51,6 +39,5 @@ export type InferSessionAPI<API> = API extends {
     >
   : never;
 
-export type InferAPI<API> =
-    // InferSessionAPI<API> &
-    FilteredAPI<API>;
+// For now keep API shape intact (filtering handled separately when required)
+export type InferAPI<API> = API;

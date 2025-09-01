@@ -12,6 +12,7 @@ export default defineConfig({
     "src/adapters/memory/index.ts",
     "src/client/react/index.ts",
     "src/integrations/nextjs/index.tsx",
+    "src/plugins/campaigns/index.ts"
   ],
   format: ["cjs", "esm"],
   dts: true,
