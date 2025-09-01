@@ -16,6 +16,7 @@ import { CookieOptions } from "better-call";
 import type { Database } from "better-sqlite3";
 import { DatabaseSync } from "node:sqlite";
 import type { Database as BunDatabase } from "bun:sqlite";
+import { MarketingMiddleware } from "../api/call";
 
 export * from "./adapter";
 export * from "./context";
@@ -680,6 +681,16 @@ export interface BetterMarketingOptions {
           size?: number;
         }) => string | false)
       | false;
+  };
+  hooks?: {
+    /**
+     * Before a request is processed
+     */
+    before?: MarketingMiddleware;
+    /**
+     * After a request is processed
+     */
+    after?: MarketingMiddleware;
   };
   databaseHooks?: MarketingDatabaseHooks;
 }

@@ -1,6 +1,8 @@
 import { APIError, createRouter, type Middleware } from "better-call";
 import type { MarketingContext } from "../types";
 import { createMarketingMiddleware } from "./call";
+import { ok } from "./routes/ok";
+import { error } from "./routes/error";
 import { getAnalytics, trackEvent } from "./routes/analytics";
 import {
   createCampaign,
@@ -117,10 +119,10 @@ export function getEndpoints(
     ...baseEndpoints,
     ...pluginEndpoints,
     ok,
-    error
-  } ;
+    error,
+  };
 
-  const api = toMarketingEndpoints(endpoints , ctx);
+  const api = toMarketingEndpoints(endpoints, ctx);
 
   return {
     api: api as typeof endpoints,
@@ -130,7 +132,7 @@ export function getEndpoints(
 
 export const router = (ctx: MarketingContext, options?: any) => {
   const { api, middlewares } = getEndpoints(ctx, options);
-  const basePath = (ctx as any).options?.basePath || "/api/marketing";
+  const basePath = ctx.options?.basePath || "/api/marketing";
 
   return createRouter(api, {
     routerContext: ctx,

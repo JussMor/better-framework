@@ -6,19 +6,9 @@ import {
   type InputContext,
 } from "better-call";
 import { createDefu } from "defu";
+import { HookEndpointContext, MarketingContext } from "../types";
+import { ShouldPublishLog } from "../utils/logger";
 import type { MarketingEndpoint, MarketingMiddleware } from "./call";
-// types are intentionally loose here to avoid tight coupling with internal types
-type MarketingContext = any;
-type HookEndpointContext = any;
-
-function shouldPublishLog(level: string | number | undefined, check: string) {
-  // minimal implementation: assume levels like 'debug', 'info', 'warn', 'error'
-  if (!level) return false;
-  const order = ["debug", "info", "warn", "error"];
-  const idxLevel = typeof level === "string" ? order.indexOf(level) : -1;
-  const idxCheck = order.indexOf(check);
-  return idxLevel !== -1 && idxLevel <= idxCheck;
-}
 
 type InternalContext = InputContext<string, any> &
   EndpointContext<string, any> & {
@@ -113,7 +103,7 @@ export function toMarketingEndpoints<
 
       if (
         result.response instanceof APIError &&
-        shouldPublishLog(marketingContext.logger.level, "debug")
+        ShouldPublishLog(marketingContext.logger.level, "debug")
       ) {
         // Some APIError shapes expose `errorStack` or `errorWithStack`.
         // Use `any` casts to avoid type errors during d.ts generation.

@@ -1,4 +1,5 @@
 import { createEndpoint, createMiddleware } from "better-call";
+import { MarketingContext } from "../types";
 
 /**
  * Minimal middleware/endpoint wiring for Better Marketing using better-call.
@@ -7,7 +8,7 @@ import { createEndpoint, createMiddleware } from "better-call";
  */
 export const optionsMiddleware = createMiddleware(async () => {
   // placeholder context for marketing endpoints
-  return {} as any;
+  return {} as MarketingContext;
 });
 
 export const createMarketingMiddleware = createMiddleware.create({
