@@ -17,8 +17,10 @@ export default function Dashboard() {
         email: `user${Date.now()}@example.com`,
         firstName: "John",
       });
+      const campaign = await clientMk.campaign.create({ name: "My Campaign" });
+    
 
-      setUser(createdUser);
+      setUser(campaign);
       setMessage("User created successfully!");
       setMessageType("success");
     } catch (error) {

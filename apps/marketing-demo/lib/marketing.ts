@@ -1,13 +1,23 @@
+import type { BetterMarketingOptions, Marketing } from "better-marketing";
 import { betterMarketing } from "better-marketing";
 import { memoryAdapter } from "better-marketing/adapters/memory";
+import type { campaignsPlugin as campaignsPluginFactory } from "better-marketing/plugins/campaigns";
+import { campaignsPlugin } from "better-marketing/plugins/campaigns";
 import { memoryDB } from "./memory-db";
 
-export const marketing: ReturnType<typeof betterMarketing> = betterMarketing({
+// Allow generic inference so plugin endpoints are part of the type
+type DemoOptions = BetterMarketingOptions & {
+  plugins: [ReturnType<typeof campaignsPluginFactory>];
+};
+
+export const marketing: Marketing<DemoOptions> = betterMarketing({
   // Properly initialized in-memory database adapter
   database: memoryAdapter(memoryDB),
   secret: process.env.MARKETING_SECRET || "your-secret-key-for-development",
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
+
   basePath: "/api/marketing",
+  plugins: [campaignsPlugin()],
 
   // Email provider configuration (mock for demo)
   emailProvider: {
