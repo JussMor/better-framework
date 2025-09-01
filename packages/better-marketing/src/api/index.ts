@@ -10,7 +10,7 @@ import {
 } from "./routes/campaign";
 import { sendBulkEmail, sendEmail } from "./routes/email";
 import { createUser, deleteUser, getUser, updateUser } from "./routes/user";
-import { toMarketingEndpoints } from "./to-marketing-endpoints-hooks";
+import { toMarketingEndpoints } from "./to-marketing-endpoints";
 
 const originCheckMiddleware = createMarketingMiddleware(async (ctx) => {
   if (ctx.request?.method !== "POST" || !ctx.request) {

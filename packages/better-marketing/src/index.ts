@@ -11,6 +11,6 @@ export { betterMarketing, type BetterMarketingOptions } from "./marketing";
 
 // Utilities
 export * from "./api/call";
-export * from "./api/to-marketing-endpoints-hooks";
+export * from "./api/to-marketing-endpoints";
 export { generateApiKey } from "./crypto";
 export * from "./test";
