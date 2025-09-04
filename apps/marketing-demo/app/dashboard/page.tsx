@@ -22,6 +22,9 @@ export default function Dashboard() {
       const campaign  = await clientMk.campaign.create({
         name: "My Campaign",
       });
+
+      const campaign2   = await clientMk.campaign.list();
+      console.log(campaign2);
       // Reusing `user` state to display campaign info for now
       setUser(campaign);
       setMessage("Campaign created successfully!");
