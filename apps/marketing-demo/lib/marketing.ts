@@ -1,12 +1,16 @@
 import { betterMarketing } from "better-marketing";
-import { memoryAdapter } from "better-marketing/adapters/memory";
 import { campaignsPlugin } from "better-marketing/plugins/campaigns";
-import { memoryDB } from "./memory-db";
+import { db } from "./kysely-db";
 
 export const marketing = betterMarketing({
-  // Properly initialized in-memory database adapter
-  database: memoryAdapter(memoryDB),
-  secret: process.env.MARKETING_SECRET || "your-secret-key-for-development",
+  // Kysely SQLite configuration for schema generation support
+  database: {
+    db: db,
+    type: "sqlite" as const,
+  },
+  secret:
+    process.env.MARKETING_SECRET ||
+    "your-secret-key-for-development-must-be-at-least-32-characters-long",
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
 
   basePath: "/api/marketing",
