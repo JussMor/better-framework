@@ -9,13 +9,14 @@ import { DatabaseSync } from "node:sqlite";
 import { AdapterDebugLogs } from "../adapters/create-adapter/types";
 import { KyselyDatabaseType } from "../adapters/kysely-adapter";
 import { MarketingMiddleware } from "../api/call";
+import { Campaign, FieldAttribute } from "../db";
 import { getMarketingTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import type { Logger } from "../utils/logger";
 import { createLogger } from "../utils/logger";
 import { Adapter, AdapterInstance } from "./adapter";
 import { GenericEndpointContext } from "./context";
-import { LiteralUnion } from "./helper";
+import { LiteralUnion, OmitId } from "./helper";
 import { BetterMarketingPlugin } from "./plugins";
 
 export * from "./adapter";
@@ -55,18 +56,7 @@ export interface MarketingEvent {
   source?: string;
 }
 
-export interface MarketingEmail {
-  id: string;
-  to: string;
-  from: string;
-  subject: string;
-  content: string;
-  status: "sent" | "failed" | "pending";
-  messageId?: string;
-  createdAt: Date;
-}
-
-export interface Campaign {
+export interface MarketingCampaign {
   id: string;
   name: string;
   type: "email" | "sms" | "push" | "webhook";
@@ -78,6 +68,19 @@ export interface Campaign {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface MarketingEmail {
+  id: string;
+  to: string;
+  from: string;
+  subject: string;
+  content: string;
+  status: "sent" | "failed" | "pending";
+  messageId?: string;
+  createdAt: Date;
+}
+
+
 
 export interface Segment {
   id: string;
@@ -494,8 +497,41 @@ export interface BetterMarketingOptions {
     updateAge?: number;
     additionalFields?: Record<string, any>;
   };
+
   user?: {
-    additionalFields?: Record<string, any>;
+    fields?: Partial<Record<keyof OmitId<MarketingUser>, string>>;
+    modelName?: string;
+    additionalFields?: {
+      [key: string]: FieldAttribute;
+    };
+  };
+  event?: {
+    fields?: Partial<Record<keyof OmitId<MarketingEvent>, string>>;
+    modelName?: string;
+    additionalFields?: {
+      [key: string]: FieldAttribute;
+    };
+  };
+  campaign?: {
+    fields?: Partial<Record<keyof OmitId<MarketingCampaign>, string>>;
+    modelName?: string;
+    additionalFields?: {
+      [key: string]: FieldAttribute;
+    };
+  };
+  email?: {
+    fields?: Partial<Record<keyof OmitId<MarketingEmail>, string>>;
+    modelName?: string;
+    additionalFields?: {
+      [key: string]: FieldAttribute;
+    };
+  };
+  segment?: {
+    fields?: Partial<Record<keyof OmitId<Segment>, string>>;
+    modelName?: string;
+    additionalFields?: {
+      [key: string]: FieldAttribute;
+    };
   };
   account?: {
     /**

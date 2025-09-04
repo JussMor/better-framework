@@ -65,7 +65,7 @@ export const createAdapter =
       supportsNumericIds: cfg.supportsNumericIds ?? true,
     };
 
-		if (
+    if (
       options.advanced?.database?.useNumberId === true &&
       config.supportsNumericIds === false
     ) {
@@ -96,10 +96,10 @@ export const createAdapter =
       }
       const model = getDefaultModelName(unsafe_model);
 
-      let f = schema[model]?.fields[field];
+      let f: FieldAttribute | undefined = schema[model]?.fields[field];
       if (!f) {
         f = Object.values(schema[model]?.fields || {}).find(
-          (f: any) => f.fieldName === field
+          (f: FieldAttribute) => f.fieldName === field
         );
       }
       if (!f) {
@@ -123,7 +123,7 @@ export const createAdapter =
         let m = schema[plurallessModel] ? plurallessModel : undefined;
         if (!m) {
           m = Object.entries(schema).find(
-            ([_, f]) => f.tableName === plurallessModel
+            ([_, f]) => f.modelName === plurallessModel
           )?.[0];
         }
 
@@ -134,7 +134,7 @@ export const createAdapter =
 
       let m = schema[model] ? model : undefined;
       if (!m) {
-        m = Object.entries(schema).find(([_, f]) => f.tableName === model)?.[0];
+        m = Object.entries(schema).find(([_, f]) => f.modelName === model)?.[0];
       }
 
       if (!m) {
@@ -156,12 +156,12 @@ export const createAdapter =
       const useCustomModelName =
         schema &&
         schema[defaultModelKey] &&
-        schema[defaultModelKey].tableName !== model;
+        schema[defaultModelKey].modelName !== model;
 
       if (useCustomModelName) {
         return usePlural
-          ? `${schema[defaultModelKey].tableName}s`
-          : schema[defaultModelKey].tableName;
+          ? `${schema[defaultModelKey].modelName}s`
+          : schema[defaultModelKey].modelName;
       }
 
       return usePlural ? `${model}s` : model;

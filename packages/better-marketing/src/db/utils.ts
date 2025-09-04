@@ -4,8 +4,10 @@
 
 import { createKyselyAdapter, kyselyAdapter } from "../adapters/kysely-adapter";
 import { memoryAdapter } from "../adapters/memory";
+import { BetterMarketingError } from "../error";
 import type { BetterMarketingOptions } from "../types";
 import { Adapter } from "../types";
+import { FieldAttribute } from "./field";
 import { getMarketingTables } from "./get-tables";
 
 export async function getMarketingAdapter(
@@ -31,12 +33,112 @@ export async function getMarketingAdapter(
 
   const { kysely, databaseType } = await createKyselyAdapter(options);
   if (!kysely) {
-    throw new Error("Failed to initialize database adapter");
+    throw new BetterMarketingError("Failed to initialize database adapter");
   }
   return kyselyAdapter(kysely, {
     type: databaseType || "sqlite",
     debugLogs:
       "debugLogs" in options.database ? options.database.debugLogs : false,
   })(options);
+}
 
+export function convertToDB<T extends Record<string, any>>(
+  fields: Record<string, FieldAttribute>,
+  values: T
+) {
+  let result: Record<string, any> = values.id
+    ? {
+        id: values.id,
+      }
+    : {};
+  for (const key in fields) {
+    const field = fields[key];
+    const value = values[key];
+    if (value === undefined) {
+      continue;
+    }
+
+    // Apply input transformation if available
+    if (field.transform?.input && value !== undefined) {
+      result[field.fieldName || key] = field.transform.input(value);
+      continue;
+    }
+
+    // Handle array types that need JSON serialization
+    if (
+      (field.type === "string[]" ||
+        field.type === "number[]" ||
+        field.type === "json") &&
+      value !== null
+    ) {
+      result[field.fieldName || key] =
+        typeof value === "string" ? value : JSON.stringify(value);
+      continue;
+    }
+
+    // Handle date conversion
+    if (field.type === "date" && value instanceof Date) {
+      result[field.fieldName || key] = value;
+      continue;
+    }
+
+    result[field.fieldName || key] = value;
+  }
+  return result as T;
+}
+
+export function convertFromDB<T extends Record<string, any>>(
+  fields: Record<string, FieldAttribute>,
+  values: T | null
+) {
+  if (!values) {
+    return null;
+  }
+  let result: Record<string, any> = {
+    id: values.id,
+  };
+  for (const [key, field] of Object.entries(fields)) {
+    const dbValue = values[field.fieldName || key];
+
+    if (dbValue === undefined || dbValue === null) {
+      result[key] = dbValue;
+      continue;
+    }
+
+    // Apply output transformation if available
+    if (field.transform?.output) {
+      result[key] = field.transform.output(dbValue);
+      continue;
+    }
+
+    // Handle JSON parsing for arrays and objects
+    if (
+      field.type === "string[]" ||
+      field.type === "number[]" ||
+      field.type === "json"
+    ) {
+      try {
+        result[key] =
+          typeof dbValue === "string" ? JSON.parse(dbValue) : dbValue;
+      } catch {
+        result[key] = dbValue;
+      }
+      continue;
+    }
+
+    // Handle date conversion
+    if (field.type === "date") {
+      if (dbValue instanceof Date) {
+        result[key] = dbValue;
+      } else if (typeof dbValue === "string" || typeof dbValue === "number") {
+        result[key] = new Date(dbValue);
+      } else {
+        result[key] = dbValue;
+      }
+      continue;
+    }
+
+    result[key] = dbValue;
+  }
+  return result as T;
 }

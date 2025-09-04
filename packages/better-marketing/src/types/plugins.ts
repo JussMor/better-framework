@@ -11,7 +11,7 @@ import type {
 import type { Endpoint, Middleware } from "better-call";
 import type { BetterMarketingOptions, MarketingContext } from ".";
 
-export type AuthPluginSchema = {
+export type MarketingPluginSchema = {
   [table in string]: {
     fields: {
       [field in string]: FieldAttribute;
@@ -93,7 +93,7 @@ export type BetterMarketingPlugin<
    * } as AuthPluginSchema
    * ```
    */
-  schema?: AuthPluginSchema;
+  schema?: MarketingPluginSchema;
   /**
    * The migrations of the plugin. If you define schema that will automatically create
    * migrations for you.
@@ -124,7 +124,7 @@ export type BetterMarketingPlugin<
   $ERROR_CODES?: Record<string, string>;
 };
 
-export type InferOptionSchema<S extends AuthPluginSchema> =
+export type InferOptionSchema<S extends MarketingPluginSchema> =
   S extends Record<string, { fields: infer Fields }>
     ? {
         [K in keyof S]?: {
