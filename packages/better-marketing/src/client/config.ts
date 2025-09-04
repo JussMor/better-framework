@@ -81,9 +81,7 @@ export function getClientConfig(options?: ClientOptions) {
     {
       signal: "$sessionSignal",
       matcher(path) {
-        return (
-          path === "/user/create" 
-        );
+        return path === "/user/create";
       },
     },
   ];
