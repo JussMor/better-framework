@@ -19,6 +19,8 @@ export default function Dashboard() {
         email: "john.doe@example.com",
         phone: "08042219698",
       });
+
+
       // Create a campaign via plugin endpoint (response shape: { campaign: { ... } })
       const campaign = await clientMk.campaign.create({
         name: "My Campaign",
@@ -29,6 +31,7 @@ export default function Dashboard() {
         segmentIds: "",
         scheduledAt: "",
       });
+
 
       const campaign2 = await clientMk.campaign.list();
       console.log(campaign2);
