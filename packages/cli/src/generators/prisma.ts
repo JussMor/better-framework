@@ -3,7 +3,7 @@ import { produceSchema } from "@mrleebo/prisma-ast";
 import { existsSync } from "fs";
 import path from "path";
 import fs from "fs/promises";
-import { capitalizeFirstLetter } from "better-marketing";
+import { capitalizeFirstLetter } from "better-marketing/client/react";
 import type { SchemaGenerator } from "./types";
 
 export const generatePrismaSchema: SchemaGenerator = async ({

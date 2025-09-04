@@ -21,7 +21,6 @@ export * from "./api/call";
 export * from "./api/to-marketing-endpoints";
 export { generateApiKey } from "./crypto";
 export * from "./test";
-// Export capitalizeFirstLetter utility
-export { capitalizeFirstLetter } from "./client/react";
+// Note: capitalizeFirstLetter is available from "better-marketing/client/react" if needed
 // Plugins
 export * from "./plugins";

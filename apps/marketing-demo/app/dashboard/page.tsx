@@ -1,6 +1,6 @@
 "use client";
 
-import { clientMk } from "@/lib/marketing-client";
+import { clientMk } from "../../lib/marketing-client";
 import { useState } from "react";
 
 export default function Dashboard() {
