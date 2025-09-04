@@ -11,7 +11,7 @@ export const generateMigrations: SchemaGenerator = async ({
 		code: migrations.trim() === ";" ? "" : migrations,
 		fileName:
 			file ||
-			`./better-auth_migrations/${new Date()
+			`./better-marketing_migrations/${new Date()
 				.toISOString()
 				.replace(/:/g, "-")}.sql`,
 	};

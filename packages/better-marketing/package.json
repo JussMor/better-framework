@@ -51,6 +51,11 @@
       "require": "./dist/adapters/memory/index.js",
       "import": "./dist/adapters/memory/index.mjs"
     },
+    "./adapters/kysely": {
+      "types": "./dist/adapters/kysely-adapter/index.d.ts",
+      "require": "./dist/adapters/kysely-adapter/index.js",
+      "import": "./dist/adapters/kysely-adapter/index.mjs"
+    },
     "./client": {
       "types": "./dist/client/index.d.ts",
       "require": "./dist/client/index.js",
