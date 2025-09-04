@@ -1,7 +1,7 @@
 "use client";
 
-import { clientMk } from "../../lib/marketing-client";
 import { useState } from "react";
+import { clientMk } from "../../lib/marketing-client";
 
 export default function Dashboard() {
   const [user, setUser] = useState<any>(null);
@@ -13,17 +13,24 @@ export default function Dashboard() {
 
   const createCampaign = async () => {
     try {
-      // const client = clientMk.user.create({
-      //   lastName: "Doe",
-      //   firstName: "John",
-      //   email: "john.doe@example.com",
-      // });
+      const client = clientMk.user.create({
+        lastName: "Doe",
+        firstName: "John",
+        email: "john.doe@example.com",
+        phone: "08042219698",
+      });
       // Create a campaign via plugin endpoint (response shape: { campaign: { ... } })
-      const campaign  = await clientMk.campaign.create({
+      const campaign = await clientMk.campaign.create({
         name: "My Campaign",
+        type: "email",
+        status: "draft",
+        subject: "",
+        content: "",
+        segmentIds: "",
+        scheduledAt: "",
       });
 
-      const campaign2   = await clientMk.campaign.list();
+      const campaign2 = await clientMk.campaign.list();
       console.log(campaign2);
       // Reusing `user` state to display campaign info for now
       setUser(campaign);

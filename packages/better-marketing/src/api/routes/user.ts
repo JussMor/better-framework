@@ -19,9 +19,9 @@ export const createUser = () =>
       const { body } = ctx;
 
       // Use the internal adapter to create user
-      const generatedId = ctx.context.generateId({ model: "marketingUser" });
+      const generatedId = ctx.context.generateId({ model: "user" });
       const fallbackId = ctx.context.generateId({
-        model: "marketingUser",
+        model: "user",
         size: 16,
       });
       const user = await ctx.context.internalAdapter.createUser({

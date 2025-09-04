@@ -22,7 +22,7 @@ export function getWithHooks(
     | "account"
     | "session"
     | "verification"
-    | "marketingUser"
+    | "user"
     | "marketingEvent"
     | "marketingEmail"
     | "campaign"

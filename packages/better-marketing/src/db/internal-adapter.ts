@@ -1,10 +1,24 @@
 /**
- * Internal adapter with enhanced functionality for Better Marketing
+ * Internal adapter with enhanced functionality for       const updatedUser = await updateWithHooks(
+        {
+          ...updates,
+          updatedAt: new Date(),
+        },
+        [{ field: "id", value: id }],
+        "user",
+        undefined,
+        context
+      );keting
  */
 
-import type { Adapter, BetterMarketingOptions, MarketingContext, MarketingUser } from "../types";
+import type {
+  Adapter,
+  BetterMarketingOptions,
+  MarketingContext,
+  MarketingUser,
+} from "../types";
 import { GenericEndpointContext } from "../types/context";
-import type { InternalLogger, Logger } from "../utils/logger";
+import type { InternalLogger } from "../utils/logger";
 import { getWithHooks } from "./with-hooks";
 
 export function createInternalAdapter(
@@ -34,7 +48,7 @@ export function createInternalAdapter(
           ...user,
           email: user.email?.toLowerCase(),
         },
-        "marketingUser",
+        "user",
         undefined,
         context
       );
@@ -43,7 +57,7 @@ export function createInternalAdapter(
 
     getUserById: async (id: string, context?: GenericEndpointContext) => {
       const user = await adapter.findOne({
-        model: "marketingUser",
+        model: "user",
         where: [{ field: "id", value: id }],
       });
       return user as MarketingUser | null;
@@ -60,7 +74,7 @@ export function createInternalAdapter(
           updatedAt: new Date(),
         },
         [{ field: "id", value: id }],
-        "marketingUser",
+        "user",
         undefined,
         context
       );
@@ -69,7 +83,7 @@ export function createInternalAdapter(
 
     deleteUser: async (id: string, context?: GenericEndpointContext) => {
       await adapter.delete({
-        model: "marketingUser",
+        model: "user",
         where: [{ field: "id", value: id }],
       });
       return true;
