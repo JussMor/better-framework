@@ -10,10 +10,18 @@ export { init } from "./init";
 export { betterMarketing, type BetterMarketingOptions } from "./marketing";
 export type { Marketing } from "./marketing";
 
+// Error handling
+export * from "./error";
+
+// Logger
+export { createLogger, logger } from "./utils/logger";
+
 // Utilities
 export * from "./api/call";
 export * from "./api/to-marketing-endpoints";
 export { generateApiKey } from "./crypto";
 export * from "./test";
+// Export capitalizeFirstLetter utility
+export { capitalizeFirstLetter } from "./client/react";
 // Plugins
 export * from "./plugins";

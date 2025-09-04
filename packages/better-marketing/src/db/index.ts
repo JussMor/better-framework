@@ -9,3 +9,7 @@ export { getMarketingTables } from "./get-tables";
 export * from "./schema";
 export * from "./to-zod";
 export * from "./utils";
+
+// CLI compatibility functions
+export { getMarketingTables as getAuthTables } from "./get-tables";
+export { getMarketingAdapter as getAdapter } from "./utils";
