@@ -16,7 +16,7 @@ export default function Dashboard() {
       const client = clientMk.user.create({
         lastName: "Doe",
         firstName: "John",
-        email: "john.doe@example.com",
+        email: "john.doeddd@example.com",
         phone: "08042219698",
       });
 

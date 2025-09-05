@@ -1,9 +1,4 @@
-import {
-  APIError,
-  createRouter,
-  type Endpoint,
-  type Middleware,
-} from "better-call";
+import { APIError, createRouter, type Middleware } from "better-call";
 import type {
   BetterMarketingOptions,
   MarketingContext,
@@ -68,50 +63,16 @@ export function getEndpoints<
   C extends MarketingContext,
   Option extends BetterMarketingOptions,
 >(ctx: Promise<C> | C, options?: Option) {
-  console.log(
-    "Processing plugins:",
-    options?.plugins?.map((p: any) => ({
-      id: p.id,
-      hasEndpoints: !!p.endpoints,
-      endpointKeys: p.endpoints ? Object.keys(p.endpoints) : [],
-    }))
-  );
-
-  // Collect plugin endpoints; keep them typed as Endpoint where possible
-  const pluginEndpoints: Record<string, Endpoint> =
+  // Simple plugin endpoint collection like Better Auth
+  const pluginEndpoints =
     options?.plugins?.reduce(
-      (acc: Record<string, Endpoint>, plugin: any) => {
-        console.log(
-          "Processing plugin:",
-          plugin.id,
-          "with endpoints:",
-          Object.keys(plugin.endpoints || {})
-        );
-        if (plugin?.endpoints && typeof plugin.endpoints === "object") {
-          for (const [k, v] of Object.entries(plugin.endpoints)) {
-            const isFn = typeof v === "function";
-            const hasPath = !!(v as any)?.path;
-            const hasOptions = !!(v as any)?.options;
-            const hasHandlerProp = !!(v as any)?.handler;
-            if ((isFn || typeof v === "object") && hasPath && hasOptions) {
-              console.log(
-                `Adding plugin endpoint ${k} -> ${(v as any).path} (isFn=${isFn})`
-              );
-              acc[k] = v as unknown as Endpoint;
-            } else {
-              console.log(`Skipping endpoint ${k} - invalid shape`, {
-                isFn,
-                hasPath,
-                hasOptions,
-                hasHandlerProp,
-                keys: v ? Object.keys(v as any) : null,
-              });
-            }
-          }
-        }
-        return acc;
+      (acc, plugin) => {
+        return {
+          ...acc,
+          ...plugin.endpoints,
+        };
       },
-      {} as Record<string, Endpoint>
+      {} as Record<string, any>
     ) || {};
 
   type PluginEndpoints = UnionToIntersection<
@@ -177,9 +138,6 @@ export function getEndpoints<
     error,
   } as const;
 
-  console.log("Final endpoints:", Object.keys(endpoints));
-  console.log("Plugin endpoints:", Object.keys(pluginEndpoints));
-
   const api = toMarketingEndpoints(endpoints, ctx);
 
   return { api: api as typeof endpoints & PluginEndpoints, middlewares };
@@ -189,7 +147,7 @@ export const router = (ctx: MarketingContext, options?: any) => {
   const { api, middlewares } = getEndpoints(ctx, options);
   const basePath = ctx.options?.basePath || "/api/marketing";
 
-  return createRouter(api, {
+  const routerInstance = createRouter(api, {
     routerContext: ctx,
     openapi: { disabled: true },
     basePath,
@@ -254,6 +212,12 @@ export const router = (ctx: MarketingContext, options?: any) => {
       }
     },
   });
+
+  // Return router with endpoints exposed, following Better Auth pattern
+  return {
+    ...routerInstance,
+    endpoints: api, // Expose endpoints like Better Auth
+  };
 };
 
 export type RouterReturn = ReturnType<typeof router>;

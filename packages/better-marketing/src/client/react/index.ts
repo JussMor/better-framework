@@ -41,6 +41,7 @@ type RequireTopLevel<T> = T extends object ? { [K in keyof T]-?: T[K] } : T;
 
 /**
  * Creates a marketing client with React hooks integration
+ * Ensures both internal endpoints and plugin endpoints are properly typed and accessible
  */
 export function createMarketingClient<Option extends ClientOptions>(
   options?: Option
@@ -54,11 +55,13 @@ export function createMarketingClient<Option extends ClientOptions>(
     atomListeners,
   } = getClientConfig(options);
 
+  // Resolve hooks from plugins
   let resolvedHooks: Record<string, any> = {};
   for (const [key, value] of Object.entries(pluginsAtoms)) {
     resolvedHooks[getAtomKey(key)] = () => useStore(value);
   }
 
+  // Combine plugin actions with resolved hooks and core utilities
   const routes = {
     ...pluginsActions,
     ...resolvedHooks,
@@ -66,6 +69,7 @@ export function createMarketingClient<Option extends ClientOptions>(
     $store,
   };
 
+  // Create dynamic proxy that handles both internal and plugin endpoint paths
   const proxy = createDynamicPathProxy(
     routes,
     $fetch,
@@ -76,6 +80,7 @@ export function createMarketingClient<Option extends ClientOptions>(
 
   type ClientAPI = InferClientAPI<Option>;
 
+  // Return properly typed client with both internal and plugin endpoints
   return proxy as RequireTopLevel<
     UnionToIntersection<InferResolvedHooks<Option>> &
       ClientAPI &
