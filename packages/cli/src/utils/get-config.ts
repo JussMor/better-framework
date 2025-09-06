@@ -1,7 +1,7 @@
 import babelPresetReact from "@babel/preset-react";
 import babelPresetTypeScript from "@babel/preset-typescript";
-import type { BetterMarketingOptions } from "better-marketing";
-import { BetterMarketingError, logger } from "better-marketing";
+import type { BetterFrameworkOptions } from "better-framework";
+import { BetterFrameworkError, logger } from "better-framework";
 import { loadConfig } from "c12";
 import fs, { existsSync } from "fs";
 import path from "path";
@@ -9,6 +9,13 @@ import { addSvelteKitEnvModules } from "./add-svelte-kit-env-modules";
 import { getTsconfigInfo } from "./get-tsconfig-info";
 
 let possiblePaths = [
+  "framework.ts",
+  "framework.tsx",
+  "framework.js",
+  "framework.jsx",
+  "framework.server.js",
+  "framework.server.ts",
+  // Backward compatibility
   "marketing.ts",
   "marketing.tsx",
   "marketing.js",
@@ -118,7 +125,7 @@ function getPathAliases(cwd: string): Record<string, string> | null {
     return result;
   } catch (error) {
     console.error(error);
-    throw new BetterMarketingError("Error parsing tsconfig.json");
+    throw new BetterFrameworkError("Error parsing tsconfig.json");
   }
 }
 /**
@@ -165,37 +172,50 @@ export async function getConfig({
   shouldThrowOnError?: boolean;
 }) {
   try {
-    let configFile: BetterMarketingOptions | null = null;
+    let configFile: BetterFrameworkOptions | null = null;
     if (configPath) {
       let resolvedPath: string = path.join(cwd, configPath);
       if (existsSync(configPath)) resolvedPath = configPath; // If the configPath is a file, use it as is, as it means the path wasn't relative.
       const { config } = await loadConfig<
         | {
-            marketing: {
-              options: BetterMarketingOptions;
+            framework: {
+              options: BetterFrameworkOptions;
             };
           }
         | {
-            options: BetterMarketingOptions;
+            marketing: {
+              options: BetterFrameworkOptions;
+            };
+          }
+        | {
+            options: BetterFrameworkOptions;
           }
       >({
         configFile: resolvedPath,
         dotenv: true,
         jitiOptions: jitiOptions(cwd),
       });
-      if (!("marketing" in config) && !isDefaultExport(config)) {
+      if (
+        !("marketing" in config) &&
+        !("framework" in config) &&
+        !isDefaultExport(config)
+      ) {
         if (shouldThrowOnError) {
           throw new Error(
-            `Couldn't read your marketing config in ${resolvedPath}. Make sure to default export your marketing instance or to export as a variable named marketing.`
+            `Couldn't read your framework config in ${resolvedPath}. Make sure to default export your framework instance or to export as a variable named framework or marketing.`
           );
         }
         logger.error(
-          `[#better-marketing]: Couldn't read your marketing config in ${resolvedPath}. Make sure to default export your marketing instance or to export as a variable named marketing.`
+          `[#better-framework]: Couldn't read your framework config in ${resolvedPath}. Make sure to default export your framework instance or to export as a variable named framework or marketing.`
         );
         process.exit(1);
       }
       configFile =
-        "marketing" in config ? config.marketing?.options : config.options;
+        "framework" in config
+          ? config.framework?.options
+          : "marketing" in config
+            ? config.marketing?.options
+            : config.options;
     }
 
     if (!configFile) {
@@ -203,10 +223,10 @@ export async function getConfig({
         try {
           const { config } = await loadConfig<{
             marketing: {
-              options: BetterMarketingOptions;
+              options: BetterFrameworkOptions;
             };
             default?: {
-              options: BetterMarketingOptions;
+              options: BetterFrameworkOptions;
             };
           }>({
             configFile: possiblePath,

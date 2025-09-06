@@ -5,7 +5,7 @@ This document explains the repository architecture, how to run and debug the cod
 ## Quick summary
 
 - Repo type: monorepo (pnpm + Turborepo)
-- Main apps: `apps/docs`, `apps/marketing-demo`, `apps/web` and `packages/better-marketing` (library)
+  -- Main apps: `apps/docs`, `apps/marketing-demo`, `apps/web` and `packages/better-marketing` (library)
 - Frameworks: Next.js (app dir), TypeScript, Tailwind/CSS in apps where present
 
 ## Repo layout (high level)

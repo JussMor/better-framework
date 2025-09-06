@@ -12,10 +12,16 @@ export * from "./plugins";
 export * from "./types";
 
 // Export React client as the main client
-export { createMarketingClient } from "./react";
+export { createFrameworkClient } from "./react";
 
 // Export React hooks
 export { useStore } from "./react";
 
 // Also provide access to the React-specific client
-export { createMarketingClient as createReactMarketingClient } from "./react";
+export { createFrameworkClient as createReactFrameworkClient } from "./react";
+
+// Backward compatibility aliases
+export {
+  createFrameworkClient as createMarketingClient,
+  createFrameworkClient as createReactMarketingClient,
+} from "./react";

@@ -1,110 +1,78 @@
-# Better Marketing
+# Better Framework
 
-A comprehensive marketing framework for TypeScript applications, inspired by the Better Auth approach.
+A pluggable TypeScript framework for building backend applications with user management and extensible plugins.
 
 ## Features
 
-- **User Management**: Create and manage marketing users with custom properties
-- **Event Tracking**: Track user events and behaviors
-- **Campaign Management**: Create and send marketing campaigns
-- **Segmentation**: Create user segments based on properties and behaviors
-- **Email & SMS**: Send transactional and marketing messages
-- **Analytics Integration**: Connect with multiple analytics providers
-- **Plugin System**: Extensible architecture with plugins
+- **User Management**: Built-in user management system
+- **Plugin Architecture**: Extensible with plugins (campaigns, custom domains)
+- **Type-Safe**: Full TypeScript support with excellent inference
 - **Database Agnostic**: Support for multiple database adapters
-- **Type-Safe**: Full TypeScript support
+- **Framework Integration**: Works with Next.js, Express, and more
+- **Minimal Core**: Lightweight core with optional functionality via plugins
 
 ## Installation
 
 ```bash
-npm install better-marketing
+npm install better-framework
 # or
-yarn add better-marketing
+yarn add better-framework
 # or
-pnpm add better-marketing
+pnpm add better-framework
 ```
 
 ## Quick Start
 
 ```typescript
-import { betterMarketing } from "better-marketing";
-import { memoryAdapter } from "better-marketing/adapters/memory";
+import { betterFramework } from "better-framework";
+import { campaignsPlugin } from "better-framework/plugins/campaigns";
+import { memoryAdapter } from "better-framework/adapters/memory";
 
-const marketing = betterMarketing({
+const app = betterFramework({
   database: memoryAdapter(),
   secret: "your-secret-key-here",
   baseURL: "http://localhost:3000",
-  basePath: "/api/marketing",
-  emailProvider: {
-    name: "resend",
-    sendEmail: async (options) => {
-      // Your email sending logic
-      return { success: true, messageId: "msg_123" };
-    },
-  },
+  basePath: "/api/framework",
+  plugins: [campaignsPlugin()],
 });
 
 // Use as a request handler (Next.js example)
 export async function POST(request: Request) {
-  return marketing.handler(request);
+  return app.handler(request);
+}
+```
+
+// Use as a request handler (Next.js example)
+export async function POST(request: Request) {
+return marketing.handler(request);
 }
 
 // Or use the API directly
-const user = await marketing.api.user.create({
-  email: "user@example.com",
-  firstName: "John",
-  lastName: "Doe",
+const user = await app.api.user.create({
+email: "user@example.com",
+firstName: "John",
+lastName: "Doe",
 });
 
-await marketing.api.track({
-  userId: user.id,
-  eventName: "page_view",
-  properties: { page: "/dashboard" },
-});
-```
+````
 
 ## Configuration
 
 ### Basic Configuration
 
 ```typescript
-import { betterMarketing } from "better-marketing";
+import { betterFramework } from "better-framework";
+import { campaignsPlugin } from "better-framework/plugins/campaigns";
 
-const marketing = betterMarketing({
+const app = betterFramework({
   // Required
   database: yourDatabaseAdapter(),
   secret: "your-secret-key",
 
   // Optional
   baseURL: "https://your-domain.com",
-  basePath: "/api/marketing", // Default: "/api/marketing"
+  basePath: "/api/framework", // Default: "/api/framework"
   trustedOrigins: ["https://your-frontend.com"],
-
-  // Email provider
-  emailProvider: {
-    name: "your-provider",
-    sendEmail: async (options) => {
-      /* ... */
-    },
-  },
-
-  // SMS provider
-  smsProvider: {
-    name: "your-provider",
-    sendSMS: async (options) => {
-      /* ... */
-    },
-  },
-
-  // Analytics providers
-  analyticsProviders: [
-    {
-      name: "google-analytics",
-      track: async (options) => {
-        /* ... */
-      },
-    },
-  ],
 
   // Session configuration
   session: {
@@ -120,11 +88,12 @@ const marketing = betterMarketing({
   },
 
   // Plugins
+  plugins: [campaignsPlugin()],
   plugins: [
     // Add your plugins here
   ],
 });
-```
+````
 
 ## Database Adapters
 
@@ -132,19 +101,19 @@ Better Marketing supports multiple database adapters:
 
 ```typescript
 // Memory adapter (for development/testing)
-import { memoryAdapter } from "better-marketing/adapters/memory";
+import { memoryAdapter } from "better-framework/adapters/memory";
 const marketing = betterMarketing({
   database: memoryAdapter(),
 });
 
 // Prisma adapter
-import { prismaAdapter } from "better-marketing/adapters/prisma";
+import { prismaAdapter } from "better-framework/adapters/prisma";
 const marketing = betterMarketing({
   database: prismaAdapter(prisma),
 });
 
 // Kysely adapter
-import { kyselyAdapter } from "better-marketing/adapters/kysely";
+import { kyselyAdapter } from "better-framework/adapters/kysely";
 const marketing = betterMarketing({
   database: kyselyAdapter(db),
 });
@@ -255,7 +224,7 @@ const result = await marketing.api.sms.send({
 ### Next.js
 
 ```typescript
-// app/api/marketing/[...better-marketing]/route.ts
+// app/api/framework/[...better-framework]/route.ts
 import { marketing } from "@/lib/marketing";
 
 export async function GET(request: Request) {

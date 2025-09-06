@@ -1,5 +1,5 @@
 /**
- * Better Marketing - A comprehensive marketing framework for TypeScript applications
+ * Better Framework - A comprehensive framework for TypeScript applications
  */
 
 export * from "./types";
@@ -7,8 +7,13 @@ export * from "./types";
 // Core functionality
 export * from "./core";
 export { init } from "./init";
-export { betterMarketing, type BetterMarketingOptions } from "./marketing";
-export type { Marketing } from "./marketing";
+export {
+  betterFramework,
+  betterMarketing,
+  type BetterFrameworkOptions,
+  type BetterMarketingOptions,
+} from "./marketing";
+export type { Framework, Marketing } from "./marketing";
 
 // Error handling
 export * from "./error";
@@ -21,6 +26,6 @@ export * from "./api/call";
 export * from "./api/to-marketing-endpoints";
 export { generateApiKey } from "./crypto";
 export * from "./test";
-// Note: capitalizeFirstLetter is available from "better-marketing/client/react" if needed
+// Note: capitalizeFirstLetter is available from "better-framework/client/react" if needed
 // Plugins
 export * from "./plugins";

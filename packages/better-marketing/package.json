@@ -1,21 +1,20 @@
 {
-  "name": "better-marketing",
+  "name": "better-framework",
   "version": "0.1.0",
-  "description": "A comprehensive marketing framework for TypeScript applications",
+  "description": "A small core framework for TypeScript apps with pluggable domains (users, campaigns)",
   "keywords": [
-    "marketing",
-    "email",
-    "sms",
-    "analytics",
-    "campaigns",
-    "automation",
+    "framework",
     "typescript",
-    "framework"
+    "users",
+    "campaigns",
+    "pluggable",
+    "modular",
+    "backend"
   ],
-  "homepage": "https://better-marketing.dev",
+  "homepage": "https://better-framework.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/everfaz/better-marketing.git"
+    "url": "https://github.com/everfaz/better-framework.git"
   },
   "license": "MIT",
   "author": {

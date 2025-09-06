@@ -1,5 +1,5 @@
-import { logger } from "better-marketing";
-import { getAdapter } from "better-marketing/db";
+import { logger } from "better-framework";
+import { getAdapter } from "better-framework/db";
 import chalk from "chalk";
 import { Command } from "commander";
 import { existsSync } from "fs";
@@ -33,7 +33,7 @@ export async function generateAction(opts: any) {
   });
   if (!config) {
     logger.error(
-      "No configuration file found. Add a `marketing.ts` file to your project or pass the path to the configuration file using the `--config` flag."
+      "No configuration file found. Add a `framework.ts` file to your project or pass the path to the configuration file using the `--config` flag."
     );
     return;
   }

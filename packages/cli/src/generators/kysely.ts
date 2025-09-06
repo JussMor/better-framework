@@ -1,18 +1,18 @@
-import { getMigrations } from "better-marketing/db";
+import { getMigrations } from "better-framework/db";
 import type { SchemaGenerator } from "./types";
 
 export const generateMigrations: SchemaGenerator = async ({
-	options,
-	file,
+  options,
+  file,
 }) => {
-	const { compileMigrations } = await getMigrations(options);
-	const migrations = await compileMigrations();
-	return {
-		code: migrations.trim() === ";" ? "" : migrations,
-		fileName:
-			file ||
-			`./better-marketing_migrations/${new Date()
-				.toISOString()
-				.replace(/:/g, "-")}.sql`,
-	};
+  const { compileMigrations } = await getMigrations(options);
+  const migrations = await compileMigrations();
+  return {
+    code: migrations.trim() === ";" ? "" : migrations,
+    fileName:
+      file ||
+      `./better-framework_migrations/${new Date()
+        .toISOString()
+        .replace(/:/g, "-")}.sql`,
+  };
 };

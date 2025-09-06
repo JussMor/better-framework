@@ -1,7 +1,9 @@
-import { createMarketingClient } from "better-marketing/client/react";
-import { campaignsClientPlugin } from "better-marketing/client";
+import {
+  campaignsClientPlugin,
+  createFrameworkClient,
+} from "better-framework/client";
 
 // Let TypeScript infer the client type instead of hardcoding ReturnType
-export const clientMk = createMarketingClient({
+export const clientMk = createFrameworkClient({
   plugins: [campaignsClientPlugin()],
 });

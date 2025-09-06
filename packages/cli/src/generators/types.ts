@@ -1,14 +1,21 @@
-import type { Adapter, BetterMarketingOptions } from "better-marketing";
+import type { Adapter, BetterFrameworkOptions } from "better-framework";
+
+export interface GenerateInput {
+  adapter?: Adapter;
+  createSystemPrompt: (
+    options: BetterFrameworkOptions;
+  ) => Promise<string> | string;
+}
 
 export interface SchemaGenerator {
-	(opts: {
-		file?: string;
-		adapter: Adapter;
-		options: BetterMarketingOptions;
-	}): Promise<{
-		code?: string;
-		fileName: string;
-		overwrite?: boolean;
-		append?: boolean;
-	}>;
+  (opts: {
+    file?: string;
+    adapter: Adapter;
+    options: BetterFrameworkOptions;
+  }): Promise<{
+    code?: string;
+    fileName: string;
+    overwrite?: boolean;
+    append?: boolean;
+  }>;
 }

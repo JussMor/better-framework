@@ -40,10 +40,10 @@ type InferResolvedHooks<O extends ClientOptions> =
 type RequireTopLevel<T> = T extends object ? { [K in keyof T]-?: T[K] } : T;
 
 /**
- * Creates a marketing client with React hooks integration
+ * Creates a framework client with React hooks integration
  * Ensures both internal endpoints and plugin endpoints are properly typed and accessible
  */
-export function createMarketingClient<Option extends ClientOptions>(
+export function createFrameworkClient<Option extends ClientOptions>(
   options?: Option
 ) {
   const {

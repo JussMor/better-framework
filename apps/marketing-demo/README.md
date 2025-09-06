@@ -22,7 +22,7 @@ pnpm install
 
 ### Build the Better Marketing Package
 
-First, build the better-marketing package:
+First, build the better-framework package:
 
 ```bash
 pnpm --filter better-marketing build
@@ -122,7 +122,7 @@ To make changes to the demo:
 2. The dev server will automatically reload
 3. Changes to the `better-marketing` package require rebuilding:
    ```bash
-   pnpm --filter better-marketing build
+   pnpm --filter packages/better-marketing build
    ```
 
 ## Learn More

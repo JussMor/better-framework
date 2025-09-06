@@ -1,4 +1,4 @@
-import { MemoryDB } from "better-marketing/adapters/memory";
+import type { MemoryDB } from "better-framework/adapters/memory";
 
 // In-memory database for demo purposes. Each key represents a model/table.
 // NOTE: Data will reset on every server restart (stateless).

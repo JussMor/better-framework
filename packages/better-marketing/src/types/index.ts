@@ -80,8 +80,6 @@ export interface MarketingEmail {
   createdAt: Date;
 }
 
-
-
 export interface Segment {
   id: string;
   name: string;
@@ -157,104 +155,6 @@ export interface ABTestVariant {
   name: string;
   content: string;
   isControl: boolean;
-}
-
-export interface EmailProvider {
-  name: string;
-  sendEmail: (options: SendEmailOptions) => Promise<EmailResult>;
-  sendBulkEmail?: (options: SendBulkEmailOptions) => Promise<BulkEmailResult>;
-}
-
-export interface SendEmailOptions {
-  to: string | string[];
-  from: string;
-  subject: string;
-  html?: string;
-  text?: string;
-  attachments?: EmailAttachment[];
-  headers?: Record<string, string>;
-}
-
-export interface SendBulkEmailOptions {
-  messages: SendEmailOptions[];
-}
-
-export interface EmailResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-export interface BulkEmailResult {
-  success: boolean;
-  results: EmailResult[];
-  error?: string;
-}
-
-export interface EmailAttachment {
-  filename: string;
-  content: Buffer | string;
-  contentType?: string;
-}
-
-export interface SMSProvider {
-  name: string;
-  sendSMS: (options: SendSMSOptions) => Promise<SMSResult>;
-  sendBulkSMS?: (options: SendBulkSMSOptions) => Promise<BulkSMSResult>;
-}
-
-export interface SendSMSOptions {
-  to: string;
-  from: string;
-  body: string;
-}
-
-export interface SendBulkSMSOptions {
-  messages: SendSMSOptions[];
-}
-
-export interface SMSResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-export interface BulkSMSResult {
-  success: boolean;
-  results: SMSResult[];
-  error?: string;
-}
-
-export interface AnalyticsProvider {
-  name: string;
-  track: (options: AnalyticsTrackOptions) => Promise<AnalyticsResult>;
-  identify: (options: AnalyticsIdentifyOptions) => Promise<AnalyticsResult>;
-  page?: (options: AnalyticsPageOptions) => Promise<AnalyticsResult>;
-}
-
-export interface AnalyticsTrackOptions {
-  userId: string;
-  event: string;
-  properties?: Record<string, any>;
-  timestamp?: Date;
-}
-
-export interface AnalyticsIdentifyOptions {
-  userId: string;
-  traits?: Record<string, any>;
-  timestamp?: Date;
-}
-
-export interface AnalyticsPageOptions {
-  userId: string;
-  name?: string;
-  properties?: Record<string, any>;
-  timestamp?: Date;
-}
-
-export interface AnalyticsResult {
-  success: boolean;
-  error?: string;
 }
 
 export interface MarketingContext {
@@ -484,9 +384,6 @@ export interface BetterMarketingOptions {
          */
         debugLogs?: AdapterDebugLogs;
       };
-  emailProvider?: EmailProvider;
-  smsProvider?: SMSProvider;
-  analyticsProviders?: AnalyticsProvider[];
   plugins?: BetterMarketingPlugin[];
   secret?: string;
   baseURL?: string;
@@ -737,3 +634,8 @@ export interface BetterMarketingOptions {
   };
   databaseHooks?: MarketingDatabaseHooks;
 }
+
+// Framework type aliases for better-framework
+export type BetterFrameworkOptions = BetterMarketingOptions;
+export type FrameworkContext = MarketingContext;
+export type BetterFrameworkPlugin = BetterMarketingPlugin;
