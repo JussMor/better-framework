@@ -68,7 +68,7 @@ importers:
         version: 1.3.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       better-framework:
         specifier: workspace:*
-        version: link:../../packages/better-marketing
+        version: link:../../packages/better-framework
       better-sqlite3:
         specifier: ^12.2.0
         version: 12.2.0
@@ -150,7 +150,7 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
-  packages/better-marketing:
+  packages/better-framework:
     dependencies:
       '@better-fetch/fetch':
         specifier: ^1.1.18
@@ -172,7 +172,7 @@ importers:
         version: 0.11.4
       zod:
         specifier: ^4.0.0
-        version: 4.0.0
+        version: 4.1.5
     devDependencies:
       '@types/better-sqlite3':
         specifier: ^7.6.13
@@ -251,7 +251,7 @@ importers:
         version: 2.4.9
       better-framework:
         specifier: workspace:*
-        version: link:../better-marketing
+        version: link:../better-framework
       better-sqlite3:
         specifier: ^11.6.0
         version: 11.10.0

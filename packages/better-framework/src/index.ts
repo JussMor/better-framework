@@ -22,4 +22,4 @@ export * from "./api/to-framework-endpoints";
 export { generateApiKey } from "./crypto";
 // Note: capitalizeFirstLetter is available from "better-framework/client/react" if needed
 // Plugins
-export * from "./plugins";
+export * from "./types/plugins";
