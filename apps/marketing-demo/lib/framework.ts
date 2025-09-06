@@ -1,7 +1,4 @@
-import {
-  betterFramework,
-  type Framework,
-} from "../../../packages/better-framework/dist";
+import { betterFramework, type Framework } from "better-framework";
 import { db } from "./kysely-db";
 import { notificationsPlugin } from "./plugins/notifications-plugin";
 
@@ -30,16 +27,5 @@ export const framework: Framework = betterFramework({
     enabled: true,
     window: 15 * 60 * 1000, // 15 minutes
     max: 100, // requests per window
-  },
-});
-
-framework.api.createUser({
-  body: {
-    email: "user@example.com",
-    firstName: "John",
-    lastName: "Doe",
-    // add phone or properties here if needed, e.g.:
-    // phone: "+12223334444",
-    // properties: { plan: "demo" },
   },
 });
