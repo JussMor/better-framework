@@ -1,6 +1,7 @@
 import { betterMarketing } from "better-marketing";
 import { campaignsPlugin } from "better-marketing/plugins/campaigns";
 import { db } from "./kysely-db";
+import { notificationsPlugin } from "./plugins/notifications-plugin";
 
 export const marketing = betterMarketing({
   // Kysely SQLite configuration for schema generation support
@@ -14,7 +15,7 @@ export const marketing = betterMarketing({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
 
   basePath: "/api/marketing",
-  plugins: [campaignsPlugin()],
+  plugins: [campaignsPlugin(), notificationsPlugin()],
 
   // Email provider configuration (mock for demo)
   emailProvider: {
@@ -78,5 +79,33 @@ export const marketing = betterMarketing({
     enabled: true,
     window: 15 * 60 * 1000, // 15 minutes
     max: 100, // requests per window
+  },
+});
+
+// Debug: Log available API methods
+console.log("Available API methods:", Object.keys(marketing.api));
+console.log(
+  "Campaign methods:",
+  Object.keys(marketing.api).filter((k) => k.includes("Campaign"))
+);
+
+marketing.api.createUser({
+  body: {
+    email: "user@example.com",
+    firstName: "John",
+    lastName: "Doe",
+    // add phone or properties here if needed, e.g.:
+    // phone: "+12223334444",
+    // properties: { plan: "demo" },
+  },
+});
+
+marketing.api.createCampaign({
+  body: {
+    name: "New Campaign",
+    type: "email", // required field
+    status: "draft",
+    subject: "Test Campaign Subject",
+    content: "Campaign content here",
   },
 });
