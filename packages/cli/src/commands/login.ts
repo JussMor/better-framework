@@ -1,7 +1,7 @@
 import { Command } from "commander";
-import { logger } from "better-auth";
-import { createAuthClient } from "better-auth/client";
-import { deviceAuthorizationClient } from "better-auth/client/plugins";
+import { logger } from "better-framework";
+import { createFrameworkClient } from "better-framework/client";
+// import { deviceAuthorizationClient } from "better-framework/client/plugins";
 import chalk from "chalk";
 import open from "open";
 import yoctoSpinner from "yocto-spinner";
@@ -55,29 +55,29 @@ export async function loginAction(opts: any) {
 	}
 
 	// Create the auth client
-	const authClient = createAuthClient({
-		baseURL: serverUrl,
-		plugins: [deviceAuthorizationClient()],
-	});
+	const authClient = createFrameworkClient({
+    baseURL: serverUrl,
+    plugins: [],
+  });
 
 	const spinner = yoctoSpinner({ text: "Requesting device authorization..." });
 	spinner.start();
 
 	try {
 		// Request device code
-		const { data, error } = await authClient.device.code({
-			client_id: clientId,
-			scope: "openid profile email",
-		});
+		// const { data, error } = await authClient.device.code({
+		// 	client_id: clientId,
+		// 	scope: "openid profile email",
+		// });
 
 		spinner.stop();
 
-		if (error || !data) {
-			logger.error(
-				`Failed to request device authorization: ${error?.error_description || "Unknown error"}`,
-			);
-			process.exit(1);
-		}
+		// if (error || !data) {
+		// 	logger.error(
+		// 		`Failed to request device authorization: ${error?.error_description || "Unknown error"}`,
+		// 	);
+		// 	process.exit(1);
+		// }
 
 		const {
 			device_code,
@@ -86,14 +86,22 @@ export async function loginAction(opts: any) {
 			verification_uri_complete,
 			interval = 5,
 			expires_in,
-		} = data;
+		} = {
+			device_code: "demo-device-code",
+			user_code: "DEMO-CODE",
+			verification_uri: "https://demo.better-auth.com/device",
+			verification_uri_complete:
+				"https://demo.better-auth.com/device?user_code=DEMO-CODE",
+			interval: 5,
+			expires_in: 600,
+		};
 
 		// Display authorization instructions
 		console.log("");
-		console.log(chalk.cyan("📱 Device Authorization Required"));
-		console.log("");
-		console.log(`Please visit: ${chalk.underline.blue(verification_uri)}`);
-		console.log(`Enter code: ${chalk.bold.green(user_code)}`);
+		// console.log(chalk.cyan("📱 Device Authorization Required"));
+		// console.log("");
+		// console.log(`Please visit: ${chalk.underline.blue(verification_uri)}`);
+		// console.log(`Enter code: ${chalk.bold.green(user_code)}`);
 		console.log("");
 
 		// Ask if user wants to open browser
@@ -102,10 +110,10 @@ export async function loginAction(opts: any) {
 			initialValue: true,
 		});
 
-		if (!isCancel(shouldOpen) && shouldOpen) {
-			const urlToOpen = verification_uri_complete || verification_uri;
-			await open(urlToOpen);
-		}
+		// if (!isCancel(shouldOpen) && shouldOpen) {
+		// 	const urlToOpen = verification_uri_complete || verification_uri;
+		// 	await open(urlToOpen);
+		// }
 
 		// Start polling
 		console.log(
@@ -113,31 +121,32 @@ export async function loginAction(opts: any) {
 				`Waiting for authorization (expires in ${Math.floor(expires_in / 60)} minutes)...`,
 			),
 		);
+		const token = "demo-token";
 
-		const token = await pollForToken(
-			authClient,
-			device_code,
-			clientId,
-			interval,
-		);
+		// const token = await pollForToken(
+		// 	authClient,
+		// 	device_code,
+		// 	clientId,
+		// 	interval,
+		// );
 
 		if (token) {
 			// Store the token
 			await storeToken(token);
 
 			// Get user info
-			const { data: session } = await authClient.getSession({
-				fetchOptions: {
-					headers: {
-						Authorization: `Bearer ${token.access_token}`,
-					},
-				},
-			});
+			// const { data: session } = await authClient.getSession({
+			// 	fetchOptions: {
+			// 		headers: {
+			// 			Authorization: `Bearer ${token.access_token}`,
+			// 		},
+			// 	},
+			// });
 
 			outro(
-				chalk.green(
-					`✅ Demo login successful! Logged in as ${session?.user?.name || session?.user?.email || "User"}`,
-				),
+				// chalk.green(
+				// 	`✅ Demo login successful! Logged in as ${session?.user?.name || session?.user?.email || "User"}`,
+				// ),
 			);
 
 			console.log(

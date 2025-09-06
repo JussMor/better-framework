@@ -3,6 +3,7 @@ import { getAdapter, getMigrations } from "better-framework/db";
 import chalk from "chalk";
 import { Command } from "commander";
 import { existsSync } from "fs";
+import fs from "fs/promises";
 import path from "path";
 import prompts from "prompts";
 import yoctoSpinner from "yocto-spinner";
@@ -48,70 +49,28 @@ export async function migrateAction(opts: any) {
   if (db.id !== "kysely") {
     if (db.id === "prisma") {
       logger.error(
-        "The migrate command only works with the built-in Kysely adapter. For Prisma, run `npx @better-auth/cli generate` to create the schema, then use Prisma’s migrate or push to apply it."
+        "The migrate command only works with the built-in Kysely adapter. For Prisma, run `npx @better-auth/cli generate` to create the schema, then use Prisma's migrate or push to apply it."
       );
-      try {
-        const telemetry = await createTelemetry(config);
-        await telemetry.publish({
-          type: "cli_migrate",
-          payload: {
-            outcome: "unsupported_adapter",
-            adapter: "prisma",
-            config: getTelemetryAuthConfig(config),
-          },
-        });
-      } catch {}
       process.exit(0);
     }
     if (db.id === "drizzle") {
       logger.error(
-        "The migrate command only works with the built-in Kysely adapter. For Drizzle, run `npx @better-auth/cli generate` to create the schema, then use Drizzle’s migrate or push to apply it."
+        "The migrate command only works with the built-in Kysely adapter. For Drizzle, run `npx @better-auth/cli generate` to create the schema, then use Drizzle's migrate or push to apply it."
       );
-      try {
-        const telemetry = await createTelemetry(config);
-        await telemetry.publish({
-          type: "cli_migrate",
-          payload: {
-            outcome: "unsupported_adapter",
-            adapter: "drizzle",
-            config: getTelemetryAuthConfig(config),
-          },
-        });
-      } catch {}
       process.exit(0);
     }
     logger.error("Migrate command isn't supported for this adapter.");
-    try {
-      const telemetry = await createTelemetry(config);
-      await telemetry.publish({
-        type: "cli_migrate",
-        payload: {
-          outcome: "unsupported_adapter",
-          adapter: db.id,
-          config: getTelemetryAuthConfig(config),
-        },
-      });
-    } catch {}
     process.exit(1);
   }
 
   const spinner = yoctoSpinner({ text: "preparing migration..." }).start();
 
-  const { toBeAdded, toBeCreated, runMigrations } = await getMigrations(config);
+  const { toBeAdded, toBeCreated, runMigrations, compileMigrations } =
+    await getMigrations(config);
 
   if (!toBeAdded.length && !toBeCreated.length) {
     spinner.stop();
     logger.info("🚀 No migrations needed.");
-    try {
-      const telemetry = await createTelemetry(config);
-      await telemetry.publish({
-        type: "cli_migrate",
-        payload: {
-          outcome: "no_changes",
-          config: getTelemetryAuthConfig(config),
-        },
-      });
-    } catch {}
     process.exit(0);
   }
 
@@ -146,27 +105,43 @@ export async function migrateAction(opts: any) {
 
   if (!migrate) {
     logger.info("Migration cancelled.");
-    try {
-      const telemetry = await createTelemetry(config);
-      await telemetry.publish({
-        type: "cli_migrate",
-        payload: { outcome: "aborted", config: getTelemetryAuthConfig(config) },
-      });
-    } catch {}
     process.exit(0);
   }
 
   spinner?.start("migrating...");
+
+  // Generate timestamped migration file
+  if (toBeAdded.length || toBeCreated.length) {
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-T:.Z]/g, "")
+      .slice(0, 14);
+    const migrationDir = path.join(cwd, "better-framework_migrations");
+    const migrationFile = path.join(
+      migrationDir,
+      `${timestamp}_auto_migration.sql`
+    );
+
+    // Ensure migration directory exists
+    await fs.mkdir(migrationDir, { recursive: true });
+
+    // Compile and write migration SQL
+    const sql = await compileMigrations();
+    const migrationContent = `-- Migration: ${timestamp}_auto_migration
+-- Created: ${new Date().toISOString()}
+-- Description: Auto-generated migration
+
+${sql}`;
+
+    await fs.writeFile(migrationFile, migrationContent, "utf8");
+    logger.info(
+      `📝 Migration file created: ${path.relative(cwd, migrationFile)}`
+    );
+  }
+
   await runMigrations();
   spinner.stop();
   logger.info("🚀 migration was completed successfully!");
-  try {
-    const telemetry = await createTelemetry(config);
-    await telemetry.publish({
-      type: "cli_migrate",
-      payload: { outcome: "migrated", config: getTelemetryAuthConfig(config) },
-    });
-  } catch {}
   process.exit(0);
 }
 
