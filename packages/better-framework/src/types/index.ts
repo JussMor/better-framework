@@ -12,6 +12,7 @@ import { FrameworkMiddleware } from "../api/call";
 import { FieldAttribute } from "../db";
 import { getFrameworkTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
+import type { FrameworkEvent, User } from "../db/schema";
 import type { Logger } from "../utils/logger";
 import { createLogger } from "../utils/logger";
 import { Adapter, AdapterInstance } from "./adapter";
@@ -25,43 +26,27 @@ export * from "./helper";
 export * from "./plugins";
 
 export type Models =
-  | "frameworkUser"
+  | "user"
   | "frameworkEvent"
   | "frameworkEmail"
   | "campaign"
   | "segment"
-  | "user"
   | "account"
   | "session"
   | "verification";
 
-export interface FrameworkUser {
-  id: string;
-  email: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  properties?: Record<string, any>;
-  segments?: string[];
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface FrameworkEvent {
-  id: string;
-  userId: string;
-  eventName: string;
-  properties?: Record<string, any>;
-  timestamp: Date;
-  sessionId?: string;
-  source?: string;
-}
+export type {
+  FrameworkEvent,
+  FrameworkEventInput,
+  User,
+  UserInput,
+} from "../db/schema";
 
 export interface FrameworkContext {
   appName: string;
   session: {
     session: Record<string, any>;
-    user: FrameworkUser & Record<string, any>;
+    user: User & Record<string, any>;
   } | null;
   adapter: Adapter;
   internalAdapter: ReturnType<typeof createInternalAdapter>;
@@ -78,28 +63,24 @@ export interface FrameworkContext {
 
 // Database hooks for framework operations
 export interface FrameworkDatabaseHooks {
-  frameworkUser?: {
+  user?: {
     create?: {
       before?: (
-        user: FrameworkUser & Record<string, unknown>,
+        user: User & Record<string, unknown>,
         context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
-      >;
+      ) => Promise<boolean | { data: Partial<User & Record<string, unknown>> }>;
       after?: (
-        user: FrameworkUser & Record<string, unknown>,
+        user: User & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
     update?: {
       before?: (
-        userData: Partial<FrameworkUser & Record<string, unknown>>,
+        userData: Partial<User & Record<string, unknown>>,
         context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
-      >;
+      ) => Promise<boolean | { data: Partial<User & Record<string, unknown>> }>;
       after?: (
-        user: FrameworkUser & Record<string, unknown>,
+        user: User & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
@@ -126,32 +107,6 @@ export interface FrameworkDatabaseHooks {
       >;
       after?: (
         event: FrameworkEvent & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-  };
-  user?: {
-    create?: {
-      before?: (
-        user: FrameworkUser & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
-      >;
-      after?: (
-        user: FrameworkUser & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-    update?: {
-      before?: (
-        userData: Partial<FrameworkUser & Record<string, unknown>>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
-      >;
-      after?: (
-        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
@@ -218,7 +173,7 @@ export interface BetterFrameworkOptions {
   };
 
   user?: {
-    fields?: Partial<Record<keyof OmitId<FrameworkUser>, string>>;
+    fields?: Partial<Record<keyof OmitId<User>, string>>;
     modelName?: string;
     additionalFields?: {
       [key: string]: FieldAttribute;

@@ -1,8 +1,8 @@
 import type {
   Adapter,
   BetterFrameworkOptions,
-  GenericEndpointContext,
   FrameworkDatabaseHooks,
+  GenericEndpointContext,
   Models,
   Where,
 } from "../types";
@@ -18,15 +18,7 @@ export function getWithHooks(
   type HookModels = keyof FrameworkDatabaseHooks;
   type BaseModels = Extract<
     Models,
-    | "user"
-    | "account"
-    | "session"
-    | "verification"
-    | "user"
-    | "frameworkEvent"
-    | "frameworkEmail"
-    | "campaign"
-    | "segment"
+    "user" | "account" | "session" | "verification" | "frameworkEvent"
   > &
     HookModels;
 

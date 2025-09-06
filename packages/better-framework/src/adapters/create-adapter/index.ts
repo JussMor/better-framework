@@ -247,22 +247,22 @@ export const createAdapter =
       customModelName?: string;
       forceAllowId?: boolean;
     }) => {
+      // Fix logic: useNumberId should be true only when explicitly set to true
+      const useNumberId = options.advanced?.database?.useNumberId === true;
       const shouldGenerateId =
-        !config.disableIdGeneration &&
-        !options.advanced?.database?.useNumberId &&
-        !forceAllowId;
+        !config.disableIdGeneration && !useNumberId && !forceAllowId;
       const model = getDefaultModelName(customModelName ?? "id");
       return {
-        type: !options.advanced?.database?.useNumberId ? "number" : "string",
+        type: useNumberId ? "number" : "string",
         required: shouldGenerateId ? true : false,
         ...(shouldGenerateId
           ? {
               defaultValue() {
                 if (config.disableIdGeneration) return undefined;
-                const useNumberId = !options.advanced?.database?.useNumberId;
                 let generateId = options.advanced?.database?.generateId;
 
-                if (!generateId || useNumberId) return undefined;
+                if (useNumberId) return undefined; // For number IDs, let DB handle it
+
                 if (generateId) {
                   return generateId({
                     model,

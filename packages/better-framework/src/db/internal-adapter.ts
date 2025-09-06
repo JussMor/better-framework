@@ -11,11 +11,11 @@
       );keting
  */
 
-import type {
+import {
   Adapter,
   BetterFrameworkOptions,
   FrameworkContext,
-  FrameworkUser,
+  User,
 } from "../types";
 import { GenericEndpointContext } from "../types/context";
 import type { InternalLogger } from "../utils/logger";
@@ -36,8 +36,8 @@ export function createInternalAdapter(
   return {
     // User operations - flattened to match Better Auth pattern
     createUser: async <T>(
-      user: Omit<FrameworkUser, "id" | "createdAt" | "updatedAt"> &
-        Partial<FrameworkUser> &
+      user: Omit<User, "id" | "createdAt" | "updatedAt"> &
+        Partial<User> &
         Record<string, any>,
       context?: GenericEndpointContext
     ) => {
@@ -52,7 +52,7 @@ export function createInternalAdapter(
         undefined,
         context
       );
-      return createdUser as T & FrameworkUser;
+      return createdUser as T & User;
     },
 
     getUserById: async (id: string, context?: GenericEndpointContext) => {
@@ -60,12 +60,12 @@ export function createInternalAdapter(
         model: "user",
         where: [{ field: "id", value: id }],
       });
-      return user as FrameworkUser | null;
+      return user as User | null;
     },
 
     updateUser: async <T>(
       id: string,
-      updates: Partial<FrameworkUser> & Record<string, any>,
+      updates: Partial<User> & Record<string, any>,
       context?: GenericEndpointContext
     ) => {
       const updatedUser = await updateWithHooks(
@@ -78,7 +78,7 @@ export function createInternalAdapter(
         undefined,
         context
       );
-      return updatedUser as T & FrameworkUser;
+      return updatedUser as T & User;
     },
 
     deleteUser: async (id: string, context?: GenericEndpointContext) => {

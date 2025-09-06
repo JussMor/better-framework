@@ -6,7 +6,7 @@ import type {
 import type { Atom } from "nanostores";
 import { InferFieldsInputClient, InferFieldsOutput } from "../db/field";
 import { Framework } from "../framework";
-import { BetterFrameworkOptions, FrameworkUser } from "../types";
+import { BetterFrameworkOptions, User } from "../types";
 import type {
   LiteralString,
   StripEmptyObjects,
@@ -82,8 +82,7 @@ export type InferSessionFromClient<O extends ClientOptions> = StripEmptyObjects<
   UnionToIntersection<InferAdditionalFromClient<O, "session", "output">>
 >;
 export type InferUserFromClient<O extends ClientOptions> = StripEmptyObjects<
-  FrameworkUser &
-    UnionToIntersection<InferAdditionalFromClient<O, "user", "output">>
+  User & UnionToIntersection<InferAdditionalFromClient<O, "user", "output">>
 >;
 
 export type InferPluginsFromClient<O extends ClientOptions> =

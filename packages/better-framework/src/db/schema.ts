@@ -12,7 +12,7 @@ import type { FieldAttribute } from "./field";
  * Framework database schema definitions using Zod
  */
 
-export const frameworkUserSchema = z.object({
+export const userSchema = z.object({
   id: z.string(),
   email: z.string().transform((val) => val.toLowerCase()),
   firstName: z.string().optional(),
@@ -37,8 +37,15 @@ export const frameworkEventSchema = z.object({
 /**
  * Infer TypeScript types from Zod schemas
  */
-export type FrameworkUser = z.infer<typeof frameworkUserSchema>;
+export type User = z.infer<typeof userSchema>;
+export type UserInput = Omit<User, "id" | "createdAt" | "updatedAt"> & {
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 export type FrameworkEvent = z.infer<typeof frameworkEventSchema>;
+export type FrameworkEventInput = Omit<FrameworkEvent, "id" | "timestamp"> & {
+  timestamp?: Date;
+};
 
 /**
  * Parse output data using schema fields
@@ -130,20 +137,17 @@ export function getAllFields(options: BetterFrameworkOptions, table: string) {
 }
 
 /**
- * Parse framework user output
+ * Parse user output
  */
-export function parseFrameworkUserOutput(
-  options: BetterFrameworkOptions,
-  user: FrameworkUser
-) {
+export function parseUserOutput(options: BetterFrameworkOptions, user: User) {
   const schema = getAllFields(options, "user");
   return parseOutputData(user, { fields: schema });
 }
 
 /**
- * Parse framework user input
+ * Parse user input
  */
-export function parseFrameworkUserInput(
+export function parseUserInput(
   options: BetterFrameworkOptions,
   user?: Record<string, any>,
   action?: "create" | "update"
