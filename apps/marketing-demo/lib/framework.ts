@@ -1,9 +1,11 @@
-import { campaignsPlugin } from "better-framework/plugins/campaigns";
-import { betterFramework } from "../../../packages/better-framework/dist";
+import {
+  betterFramework,
+  type Framework,
+} from "../../../packages/better-framework/dist";
 import { db } from "./kysely-db";
 import { notificationsPlugin } from "./plugins/notifications-plugin";
 
-export const framework = betterFramework({
+export const framework: Framework = betterFramework({
   // Kysely SQLite configuration for schema generation support
   database: {
     db: db,
@@ -15,58 +17,7 @@ export const framework = betterFramework({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
 
   basePath: "/api/framework",
-  plugins: [campaignsPlugin(), notificationsPlugin()],
-
-  // Email provider configuration (mock for demo)
-  emailProvider: {
-    name: "demo-email",
-    sendEmail: async (options) => {
-      console.log("📧 Sending email:", {
-        to: options.to,
-        from: options.from,
-        subject: options.subject,
-      });
-
-      // Simulate email sending
-      return {
-        success: true,
-        messageId: `msg_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      };
-    },
-  },
-
-  // SMS provider configuration (mock for demo)
-  smsProvider: {
-    name: "demo-sms",
-    sendSMS: async (options) => {
-      console.log("📱 Sending SMS:", {
-        to: options.to,
-        from: options.from,
-        body: options.body,
-      });
-
-      // Simulate SMS sending
-      return {
-        success: true,
-        messageId: `sms_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-      };
-    },
-  },
-
-  // Analytics providers (mock for demo)
-  // analyticsProviders: [
-  //   {
-  //     name: "demo-analytics",
-  //     track: async (options) => {
-  //       console.log("📊 Analytics event:", {
-  //         userId: options.userId,
-  //         eventName: options.eventName,
-  //         properties: options.properties,
-  //       });
-  //       return { success: true };
-  //     },
-  //   },
-  // ],
+  plugins: [notificationsPlugin()],
 
   // Session configuration
   session: {
@@ -82,13 +33,6 @@ export const framework = betterFramework({
   },
 });
 
-// Debug: Log available API methods
-console.log("Available API methods:", Object.keys(framework.api));
-console.log(
-  "Campaign methods:",
-  Object.keys(framework.api).filter((k) => k.includes("Campaign"))
-);
-
 framework.api.createUser({
   body: {
     email: "user@example.com",
@@ -97,15 +41,5 @@ framework.api.createUser({
     // add phone or properties here if needed, e.g.:
     // phone: "+12223334444",
     // properties: { plan: "demo" },
-  },
-});
-
-framework.api.createCampaign({
-  body: {
-    name: "New Campaign",
-    type: "email", // required field
-    status: "draft",
-    subject: "Test Campaign Subject",
-    content: "Campaign content here",
   },
 });

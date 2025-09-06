@@ -20,21 +20,9 @@ export default function Dashboard() {
         phone: "08042219698",
       });
 
-      // Create a campaign via plugin endpoint (response shape: { campaign: { ... } })
-      const campaign = await clientMk.campaign.create({
-        name: "My Campaign",
-        type: "email",
-        status: "draft",
-        subject: "",
-        content: "",
-        segmentIds: "",
-        scheduledAt: "",
-      });
 
-      const campaign2 = await clientMk.campaign.list();
-      console.log(campaign2);
       // Reusing `user` state to display campaign info for now
-      setUser(campaign);
+      setUser(client);
       setMessage("Campaign created successfully!");
       setMessageType("success");
     } catch (error) {
