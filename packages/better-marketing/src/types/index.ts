@@ -22,6 +22,7 @@ import { BetterMarketingPlugin } from "./plugins";
 export * from "./adapter";
 export * from "./context";
 export * from "./helper";
+export * from "./plugins";
 
 export type Models =
   | "marketingUser"

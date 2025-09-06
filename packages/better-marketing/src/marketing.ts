@@ -2,7 +2,6 @@ import { getEndpoints, router } from "./api";
 import { BetterMarketingError } from "./error";
 import { init } from "./init";
 import type { BetterMarketingOptions, MarketingContext } from "./types";
-import type { FilterActions } from "./types/api";
 import { getBaseURL, getOrigin } from "./utils/url";
 
 /**
@@ -55,7 +54,7 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
       return handler(request);
     },
     // api follows Better Auth pattern - using router endpoints with FilterActions
-    api: api as FilterActions<typeof api>,
+    api: api,
     $ctx: marketingContextPromise, // Changed from $context to $ctx to match Better Auth
     options: options as O,
     // Expose middlewares for potential inspection/debugging
@@ -67,7 +66,7 @@ export type Marketing<
   O extends BetterMarketingOptions = BetterMarketingOptions,
 > = {
   handler: (request: Request) => Promise<Response>;
-  api: FilterActions<ReturnType<typeof router>["endpoints"]>; // Use router endpoints like Better Auth
+  api: ReturnType<typeof getEndpoints<MarketingContext, O>>["api"]; // Include plugin endpoints directly
   $ctx: Promise<MarketingContext>; // Changed from $context to $ctx to match Better Auth
   options: BetterMarketingOptions;
   middlewares: ReturnType<typeof getEndpoints>["middlewares"]; // plugin middlewares

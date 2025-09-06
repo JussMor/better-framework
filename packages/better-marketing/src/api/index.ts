@@ -140,7 +140,10 @@ export function getEndpoints<
 
   const api = toMarketingEndpoints(endpoints, ctx);
 
-  return { api: api as typeof endpoints & PluginEndpoints, middlewares };
+  return {
+    api: api as typeof endpoints & PluginEndpoints,
+    middlewares,
+  };
 }
 
 export const router = (ctx: MarketingContext, options?: any) => {
