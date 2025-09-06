@@ -1,17 +1,17 @@
 import { createEndpoint, createMiddleware } from "better-call";
-import { MarketingContext } from "../types";
+import { FrameworkContext } from "../types";
 
 /**
- * Minimal middleware/endpoint wiring for Better Marketing using better-call.
+ * Minimal middleware/endpoint wiring for Better Framework using better-call.
  * This mirrors the pattern used in better-auth so endpoint hooks and middleware
  * can be composed consistently.
  */
 export const optionsMiddleware = createMiddleware(async () => {
-  // placeholder context for marketing endpoints
-  return {} as MarketingContext;
+  // placeholder context for framework endpoints
+  return {} as FrameworkContext;
 });
 
-export const createMarketingMiddleware = createMiddleware.create({
+export const createFrameworkMiddleware = createMiddleware.create({
   use: [
     optionsMiddleware,
     // second middleware slot for post-hook usage
@@ -21,9 +21,9 @@ export const createMarketingMiddleware = createMiddleware.create({
   ],
 });
 
-export const createMarketingEndpoint = createEndpoint.create({
+export const createFrameworkEndpoint = createEndpoint.create({
   use: [optionsMiddleware],
 });
 
-export type MarketingEndpoint = ReturnType<typeof createMarketingEndpoint>;
-export type MarketingMiddleware = ReturnType<typeof createMarketingMiddleware>;
+export type FrameworkEndpoint = ReturnType<typeof createFrameworkEndpoint>;
+export type FrameworkMiddleware = ReturnType<typeof createFrameworkMiddleware>;

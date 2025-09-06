@@ -13,9 +13,9 @@
 
 import type {
   Adapter,
-  BetterMarketingOptions,
-  MarketingContext,
-  MarketingUser,
+  BetterFrameworkOptions,
+  FrameworkContext,
+  FrameworkUser,
 } from "../types";
 import { GenericEndpointContext } from "../types/context";
 import type { InternalLogger } from "../utils/logger";
@@ -24,10 +24,10 @@ import { getWithHooks } from "./with-hooks";
 export function createInternalAdapter(
   adapter: Adapter,
   ctx: {
-    options: Omit<BetterMarketingOptions, "logger">;
-    hooks: Exclude<BetterMarketingOptions["databaseHooks"], undefined>[];
+    options: Omit<BetterFrameworkOptions, "logger">;
+    hooks: Exclude<BetterFrameworkOptions["databaseHooks"], undefined>[];
     logger: InternalLogger;
-    generateId: MarketingContext["generateId"];
+    generateId: FrameworkContext["generateId"];
   }
 ) {
   const { createWithHooks, updateWithHooks, updateManyWithHooks } =
@@ -36,8 +36,8 @@ export function createInternalAdapter(
   return {
     // User operations - flattened to match Better Auth pattern
     createUser: async <T>(
-      user: Omit<MarketingUser, "id" | "createdAt" | "updatedAt"> &
-        Partial<MarketingUser> &
+      user: Omit<FrameworkUser, "id" | "createdAt" | "updatedAt"> &
+        Partial<FrameworkUser> &
         Record<string, any>,
       context?: GenericEndpointContext
     ) => {
@@ -52,7 +52,7 @@ export function createInternalAdapter(
         undefined,
         context
       );
-      return createdUser as T & MarketingUser;
+      return createdUser as T & FrameworkUser;
     },
 
     getUserById: async (id: string, context?: GenericEndpointContext) => {
@@ -60,12 +60,12 @@ export function createInternalAdapter(
         model: "user",
         where: [{ field: "id", value: id }],
       });
-      return user as MarketingUser | null;
+      return user as FrameworkUser | null;
     },
 
     updateUser: async <T>(
       id: string,
-      updates: Partial<MarketingUser> & Record<string, any>,
+      updates: Partial<FrameworkUser> & Record<string, any>,
       context?: GenericEndpointContext
     ) => {
       const updatedUser = await updateWithHooks(
@@ -78,7 +78,7 @@ export function createInternalAdapter(
         undefined,
         context
       );
-      return updatedUser as T & MarketingUser;
+      return updatedUser as T & FrameworkUser;
     },
 
     deleteUser: async (id: string, context?: GenericEndpointContext) => {

@@ -83,10 +83,10 @@ export default function Dashboard() {
   //   try {
   //     const result = await clientMk.api.email.send({
   //       to: user.email,
-  //       from: "demo@bettermarketing.dev",
-  //       subject: "Welcome to Better Marketing!",
+  //       from: "demo@betterframework.dev",
+  //       subject: "Welcome to Better Framework!",
   //       content:
-  //         "<h1>Welcome!</h1><p>Thank you for trying Better Marketing.</p>",
+  //         "<h1>Welcome!</h1><p>Thank you for trying Better Framework.</p>",
   //     });
 
   //     setMessage(
@@ -102,7 +102,7 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold">Marketing Dashboard</h1>
+      <h1 className="text-3xl font-bold">Framework Dashboard</h1>
 
       {message && (
         <div

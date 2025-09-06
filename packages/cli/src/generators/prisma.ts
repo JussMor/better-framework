@@ -1,6 +1,6 @@
 import { produceSchema } from "@mrleebo/prisma-ast";
-import { capitalizeFirstLetter } from "better-marketing/client/react";
-import { getAuthTables, type FieldType } from "better-marketing/db";
+import { capitalizeFirstLetter } from "better-framework/client/react";
+import { getAuthTables, type FieldType } from "better-framework/db";
 import { existsSync } from "fs";
 import fs from "fs/promises";
 import path from "path";

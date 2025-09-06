@@ -2,7 +2,7 @@ import {
 	type SupportedDatabases,
 	type SupportedPlugin,
 } from "../commands/init";
-import { logger } from "better-marketing";
+import { logger } from "better-framework";
 import { type spinner as clackSpinner } from "@clack/prompts";
 
 export type Import = {

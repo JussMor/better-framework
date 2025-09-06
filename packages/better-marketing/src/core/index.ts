@@ -1,5 +1,5 @@
 /**
- * Core Better Marketing functionality
+ * Core Better Framework functionality
  */
 
 

@@ -1,4 +1,4 @@
-import { getMigrations } from "better-marketing/db";
+import { getMigrations } from "better-framework/db";
 import type { SchemaGenerator } from "./types";
 
 export const generateMigrations: SchemaGenerator = async ({
@@ -11,7 +11,7 @@ export const generateMigrations: SchemaGenerator = async ({
 		code: migrations.trim() === ";" ? "" : migrations,
 		fileName:
 			file ||
-			`./better-marketing_migrations/${new Date()
+			`./better-framework-migrations/${new Date()
 				.toISOString()
 				.replace(/:/g, "-")}.sql`,
 	};

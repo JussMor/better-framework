@@ -5,11 +5,11 @@ import {
 	PostgresDialect,
 	SqliteDialect,
 } from "kysely";
-import type { BetterMarketingOptions } from "../../types";
+import type { BetterFrameworkOptions } from "../../types";
 import type { KyselyDatabaseType } from "./types";
 
 export function getKyselyDatabaseType(
-	db: BetterMarketingOptions["database"],
+	db: BetterFrameworkOptions["database"],
 ): KyselyDatabaseType | null {
 	if (!db) {
 		return null;
@@ -50,7 +50,7 @@ export function getKyselyDatabaseType(
 	return null;
 }
 
-export const createKyselyAdapter = async (config: BetterMarketingOptions) => {
+export const createKyselyAdapter = async (config: BetterFrameworkOptions) => {
 	const db = config.database;
 
 	if (!db) {

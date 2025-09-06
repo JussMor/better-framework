@@ -1,10 +1,10 @@
-import type { Adapter, BetterMarketingOptions } from "better-marketing";
+import type { Adapter, BetterFrameworkOptions } from "better-framework";
 
 export interface SchemaGenerator {
 	(opts: {
 		file?: string;
 		adapter: Adapter;
-		options: BetterMarketingOptions;
+		options: BetterFrameworkOptions;
 	}): Promise<{
 		code?: string;
 		fileName: string;

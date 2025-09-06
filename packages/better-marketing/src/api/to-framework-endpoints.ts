@@ -6,16 +6,16 @@ import {
   type InputContext,
 } from "better-call";
 import { createDefu } from "defu";
-import type { HookEndpointContext, MarketingContext } from "../types";
+import type { HookEndpointContext, FrameworkContext } from "../types";
 import { ShouldPublishLog } from "../utils/logger";
-import type { MarketingEndpoint, MarketingMiddleware } from "./call";
+import type { FrameworkEndpoint, FrameworkMiddleware } from "./call";
 
 // Internal context used while executing an endpoint + hooks
 type InternalContext = InputContext<string, any> &
   EndpointContext<string, any> & {
     asResponse?: boolean;
-    context: MarketingContext & {
-      logger: MarketingContext["logger"];
+    context: FrameworkContext & {
+      logger: FrameworkContext["logger"];
       returned?: unknown;
       responseHeaders?: Headers;
     };
@@ -28,9 +28,9 @@ const defuReplaceArrays = createDefu((obj, key, value) => {
   }
 });
 
-export function toMarketingEndpoints<
-  E extends Record<string, MarketingEndpoint>,
->(endpoints: E, ctx: MarketingContext | Promise<MarketingContext>) {
+export function toFrameworkEndpoints<
+  E extends Record<string, FrameworkEndpoint>,
+>(endpoints: E, ctx: FrameworkContext | Promise<FrameworkContext>) {
   const api: Record<
     string,
     ((
@@ -43,11 +43,11 @@ export function toMarketingEndpoints<
 
   for (const [key, endpoint] of Object.entries(endpoints)) {
     api[key] = async (context) => {
-      const marketingContext = await ctx;
+      const frameworkContext = await ctx;
       let internalContext: InternalContext = {
         ...context,
         context: {
-          ...marketingContext,
+          ...frameworkContext,
           returned: undefined,
           responseHeaders: undefined,
         },
@@ -55,7 +55,7 @@ export function toMarketingEndpoints<
         headers: context?.headers ? new Headers(context?.headers) : undefined,
       };
 
-      const { beforeHooks, afterHooks } = getHooks(marketingContext);
+      const { beforeHooks, afterHooks } = getHooks(frameworkContext);
       const before = await runBeforeHooks(internalContext, beforeHooks);
       if (
         "context" in before &&
@@ -95,7 +95,7 @@ export function toMarketingEndpoints<
 
       if (
         result.response instanceof APIError &&
-        ShouldPublishLog(marketingContext.logger.level, "debug")
+        ShouldPublishLog(frameworkContext.logger.level, "debug")
       ) {
         const respAny: any = result.response;
         result.response.stack =
@@ -123,7 +123,7 @@ async function runBeforeHooks(
   context: InternalContext,
   hooks: {
     matcher: (context: HookEndpointContext) => boolean;
-    handler: MarketingMiddleware;
+    handler: FrameworkMiddleware;
   }[]
 ) {
   let modifiedContext: { headers?: Headers } = {};
@@ -157,7 +157,7 @@ async function runAfterHooks(
   context: InternalContext,
   hooks: {
     matcher: (context: HookEndpointContext) => boolean;
-    handler: MarketingMiddleware;
+    handler: FrameworkMiddleware;
   }[]
 ) {
   for (const hook of hooks) {
@@ -190,26 +190,26 @@ async function runAfterHooks(
   };
 }
 
-function getHooks(marketingContext: MarketingContext) {
-  const plugins = marketingContext.options.plugins || [];
+function getHooks(frameworkContext: FrameworkContext) {
+  const plugins = frameworkContext.options.plugins || [];
   const beforeHooks: {
     matcher: (context: HookEndpointContext) => boolean;
-    handler: MarketingMiddleware;
+    handler: FrameworkMiddleware;
   }[] = [];
   const afterHooks: {
     matcher: (context: HookEndpointContext) => boolean;
-    handler: MarketingMiddleware;
+    handler: FrameworkMiddleware;
   }[] = [];
-  if (marketingContext.options.hooks?.before) {
+  if (frameworkContext.options.hooks?.before) {
     beforeHooks.push({
       matcher: () => true,
-      handler: marketingContext.options.hooks.before,
+      handler: frameworkContext.options.hooks.before,
     });
   }
-  if (marketingContext.options.hooks?.after) {
+  if (frameworkContext.options.hooks?.after) {
     afterHooks.push({
       matcher: () => true,
-      handler: marketingContext.options.hooks.after,
+      handler: frameworkContext.options.hooks.after,
     });
   }
   const pluginBeforeHooks = ([] as any[]).concat(

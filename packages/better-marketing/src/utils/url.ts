@@ -1,5 +1,5 @@
 /**
- * URL utility functions for Better Marketing
+ * URL utility functions for Better Framework
  */
 
 export function getBaseURL(

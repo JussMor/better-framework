@@ -3,7 +3,7 @@
  * This shows how you can use your custom plugin without touching the main library
  */
 
-import { marketing } from "../lib/marketing";
+import { framework } from "../lib/framework";
 
 // ========================================
 // Server-side usage (API routes, server actions, etc.)
@@ -11,11 +11,11 @@ import { marketing } from "../lib/marketing";
 
 export async function createNotificationExample() {
   try {
-    // The custom plugin endpoints are accessible through the marketing.api object
+    // The custom plugin endpoints are accessible through the framework.api object
     // Note: Due to current type inference limitations, you might need to use
     // the specific endpoint names as defined in the plugin
     const response = await fetch(
-      `${marketing.options.baseURL}${marketing.options.basePath}/notification/create`,
+      `${framework.options.baseURL}${framework.options.basePath}/notification/create`,
       {
         method: "POST",
         headers: {
@@ -48,13 +48,13 @@ export async function getUserNotificationsExample(userId: string) {
   try {
     // Get all notifications for a user
     const allResponse = await fetch(
-      `${marketing.options.baseURL}${marketing.options.basePath}/notification/user/${userId}`
+      `${framework.options.baseURL}${framework.options.basePath}/notification/user/${userId}`
     );
     const allNotifications = await allResponse.json();
 
     // Get only unread notifications with a limit
     const unreadResponse = await fetch(
-      `${marketing.options.baseURL}${marketing.options.basePath}/notification/user/${userId}?unreadOnly=true&limit=10`
+      `${framework.options.baseURL}${framework.options.basePath}/notification/user/${userId}?unreadOnly=true&limit=10`
     );
     const unreadNotifications = await unreadResponse.json();
 
@@ -71,7 +71,7 @@ export async function getUserNotificationsExample(userId: string) {
 export async function markNotificationAsReadExample(notificationId: string) {
   try {
     const response = await fetch(
-      `${marketing.options.baseURL}${marketing.options.basePath}/notification/mark-read/${notificationId}`,
+      `${framework.options.baseURL}${framework.options.basePath}/notification/mark-read/${notificationId}`,
       {
         method: "PUT",
       }
@@ -91,21 +91,21 @@ export async function markNotificationAsReadExample(notificationId: string) {
 // ========================================
 
 /**
- * For client-side usage, you would create a marketing client with the
+ * For client-side usage, you would create a framework client with the
  * notifications client plugin to get type safety:
  *
  * ```typescript
- * import { createMarketingClient } from "better-marketing/client";
+ * import { createFrameworkClient } from "better-framework/client";
  * import { notificationsClientPlugin } from "../lib/plugins/notifications-client-plugin";
  *
- * const marketingClient = createMarketingClient({
+ * const frameworkClient = createFrameworkClient({
  *   baseURL: "http://localhost:3001",
- *   basePath: "/api/marketing",
+ *   basePath: "/api/framework",
  *   plugins: [notificationsClientPlugin()],
  * });
  *
  * // Now you have full type safety in the client too!
- * const notification = await marketingClient.createNotification({
+ * const notification = await frameworkClient.createNotification({
  *   title: "Client notification",
  *   message: "This is type-safe!",
  *   type: "info", // TypeScript will enforce the correct types
@@ -121,7 +121,7 @@ export async function markNotificationAsReadExample(notificationId: string) {
 
 export async function notificationWorkflowExample() {
   const userId = "user_789";
-  const baseUrl = `${marketing.options.baseURL}${marketing.options.basePath}`;
+  const baseUrl = `${framework.options.baseURL}${framework.options.basePath}`;
 
   try {
     // 1. Create a welcome notification
@@ -210,14 +210,14 @@ export async function notificationWorkflowExample() {
  *
  * ```typescript
  * // app/api/notifications/route.ts
- * import { marketing } from "@/lib/marketing";
+ * import { framework } from "@/lib/framework";
  * import { NextRequest } from "next/server";
  *
  * export async function POST(request: NextRequest) {
  *   try {
  *     const body = await request.json();
  *
- *     const notification = await marketing.api.createNotification({
+ *     const notification = await framework.api.createNotification({
  *       title: body.title,
  *       message: body.message,
  *       type: body.type,
@@ -241,7 +241,7 @@ export async function notificationWorkflowExample() {
  *       return Response.json({ error: "userId is required" }, { status: 400 });
  *     }
  *
- *     const notifications = await marketing.api.getUserNotifications({
+ *     const notifications = await framework.api.getUserNotifications({
  *       userId,
  *       unreadOnly: searchParams.get("unreadOnly") === "true",
  *       limit: searchParams.get("limit") ? parseInt(searchParams.get("limit")!) : undefined,

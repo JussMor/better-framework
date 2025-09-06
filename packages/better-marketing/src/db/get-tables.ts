@@ -1,11 +1,11 @@
 /**
- * Marketing database tables schema generator
+ * Framework database tables schema generator
  */
 
-import type { BetterMarketingOptions } from "../types";
+import type { BetterFrameworkOptions } from "../types";
 import { FieldAttribute } from "./field";
 
-export type MarketingDbSchema = Record<
+export type FrameworkDbSchema = Record<
   string,
   {
     /**
@@ -30,9 +30,9 @@ export type MarketingDbSchema = Record<
 
 // this is the new schema definition,
 
-export const getMarketingTables = (
-  options: BetterMarketingOptions
-): MarketingDbSchema => {
+export const getFrameworkTables = (
+  options: BetterFrameworkOptions
+): FrameworkDbSchema => {
   const pluginSchema = options.plugins?.reduce(
     (acc, plugin) => {
       const schema = plugin.schema;
@@ -304,5 +304,5 @@ export const getMarketingTables = (
       order: 5,
     },
     ...pluginTables,
-  } satisfies MarketingDbSchema;
+  } satisfies FrameworkDbSchema;
 };

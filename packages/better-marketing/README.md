@@ -1,14 +1,14 @@
-# Better Marketing
+# Better Framework
 
-A comprehensive marketing framework for TypeScript applications, inspired by the Better Auth approach.
+A comprehensive framework framework for TypeScript applications, inspired by the Better Auth approach.
 
 ## Features
 
-- **User Management**: Create and manage marketing users with custom properties
+- **User Management**: Create and manage framework users with custom properties
 - **Event Tracking**: Track user events and behaviors
-- **Campaign Management**: Create and send marketing campaigns
+- **Campaign Management**: Create and send framework campaigns
 - **Segmentation**: Create user segments based on properties and behaviors
-- **Email & SMS**: Send transactional and marketing messages
+- **Email & SMS**: Send transactional and framework messages
 - **Analytics Integration**: Connect with multiple analytics providers
 - **Plugin System**: Extensible architecture with plugins
 - **Database Agnostic**: Support for multiple database adapters
@@ -17,24 +17,24 @@ A comprehensive marketing framework for TypeScript applications, inspired by the
 ## Installation
 
 ```bash
-npm install better-marketing
+npm install better-framework
 # or
-yarn add better-marketing
+yarn add better-framework
 # or
-pnpm add better-marketing
+pnpm add better-framework
 ```
 
 ## Quick Start
 
 ```typescript
-import { betterMarketing } from "better-marketing";
-import { memoryAdapter } from "better-marketing/adapters/memory";
+import { betterFramework } from "better-framework";
+import { memoryAdapter } from "better-framework/adapters/memory";
 
-const marketing = betterMarketing({
+const framework = betterFramework({
   database: memoryAdapter(),
   secret: "your-secret-key-here",
   baseURL: "http://localhost:3000",
-  basePath: "/api/marketing",
+  basePath: "/api/framework",
   emailProvider: {
     name: "resend",
     sendEmail: async (options) => {
@@ -46,17 +46,17 @@ const marketing = betterMarketing({
 
 // Use as a request handler (Next.js example)
 export async function POST(request: Request) {
-  return marketing.handler(request);
+  return framework.handler(request);
 }
 
 // Or use the API directly
-const user = await marketing.api.user.create({
+const user = await framework.api.user.create({
   email: "user@example.com",
   firstName: "John",
   lastName: "Doe",
 });
 
-await marketing.api.track({
+await framework.api.track({
   userId: user.id,
   eventName: "page_view",
   properties: { page: "/dashboard" },
@@ -68,16 +68,16 @@ await marketing.api.track({
 ### Basic Configuration
 
 ```typescript
-import { betterMarketing } from "better-marketing";
+import { betterFramework } from "better-framework";
 
-const marketing = betterMarketing({
+const framework = betterFramework({
   // Required
   database: yourDatabaseAdapter(),
   secret: "your-secret-key",
 
   // Optional
   baseURL: "https://your-domain.com",
-  basePath: "/api/marketing", // Default: "/api/marketing"
+  basePath: "/api/framework", // Default: "/api/framework"
   trustedOrigins: ["https://your-frontend.com"],
 
   // Email provider
@@ -128,24 +128,24 @@ const marketing = betterMarketing({
 
 ## Database Adapters
 
-Better Marketing supports multiple database adapters:
+Better Framework supports multiple database adapters:
 
 ```typescript
 // Memory adapter (for development/testing)
-import { memoryAdapter } from "better-marketing/adapters/memory";
-const marketing = betterMarketing({
+import { memoryAdapter } from "better-framework/adapters/memory";
+const framework = betterFramework({
   database: memoryAdapter(),
 });
 
 // Prisma adapter
-import { prismaAdapter } from "better-marketing/adapters/prisma";
-const marketing = betterMarketing({
+import { prismaAdapter } from "better-framework/adapters/prisma";
+const framework = betterFramework({
   database: prismaAdapter(prisma),
 });
 
 // Kysely adapter
-import { kyselyAdapter } from "better-marketing/adapters/kysely";
-const marketing = betterMarketing({
+import { kyselyAdapter } from "better-framework/adapters/kysely";
+const framework = betterFramework({
   database: kyselyAdapter(db),
 });
 ```
@@ -156,7 +156,7 @@ const marketing = betterMarketing({
 
 ```typescript
 // Create user
-const user = await marketing.api.user.create({
+const user = await framework.api.user.create({
   email: "user@example.com",
   firstName: "John",
   lastName: "Doe",
@@ -165,25 +165,25 @@ const user = await marketing.api.user.create({
 });
 
 // Get user
-const user = await marketing.api.user.get("user-id");
+const user = await framework.api.user.get("user-id");
 
 // Update user
-const updatedUser = await marketing.api.user.update("user-id", {
+const updatedUser = await framework.api.user.update("user-id", {
   firstName: "Jane",
 });
 
 // Delete user
-await marketing.api.user.delete("user-id");
+await framework.api.user.delete("user-id");
 
 // Find by email
-const user = await marketing.api.user.getByEmail("user@example.com");
+const user = await framework.api.user.getByEmail("user@example.com");
 ```
 
 ### Event Tracking
 
 ```typescript
 // Track event
-const event = await marketing.api.track({
+const event = await framework.api.track({
   userId: "user-id",
   eventName: "purchase",
   properties: {
@@ -199,7 +199,7 @@ const event = await marketing.api.track({
 
 ```typescript
 // Create campaign
-const campaign = await marketing.api.campaign.create({
+const campaign = await framework.api.campaign.create({
   name: "Welcome Series",
   type: "email",
   status: "draft",
@@ -209,14 +209,14 @@ const campaign = await marketing.api.campaign.create({
 });
 
 // Send campaign
-await marketing.api.campaign.send("campaign-id");
+await framework.api.campaign.send("campaign-id");
 ```
 
 ### Segmentation
 
 ```typescript
 // Create segment
-const segment = await marketing.api.segment.create({
+const segment = await framework.api.segment.create({
   name: "Premium Users",
   description: "Users with premium subscription",
   conditions: {
@@ -227,14 +227,14 @@ const segment = await marketing.api.segment.create({
 });
 
 // Get users in segment
-const users = await marketing.api.segment.getUsers("segment-id");
+const users = await framework.api.segment.getUsers("segment-id");
 ```
 
 ### Direct Messaging
 
 ```typescript
 // Send email
-const result = await marketing.api.email.send({
+const result = await framework.api.email.send({
   to: "user@example.com",
   from: "noreply@yourapp.com",
   subject: "Welcome!",
@@ -243,7 +243,7 @@ const result = await marketing.api.email.send({
 });
 
 // Send SMS
-const result = await marketing.api.sms.send({
+const result = await framework.api.sms.send({
   to: "+1234567890",
   from: "+0987654321",
   body: "Welcome to our platform!",
@@ -255,15 +255,15 @@ const result = await marketing.api.sms.send({
 ### Next.js
 
 ```typescript
-// app/api/marketing/[...better-marketing]/route.ts
-import { marketing } from "@/lib/marketing";
+// app/api/framework/[...better-framework]/route.ts
+import { framework } from "@/lib/framework";
 
 export async function GET(request: Request) {
-  return marketing.handler(request);
+  return framework.handler(request);
 }
 
 export async function POST(request: Request) {
-  return marketing.handler(request);
+  return framework.handler(request);
 }
 ```
 
@@ -271,11 +271,11 @@ export async function POST(request: Request) {
 
 ```typescript
 import express from "express";
-import { marketing } from "./lib/marketing";
+import { framework } from "./lib/framework";
 
 const app = express();
 
-app.all("/api/marketing/*", async (req, res) => {
+app.all("/api/framework/*", async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const request = new Request(url, {
     method: req.method,
@@ -283,7 +283,7 @@ app.all("/api/marketing/*", async (req, res) => {
     body: req.method !== "GET" ? JSON.stringify(req.body) : undefined,
   });
 
-  const response = await marketing.handler(request);
+  const response = await framework.handler(request);
   const text = await response.text();
 
   res.status(response.status);
@@ -296,7 +296,7 @@ app.all("/api/marketing/*", async (req, res) => {
 
 ## Plugins
 
-Better Marketing supports a plugin system for extending functionality:
+Better Framework supports a plugin system for extending functionality:
 
 ```typescript
 const myPlugin = {
@@ -320,7 +320,7 @@ const myPlugin = {
   },
 };
 
-const marketing = betterMarketing({
+const framework = betterFramework({
   // ... other config
   plugins: [myPlugin],
 });

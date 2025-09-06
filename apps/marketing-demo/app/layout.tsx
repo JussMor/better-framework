@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Better Marketing Demo",
-  description: "A demo application showcasing Better Marketing features",
+  title: "Better Framework Demo",
+  description: "A demo application showcasing Better Framework features",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
       <body>
         <nav className="bg-gray-800 text-white p-4">
           <div className="container mx-auto">
-            <h1 className="text-xl font-bold">Better Marketing Demo</h1>
+            <h1 className="text-xl font-bold">Better Framework Demo</h1>
           </div>
         </nav>
         <main className="container mx-auto p-4">{children}</main>

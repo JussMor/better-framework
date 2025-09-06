@@ -1,5 +1,5 @@
 import type { ZodSchema } from "zod/v4";
-import { BetterMarketingOptions } from "../types";
+import { BetterFrameworkOptions } from "../types";
 import type { LiteralString } from "../types/helper";
 
 export type FieldType =
@@ -271,7 +271,7 @@ export type PluginFieldAttribute = Omit<
 >;
 
 export type InferFieldsFromPlugins<
-  Options extends BetterMarketingOptions,
+  Options extends BetterFrameworkOptions,
   Key extends string,
   Format extends "output" | "input" = "output",
 > =
@@ -290,7 +290,7 @@ export type InferFieldsFromPlugins<
     : {};
 
 export type InferFieldsFromOptions<
-  Options extends BetterMarketingOptions,
+  Options extends BetterFrameworkOptions,
   Key extends "session" | "user",
   Format extends "output" | "input" = "output",
 > = Options[Key] extends {

@@ -1,5 +1,5 @@
 /**
- * Cryptographic utilities for Better Marketing
+ * Cryptographic utilities for Better Framework
  */
 
 import { generateId as utilsGenerateId } from "../core/utils";

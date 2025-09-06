@@ -5,8 +5,8 @@ import type {
 } from "@better-fetch/fetch";
 import type { Atom } from "nanostores";
 import { InferFieldsInputClient, InferFieldsOutput } from "../db/field";
-import { Marketing } from "../marketing";
-import { BetterMarketingOptions, MarketingUser } from "../types";
+import { Framework } from "../framework";
+import { BetterFrameworkOptions, FrameworkUser } from "../types";
 import type {
   LiteralString,
   StripEmptyObjects,
@@ -32,11 +32,11 @@ export interface ClientOptions {
   basePath?: string;
   baseURL?: string;
   apiKey?: string;
-  plugins?: MarketingClientPlugin[];
-  $InferMarketing?: BetterMarketingOptions;
+  plugins?: FrameworkClientPlugin[];
+  $InferFramework?: BetterFrameworkOptions;
 }
 
-export interface MarketingClientPlugin {
+export interface FrameworkClientPlugin {
   id: LiteralString;
   /**
    * only used for type inference. don't pass the
@@ -82,12 +82,12 @@ export type InferSessionFromClient<O extends ClientOptions> = StripEmptyObjects<
   UnionToIntersection<InferAdditionalFromClient<O, "session", "output">>
 >;
 export type InferUserFromClient<O extends ClientOptions> = StripEmptyObjects<
-  MarketingUser &
+  FrameworkUser &
     UnionToIntersection<InferAdditionalFromClient<O, "user", "output">>
 >;
 
 export type InferPluginsFromClient<O extends ClientOptions> =
-  O["plugins"] extends Array<MarketingClientPlugin>
+  O["plugins"] extends Array<FrameworkClientPlugin>
     ? Array<O["plugins"][number]["$InferServerPlugin"]>
     : undefined;
 
@@ -97,7 +97,7 @@ export type InferAdditionalFromClient<
   Format extends "input" | "output" = "output",
 > =
   Options["plugins"] extends Array<infer T>
-    ? T extends MarketingClientPlugin
+    ? T extends FrameworkClientPlugin
       ? T["$InferServerPlugin"] extends {
           schema: {
             [key in Key]: {
@@ -127,8 +127,8 @@ export type InferClientAPI<O extends ClientOptions> = InferRoutes<
           : {}
       >
     : {}) &
-    // Include base Marketing API endpoints
-    Marketing["api"],
+    // Include base Framework API endpoints
+    Framework["api"],
   O
 >;
 
@@ -138,16 +138,16 @@ export type InferActions<O extends ClientOptions> = (O["plugins"] extends Array<
   infer Plugin
 >
   ? UnionToIntersection<
-      Plugin extends MarketingClientPlugin
+      Plugin extends FrameworkClientPlugin
         ? Plugin["getActions"] extends (...args: any) => infer Actions
           ? Actions
           : {}
         : {}
     >
   : {}) &
-  //infer routes from marketing config
+  //infer routes from framework config
   InferRoutes<
-    O["$InferMarketing"] extends {
+    O["$InferFramework"] extends {
       plugins: infer Plugins;
     }
       ? Plugins extends Array<infer Plugin>

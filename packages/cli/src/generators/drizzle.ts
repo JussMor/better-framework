@@ -2,8 +2,8 @@ import {
 	getAuthTables,
 	type BetterAuthDbSchema,
 	type FieldAttribute,
-} from "better-marketing/db";
-import type { BetterMarketingOptions } from "better-marketing/types";
+} from "better-framework/db";
+import type { BetterFrameworkOptions } from "better-framework/types";
 import { existsSync } from "fs";
 import type { SchemaGenerator } from "./types";
 import prettier from "prettier";

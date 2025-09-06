@@ -2,7 +2,7 @@ import type { BetterFetch, BetterFetchOption } from "@better-fetch/fetch";
 import type { Atom, PreinitializedWritableAtom } from "nanostores";
 import { isAtom } from "../utils/is-atom";
 import type { ProxyRequest } from "./path-to-object";
-import type { MarketingClientPlugin } from "./types";
+import type { FrameworkClientPlugin } from "./types";
 
 function getMethod(
   path: string,
@@ -35,7 +35,7 @@ export function createDynamicPathProxy<T extends Record<string, any>>(
   client: BetterFetch,
   knownPathMethods: Record<string, "POST" | "GET" | "PUT" | "DELETE">,
   atoms: Record<string, Atom>,
-  atomListeners: MarketingClientPlugin["atomListeners"]
+  atomListeners: FrameworkClientPlugin["atomListeners"]
 ): T {
   function createProxy(path: string[] = []): any {
     return new Proxy(function () {}, {

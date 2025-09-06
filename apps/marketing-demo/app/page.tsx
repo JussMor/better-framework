@@ -2,10 +2,10 @@ export default function Home() {
   return (
     <div className="space-y-8">
       <section>
-        <h1 className="text-3xl font-bold mb-4">Better Marketing Demo</h1>
+        <h1 className="text-3xl font-bold mb-4">Better Framework Demo</h1>
         <p className="text-lg text-gray-600">
           This is a demo application showcasing the features of Better
-          Marketing.
+          Framework.
         </p>
       </section>
 
@@ -15,7 +15,7 @@ export default function Home() {
           <div className="p-4 border rounded-lg">
             <h3 className="font-semibold mb-2">User Management</h3>
             <p className="text-sm text-gray-600">
-              Create and manage marketing users with custom properties
+              Create and manage framework users with custom properties
             </p>
           </div>
           <div className="p-4 border rounded-lg">
@@ -27,7 +27,7 @@ export default function Home() {
           <div className="p-4 border rounded-lg">
             <h3 className="font-semibold mb-2">Campaign Management</h3>
             <p className="text-sm text-gray-600">
-              Create and send marketing campaigns
+              Create and send framework campaigns
             </p>
           </div>
           <div className="p-4 border rounded-lg">
@@ -39,7 +39,7 @@ export default function Home() {
           <div className="p-4 border rounded-lg">
             <h3 className="font-semibold mb-2">Email & SMS</h3>
             <p className="text-sm text-gray-600">
-              Send transactional and marketing messages
+              Send transactional and framework messages
             </p>
           </div>
           <div className="p-4 border rounded-lg">
@@ -55,7 +55,7 @@ export default function Home() {
         <h2 className="text-2xl font-semibold mb-4">Quick Actions</h2>
         <div className="space-x-4">
           <a
-            href="/api/marketing/docs"
+            href="/api/framework/docs"
             className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             API Documentation

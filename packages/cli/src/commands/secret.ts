@@ -1,4 +1,4 @@
-import { logger } from "better-marketing";
+import { logger } from "better-framework";
 import chalk from "chalk";
 import { Command } from "commander";
 import Crypto from "crypto";

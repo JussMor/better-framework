@@ -1,9 +1,9 @@
-import type { BetterMarketingOptions } from "../types";
+import type { BetterFrameworkOptions } from "../types";
 import { type FieldAttribute } from "./field";
-import { getMarketingTables } from "./get-tables";
+import { getFrameworkTables } from "./get-tables";
 
-export function getSchema(config: BetterMarketingOptions) {
-  const tables = getMarketingTables(config);
+export function getSchema(config: BetterFrameworkOptions) {
+  const tables = getFrameworkTables(config);
   let schema: Record<
     string,
     {

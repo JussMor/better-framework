@@ -2,10 +2,10 @@
 // This is not executed at runtime (no assertions); it's used for TypeScript inference safety.
 
 import { campaignsClientPlugin } from "../client/plugins/campaings-plugin";
-import { createMarketingClient } from "../client/react";
+import { createFrameworkClient } from "../client/react";
 
 // Instantiate client with campaigns plugin
-const client = createMarketingClient({
+const client = createFrameworkClient({
   plugins: [campaignsClientPlugin()],
 });
 

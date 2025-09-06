@@ -1,7 +1,7 @@
 import { HIDE_METADATA } from "../../utils/hide-metadata";
-import { createMarketingEndpoint } from "../call";
+import { createFrameworkEndpoint } from "../call";
 
-export const ok = createMarketingEndpoint(
+export const ok = createFrameworkEndpoint(
   "/ok",
   {
     method: "GET",

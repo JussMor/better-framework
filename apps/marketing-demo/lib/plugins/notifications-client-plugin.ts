@@ -1,4 +1,4 @@
-import { MarketingClientPlugin } from "better-marketing/client";
+import { FrameworkClientPlugin } from "better-framework/client";
 import type { notificationsPlugin } from "./notifications-plugin";
 
 type ServerPluginReturn = ReturnType<typeof notificationsPlugin>;
@@ -21,7 +21,7 @@ export const notificationsClientPlugin = () =>
       "/notification/mark-read/:id": "PUT",
       "/notification/delete/:id": "DELETE",
     },
-  }) satisfies MarketingClientPlugin;
+  }) satisfies FrameworkClientPlugin;
 
 export type NotificationsClientPlugin = ReturnType<
   typeof notificationsClientPlugin

@@ -1,18 +1,18 @@
 /**
- * Database schema definitions for Better Marketing
+ * Database schema definitions for Better Framework
  */
 
 import { z } from "zod/v4";
-import { BetterMarketingError } from "../error";
-import type { BetterMarketingOptions } from "../types";
-import { MarketingPluginSchema } from "../types/plugins";
+import { BetterFrameworkError } from "../error";
+import type { BetterFrameworkOptions } from "../types";
+import { FrameworkPluginSchema } from "../types/plugins";
 import type { FieldAttribute } from "./field";
 
 /**
- * Marketing database schema definitions using Zod
+ * Framework database schema definitions using Zod
  */
 
-export const marketingUserSchema = z.object({
+export const frameworkUserSchema = z.object({
   id: z.string(),
   email: z.string().transform((val) => val.toLowerCase()),
   firstName: z.string().optional(),
@@ -24,7 +24,7 @@ export const marketingUserSchema = z.object({
   updatedAt: z.date().default(() => new Date()),
 });
 
-export const marketingEventSchema = z.object({
+export const frameworkEventSchema = z.object({
   id: z.string(),
   userId: z.string(),
   eventName: z.string(),
@@ -65,7 +65,7 @@ export const segmentSchema = z.object({
   updatedAt: z.date().default(() => new Date()),
 });
 
-export const marketingEmailSchema = z.object({
+export const frameworkEmailSchema = z.object({
   id: z.string(),
   to: z.string(),
   from: z.string(),
@@ -79,9 +79,9 @@ export const marketingEmailSchema = z.object({
 /**
  * Infer TypeScript types from Zod schemas
  */
-export type MarketingUser = z.infer<typeof marketingUserSchema>;
-export type MarketingEvent = z.infer<typeof marketingEventSchema>;
-export type MarketingEmail = z.infer<typeof marketingEmailSchema>;
+export type FrameworkUser = z.infer<typeof frameworkUserSchema>;
+export type FrameworkEvent = z.infer<typeof frameworkEventSchema>;
+export type FrameworkEmail = z.infer<typeof frameworkEmailSchema>;
 export type Campaign = z.infer<typeof campaignSchema>;
 export type Segment = z.infer<typeof segmentSchema>;
 
@@ -150,7 +150,7 @@ export function parseInputData<T extends Record<string, any>>(
     }
 
     if (fields[key].required && action === "create") {
-      throw new BetterMarketingError(`${key} is required`);
+      throw new BetterFrameworkError(`${key} is required`);
     }
   }
   return parsedData as Partial<T>;
@@ -159,7 +159,7 @@ export function parseInputData<T extends Record<string, any>>(
 /**
  * Get all fields for a specific table including plugin fields
  */
-export function getAllFields(options: BetterMarketingOptions, table: string) {
+export function getAllFields(options: BetterFrameworkOptions, table: string) {
   let schema: Record<string, any> = {};
 
   // Add plugin fields
@@ -175,21 +175,21 @@ export function getAllFields(options: BetterMarketingOptions, table: string) {
 }
 
 /**
- * Parse marketing user output
+ * Parse framework user output
  */
-export function parseMarketingUserOutput(
-  options: BetterMarketingOptions,
-  user: MarketingUser
+export function parseFrameworkUserOutput(
+  options: BetterFrameworkOptions,
+  user: FrameworkUser
 ) {
   const schema = getAllFields(options, "user");
   return parseOutputData(user, { fields: schema });
 }
 
 /**
- * Parse marketing user input
+ * Parse framework user input
  */
-export function parseMarketingUserInput(
-  options: BetterMarketingOptions,
+export function parseFrameworkUserInput(
+  options: BetterFrameworkOptions,
   user?: Record<string, any>,
   action?: "create" | "update"
 ) {
@@ -198,21 +198,21 @@ export function parseMarketingUserInput(
 }
 
 /**
- * Parse marketing event output
+ * Parse framework event output
  */
-export function parseMarketingEventOutput(
-  options: BetterMarketingOptions,
-  event: MarketingEvent
+export function parseFrameworkEventOutput(
+  options: BetterFrameworkOptions,
+  event: FrameworkEvent
 ) {
   const schema = getAllFields(options, "event");
   return parseOutputData(event, { fields: schema });
 }
 
 /**
- * Parse marketing event input
+ * Parse framework event input
  */
-export function parseMarketingEventInput(
-  options: BetterMarketingOptions,
+export function parseFrameworkEventInput(
+  options: BetterFrameworkOptions,
   event?: Record<string, any>,
   action?: "create" | "update"
 ) {
@@ -224,7 +224,7 @@ export function parseMarketingEventInput(
  * Parse campaign output
  */
 export function parseCampaignOutput(
-  options: BetterMarketingOptions,
+  options: BetterFrameworkOptions,
   campaign: Campaign
 ) {
   const schema = getAllFields(options, "campaign");
@@ -235,7 +235,7 @@ export function parseCampaignOutput(
  * Parse campaign input
  */
 export function parseCampaignInput(
-  options: BetterMarketingOptions,
+  options: BetterFrameworkOptions,
   campaign?: Record<string, any>,
   action?: "create" | "update"
 ) {
@@ -247,7 +247,7 @@ export function parseCampaignInput(
  * Parse segment output
  */
 export function parseSegmentOutput(
-  options: BetterMarketingOptions,
+  options: BetterFrameworkOptions,
   segment: Segment
 ) {
   const schema = getAllFields(options, "segment");
@@ -258,7 +258,7 @@ export function parseSegmentOutput(
  * Parse segment input
  */
 export function parseSegmentInput(
-  options: BetterMarketingOptions,
+  options: BetterFrameworkOptions,
   segment?: Record<string, any>,
   action?: "create" | "update"
 ) {
@@ -267,21 +267,21 @@ export function parseSegmentInput(
 }
 
 /**
- * Parse marketing email output
+ * Parse framework email output
  */
-export function parseMarketingEmailOutput(
-  options: BetterMarketingOptions,
-  email: MarketingEmail
+export function parseFrameworkEmailOutput(
+  options: BetterFrameworkOptions,
+  email: FrameworkEmail
 ) {
   const schema = getAllFields(options, "email");
   return parseOutputData(email, { fields: schema });
 }
 
 /**
- * Parse marketing email input
+ * Parse framework email input
  */
-export function parseMarketingEmailInput(
-  options: BetterMarketingOptions,
+export function parseFrameworkEmailInput(
+  options: BetterFrameworkOptions,
   email?: Record<string, any>,
   action?: "create" | "update"
 ) {
@@ -292,7 +292,7 @@ export function parseMarketingEmailInput(
 /**
  * Merge schema with additional fields from plugins
  */
-export function mergeSchema<S extends MarketingPluginSchema>(
+export function mergeSchema<S extends FrameworkPluginSchema>(
   schema: S,
   newSchema?: {
     [K in keyof S]?: {

@@ -1,4 +1,4 @@
-import { logger, type Adapter, type BetterAuthOptions } from "better-marketing";
+import { logger, type Adapter, type BetterAuthOptions } from "better-framework";
 import { generateDrizzleSchema } from "./drizzle";
 import { generatePrismaSchema } from "./prisma";
 import { generateMigrations } from "./kysely";

@@ -1,7 +1,7 @@
 import babelPresetReact from "@babel/preset-react";
 import babelPresetTypeScript from "@babel/preset-typescript";
-import type { BetterMarketingOptions } from "better-marketing";
-import { BetterMarketingError, logger } from "better-marketing";
+import type { BetterFrameworkOptions } from "better-framework";
+import { BetterFrameworkError, logger } from "better-framework";
 import { loadConfig } from "c12";
 import fs, { existsSync } from "fs";
 import path from "path";
@@ -9,12 +9,12 @@ import { addSvelteKitEnvModules } from "./add-svelte-kit-env-modules";
 import { getTsconfigInfo } from "./get-tsconfig-info";
 
 let possiblePaths = [
-  "marketing.ts",
-  "marketing.tsx",
-  "marketing.js",
-  "marketing.jsx",
-  "marketing.server.js",
-  "marketing.server.ts",
+  "framework.ts",
+  "framework.tsx",
+  "framework.js",
+  "framework.jsx",
+  "framework.server.js",
+  "framework.server.ts",
 ];
 
 possiblePaths = [
@@ -118,7 +118,7 @@ function getPathAliases(cwd: string): Record<string, string> | null {
     return result;
   } catch (error) {
     console.error(error);
-    throw new BetterMarketingError("Error parsing tsconfig.json");
+    throw new BetterFrameworkError("Error parsing tsconfig.json");
   }
 }
 /**
@@ -165,48 +165,48 @@ export async function getConfig({
   shouldThrowOnError?: boolean;
 }) {
   try {
-    let configFile: BetterMarketingOptions | null = null;
+    let configFile: BetterFrameworkOptions | null = null;
     if (configPath) {
       let resolvedPath: string = path.join(cwd, configPath);
       if (existsSync(configPath)) resolvedPath = configPath; // If the configPath is a file, use it as is, as it means the path wasn't relative.
       const { config } = await loadConfig<
         | {
-            marketing: {
-              options: BetterMarketingOptions;
+            framework: {
+              options: BetterFrameworkOptions;
             };
           }
         | {
-            options: BetterMarketingOptions;
+            options: BetterFrameworkOptions;
           }
       >({
         configFile: resolvedPath,
         dotenv: true,
         jitiOptions: jitiOptions(cwd),
       });
-      if (!("marketing" in config) && !isDefaultExport(config)) {
+      if (!("framework" in config) && !isDefaultExport(config)) {
         if (shouldThrowOnError) {
           throw new Error(
-            `Couldn't read your marketing config in ${resolvedPath}. Make sure to default export your marketing instance or to export as a variable named marketing.`
+            `Couldn't read your framework config in ${resolvedPath}. Make sure to default export your framework instance or to export as a variable named framework.`
           );
         }
         logger.error(
-          `[#better-marketing]: Couldn't read your marketing config in ${resolvedPath}. Make sure to default export your marketing instance or to export as a variable named marketing.`
+          `[#better-framework]: Couldn't read your framework config in ${resolvedPath}. Make sure to default export your framework instance or to export as a variable named framework.`
         );
         process.exit(1);
       }
       configFile =
-        "marketing" in config ? config.marketing?.options : config.options;
+        "framework" in config ? config.framework?.options : config.options;
     }
 
     if (!configFile) {
       for (const possiblePath of possiblePaths) {
         try {
           const { config } = await loadConfig<{
-            marketing: {
-              options: BetterMarketingOptions;
+            framework: {
+              options: BetterFrameworkOptions;
             };
             default?: {
-              options: BetterMarketingOptions;
+              options: BetterFrameworkOptions;
             };
           }>({
             configFile: possiblePath,
@@ -215,19 +215,19 @@ export async function getConfig({
           const hasConfig = Object.keys(config).length > 0;
           if (hasConfig) {
             configFile =
-              config.marketing?.options || config.default?.options || null;
+              config.framework?.options || config.default?.options || null;
             if (!configFile) {
               if (shouldThrowOnError) {
                 throw new Error(
-                  "Couldn't read your marketing config. Make sure to default export your marketing instance or to export as a variable named marketing."
+                  "Couldn't read your framework config. Make sure to default export your framework instance or to export as a variable named framework."
                 );
               }
               logger.error(
-                "[#better-marketing]: Couldn't read your marketing config."
+                "[#better-framework]: Couldn't read your framework config."
               );
               console.log("");
               logger.info(
-                "[#better-marketing]: Make sure to default export your marketing instance or to export as a variable named marketing."
+                "[#better-framework]: Make sure to default export your framework instance or to export as a variable named framework."
               );
               process.exit(1);
             }
@@ -245,11 +245,11 @@ export async function getConfig({
           ) {
             if (shouldThrowOnError) {
               throw new Error(
-                `Please remove import 'server-only' from your marketing config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
+                `Please remove import 'server-only' from your framework config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
               );
             }
             logger.error(
-              `Please remove import 'server-only' from your marketing config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
+              `Please remove import 'server-only' from your framework config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
             );
             process.exit(1);
           }
@@ -257,7 +257,7 @@ export async function getConfig({
             throw e;
           }
           logger.error(
-            "[#better-marketing]: Couldn't read your marketing config.",
+            "[#better-framework]: Couldn't read your framework config.",
             e
           );
           process.exit(1);
@@ -277,11 +277,11 @@ export async function getConfig({
     ) {
       if (shouldThrowOnError) {
         throw new Error(
-          `Please remove import 'server-only' from your marketing config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
+          `Please remove import 'server-only' from your framework config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
         );
       }
       logger.error(
-        `Please remove import 'server-only' from your marketing config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
+        `Please remove import 'server-only' from your framework config file temporarily. The CLI cannot resolve the configuration with it included. You can re-add it after running the CLI.`
       );
       process.exit(1);
     }
@@ -289,7 +289,7 @@ export async function getConfig({
       throw e;
     }
 
-    logger.error("Couldn't read your marketing config.", e);
+    logger.error("Couldn't read your framework config.", e);
     process.exit(1);
   }
 }

@@ -16,7 +16,7 @@ process.on("SIGINT", () => process.exit(0));
 process.on("SIGTERM", () => process.exit(0));
 
 async function main() {
-  const program = new Command("better-marketing");
+  const program = new Command("better-framework");
 
   let packageInfo: Record<string, any> = {};
   try {
@@ -31,7 +31,7 @@ async function main() {
     .addCommand(generateSecret)
     .addCommand(info)
     .version(packageInfo.version || "1.1.2")
-    .description("Better Marketing CLI")
+    .description("Better Framework CLI")
     .action(() => program.help());
 
   program.parse();

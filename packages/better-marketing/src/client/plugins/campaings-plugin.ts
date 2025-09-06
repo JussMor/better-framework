@@ -1,5 +1,5 @@
 import type { campaignsPlugin } from "../../plugins/campaigns";
-import { MarketingClientPlugin } from "../types";
+import { FrameworkClientPlugin } from "../types";
 
 type ServerPluginReturn = ReturnType<typeof campaignsPlugin>;
 
@@ -9,4 +9,4 @@ export const campaignsClientPlugin = () =>
   ({
     id: "campaigns",
     $InferServerPlugin: {} as ServerPluginReturn,
-  }) satisfies MarketingClientPlugin;
+  }) satisfies FrameworkClientPlugin;

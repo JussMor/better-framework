@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { createMarketingEndpoint } from "../call";
+import { createFrameworkEndpoint } from "../call";
 
 export const createUser = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/user/create",
     {
       method: "POST",
@@ -45,7 +45,7 @@ export const createUser = () =>
   );
 
 export const getUser = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/user/get/:id",
     {
       method: "GET",
@@ -70,7 +70,7 @@ export const getUser = () =>
   );
 
 export const updateUser = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/user/update/:id",
     {
       method: "PUT",
@@ -108,7 +108,7 @@ export const updateUser = () =>
   );
 
 export const deleteUser = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/user/delete/:id",
     {
       method: "DELETE",

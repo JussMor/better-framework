@@ -1,30 +1,30 @@
 import { getEndpoints, router } from "./api";
-import { BetterMarketingError } from "./error";
+import { BetterFrameworkError } from "./error";
 import { init } from "./init";
-import type { BetterMarketingOptions, MarketingContext } from "./types";
+import type { BetterFrameworkOptions, FrameworkContext } from "./types";
 import { getBaseURL, getOrigin } from "./utils/url";
 
 /**
- * Initialize Better Marketing with the provided options.
+ * Initialize Better Framework with the provided options.
  * Returns an object with:
  *  - handler: universal Request handler (Next.js route adapter wraps this)
  *  - api: programmatic server-side API (endpoints mapped by key)
- *  - $context: a promise resolving to the initialized marketing context
+ *  - $context: a promise resolving to the initialized framework context
  *  - options: the resolved options object
  */
-export const betterMarketing = <O extends BetterMarketingOptions>(
+export const betterFramework = <O extends BetterFrameworkOptions>(
   options: O
-): Marketing<O> => {
-  const marketingContextPromise = init(options as O);
+): Framework<O> => {
+  const frameworkContextPromise = init(options as O);
   const { api, middlewares } = getEndpoints(
-    marketingContextPromise,
+    frameworkContextPromise,
     options as O
   );
 
   return {
     handler: async (request: Request) => {
-      const ctx = await marketingContextPromise;
-      const basePath = ctx.options.basePath || "/api/marketing";
+      const ctx = await frameworkContextPromise;
+      const basePath = ctx.options.basePath || "/api/framework";
 
       if (!ctx.options.baseURL) {
         const baseURL = getBaseURL(undefined, basePath, request);
@@ -33,7 +33,7 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
           ctx.baseURL = baseURL;
           ctx.options.baseURL = getOrigin(ctx.baseURL) || undefined;
         } else {
-          throw new BetterMarketingError(
+          throw new BetterFrameworkError(
             "Could not get base URL from request. Please provide a valid base URL."
           );
         }
@@ -55,21 +55,21 @@ export const betterMarketing = <O extends BetterMarketingOptions>(
     },
     // api follows Better Auth pattern - using router endpoints with FilterActions
     api: api,
-    $ctx: marketingContextPromise, // Changed from $context to $ctx to match Better Auth
+    $ctx: frameworkContextPromise, // Changed from $context to $ctx to match Better Auth
     options: options as O,
     // Expose middlewares for potential inspection/debugging
     middlewares: middlewares,
   };
 };
 
-export type Marketing<
-  O extends BetterMarketingOptions = BetterMarketingOptions,
+export type Framework<
+  O extends BetterFrameworkOptions = BetterFrameworkOptions,
 > = {
   handler: (request: Request) => Promise<Response>;
-  api: ReturnType<typeof getEndpoints<MarketingContext, O>>["api"]; // Include plugin endpoints directly
-  $ctx: Promise<MarketingContext>; // Changed from $context to $ctx to match Better Auth
-  options: BetterMarketingOptions;
+  api: ReturnType<typeof getEndpoints<FrameworkContext, O>>["api"]; // Include plugin endpoints directly
+  $ctx: Promise<FrameworkContext>; // Changed from $context to $ctx to match Better Auth
+  options: BetterFrameworkOptions;
   middlewares: ReturnType<typeof getEndpoints>["middlewares"]; // plugin middlewares
 };
 
-export type { BetterMarketingOptions };
+export type { BetterFrameworkOptions };

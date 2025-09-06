@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { createMarketingEndpoint } from "../../api/call";
-import type { BetterMarketingPlugin } from "../../types/plugins";
+import { createFrameworkEndpoint } from "../../api/call";
+import type { BetterFrameworkPlugin } from "../../types/plugins";
 
 /**
  * Campaign endpoints using the database adapter for persistence.
  */
 const createCampaign = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/campaign/create",
     {
       method: "POST",
@@ -95,7 +95,7 @@ const createCampaign = () =>
   );
 
 const getCampaign = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/campaign/get/:id",
     {
       method: "GET",
@@ -118,7 +118,7 @@ const getCampaign = () =>
   );
 
 const updateCampaign = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/campaign/update/:id",
     {
       method: "PUT",
@@ -146,7 +146,7 @@ const updateCampaign = () =>
   );
 
 const deleteCampaign = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/campaign/delete/:id",
     {
       method: "DELETE",
@@ -159,7 +159,7 @@ const deleteCampaign = () =>
   );
 
 const listCampaigns = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/campaign/list",
     {
       method: "GET",
@@ -186,6 +186,6 @@ export const campaignsPlugin = () =>
       deleteCampaign: deleteCampaign(),
       listCampaigns: listCampaigns(),
     },
-  }) satisfies BetterMarketingPlugin;
+  }) satisfies BetterFrameworkPlugin;
 
 export type CampaignsPlugin = ReturnType<typeof campaignsPlugin>;

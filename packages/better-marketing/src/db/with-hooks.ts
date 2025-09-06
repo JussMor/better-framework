@@ -1,8 +1,8 @@
 import type {
   Adapter,
-  BetterMarketingOptions,
+  BetterFrameworkOptions,
   GenericEndpointContext,
-  MarketingDatabaseHooks,
+  FrameworkDatabaseHooks,
   Models,
   Where,
 } from "../types";
@@ -10,12 +10,12 @@ import type {
 export function getWithHooks(
   adapter: Adapter,
   ctx: {
-    options: BetterMarketingOptions;
-    hooks: Exclude<BetterMarketingOptions["databaseHooks"], undefined>[];
+    options: BetterFrameworkOptions;
+    hooks: Exclude<BetterFrameworkOptions["databaseHooks"], undefined>[];
   }
 ) {
   const hooks = ctx.hooks;
-  type HookModels = keyof MarketingDatabaseHooks;
+  type HookModels = keyof FrameworkDatabaseHooks;
   type BaseModels = Extract<
     Models,
     | "user"
@@ -23,14 +23,14 @@ export function getWithHooks(
     | "session"
     | "verification"
     | "user"
-    | "marketingEvent"
-    | "marketingEmail"
+    | "frameworkEvent"
+    | "frameworkEmail"
     | "campaign"
     | "segment"
   > &
     HookModels;
 
-  const getHook = (hookObj: MarketingDatabaseHooks, model: BaseModels) => {
+  const getHook = (hookObj: FrameworkDatabaseHooks, model: BaseModels) => {
     return hookObj[model as HookModels];
   };
   async function createWithHooks<T extends Record<string, any>>(

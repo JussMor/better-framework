@@ -1,9 +1,9 @@
 import type { EndpointContext, InputContext } from "better-call";
-import type { MarketingContext } from ".";
+import type { FrameworkContext } from ".";
 
 export type HookEndpointContext = EndpointContext<string, any> &
   Omit<InputContext<string, any>, "method"> & {
-    context: MarketingContext & {
+    context: FrameworkContext & {
       returned?: unknown;
       responseHeaders?: Headers;
     };
@@ -11,5 +11,5 @@ export type HookEndpointContext = EndpointContext<string, any> &
   };
 
 export type GenericEndpointContext = EndpointContext<string, any> & {
-  context: MarketingContext;
+  context: FrameworkContext;
 };

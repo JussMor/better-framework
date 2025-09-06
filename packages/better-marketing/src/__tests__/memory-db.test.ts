@@ -1,18 +1,18 @@
 /**
- * Comprehensive test for Better Marketing with Memory Database
+ * Comprehensive test for Better Framework with Memory Database
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
 import { memoryAdapter, type MemoryDB } from "../adapters/memory";
 import type { Campaign } from "../db/schema";
-import { betterMarketing } from "../marketing";
+import { betterFramework } from "../framework";
 import { campaignsPlugin } from "../plugins/campaigns";
 import { createTestEvent, createTestUser } from "../test";
 import type {
-  MarketingContext,
-  MarketingEmail,
-  MarketingEvent,
-  MarketingUser,
+  FrameworkContext,
+  FrameworkEmail,
+  FrameworkEvent,
+  FrameworkUser,
 } from "../types";
 
 // Define memory database structure
@@ -24,9 +24,9 @@ const memoryDB: MemoryDB = {
   segment: [],
 };
 
-describe("Better Marketing with Memory Database", () => {
-  let marketing: ReturnType<typeof betterMarketing>;
-  let context: MarketingContext;
+describe("Better Framework with Memory Database", () => {
+  let framework: ReturnType<typeof betterFramework>;
+  let context: FrameworkContext;
 
   beforeEach(async () => {
     // Clear the memory database before each test
@@ -36,15 +36,15 @@ describe("Better Marketing with Memory Database", () => {
     memoryDB.campaign = [];
     memoryDB.segment = [];
 
-    // Initialize Better Marketing with explicit memory database adapter
-    marketing = betterMarketing({
+    // Initialize Better Framework with explicit memory database adapter
+    framework = betterFramework({
       database: memoryAdapter(memoryDB),
       appName: "test-app",
       secret: "test-secret-key-that-is-long-enough",
       plugins: [campaignsPlugin()],
     });
 
-    context = await marketing.$context;
+    context = await framework.$context;
   });
 
   describe("Context Initialization", () => {
@@ -70,7 +70,7 @@ describe("Better Marketing with Memory Database", () => {
     it("should create a user", async () => {
       const testUser = createTestUser();
 
-      const createdUser = await context.adapter.create<MarketingUser>({
+      const createdUser = await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser,
       });
@@ -86,13 +86,13 @@ describe("Better Marketing with Memory Database", () => {
       const testUser = createTestUser();
 
       // Create user first
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser,
       });
 
       // Find user
-      const foundUser = await context.adapter.findOne<MarketingUser>({
+      const foundUser = await context.adapter.findOne<FrameworkUser>({
         model: "user",
         where: [{ field: "id", value: testUser.id }],
       });
@@ -106,13 +106,13 @@ describe("Better Marketing with Memory Database", () => {
       const testUser = createTestUser();
 
       // Create user first
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser,
       });
 
       // Find user by email
-      const foundUser = await context.adapter.findOne<MarketingUser>({
+      const foundUser = await context.adapter.findOne<FrameworkUser>({
         model: "user",
         where: [{ field: "email", value: testUser.email }],
       });
@@ -125,13 +125,13 @@ describe("Better Marketing with Memory Database", () => {
       const testUser = createTestUser();
 
       // Create user first
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser,
       });
 
       // Update user
-      const updatedUser = await context.adapter.update<MarketingUser>({
+      const updatedUser = await context.adapter.update<FrameworkUser>({
         model: "user",
         where: [{ field: "id", value: testUser.id }],
         update: { firstName: "Updated Name" },
@@ -147,17 +147,17 @@ describe("Better Marketing with Memory Database", () => {
       const testUser2 = { ...createTestUser(), email: "test2@example.com" };
 
       // Create users
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser1,
       });
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser2,
       });
 
       // List users
-      const users = await context.adapter.findMany<MarketingUser>({
+      const users = await context.adapter.findMany<FrameworkUser>({
         model: "user",
       });
 
@@ -173,7 +173,7 @@ describe("Better Marketing with Memory Database", () => {
       const testUser = createTestUser();
 
       // Create user first
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser,
       });
@@ -185,7 +185,7 @@ describe("Better Marketing with Memory Database", () => {
       });
 
       // Try to find deleted user
-      const foundUser = await context.adapter.findOne<MarketingUser>({
+      const foundUser = await context.adapter.findOne<FrameworkUser>({
         model: "user",
         where: [{ field: "id", value: testUser.id }],
       });
@@ -195,11 +195,11 @@ describe("Better Marketing with Memory Database", () => {
   });
 
   describe("Event Operations", () => {
-    let testUser: MarketingUser;
+    let testUser: FrameworkUser;
 
     beforeEach(async () => {
       const userData = createTestUser();
-      testUser = await context.adapter.create<MarketingUser>({
+      testUser = await context.adapter.create<FrameworkUser>({
         model: "user",
         data: userData,
       });
@@ -208,7 +208,7 @@ describe("Better Marketing with Memory Database", () => {
     it("should create an event", async () => {
       const testEvent = createTestEvent(testUser.id);
 
-      const createdEvent = await context.adapter.create<MarketingEvent>({
+      const createdEvent = await context.adapter.create<FrameworkEvent>({
         model: "event",
         data: testEvent,
       });
@@ -228,17 +228,17 @@ describe("Better Marketing with Memory Database", () => {
       };
 
       // Create events
-      await context.adapter.create<MarketingEvent>({
+      await context.adapter.create<FrameworkEvent>({
         model: "event",
         data: testEvent1,
       });
-      await context.adapter.create<MarketingEvent>({
+      await context.adapter.create<FrameworkEvent>({
         model: "event",
         data: testEvent2,
       });
 
       // Find events by user
-      const events = await context.adapter.findMany<MarketingEvent>({
+      const events = await context.adapter.findMany<FrameworkEvent>({
         model: "event",
         where: [{ field: "userId", value: testUser.id }],
       });
@@ -316,7 +316,7 @@ describe("Better Marketing with Memory Database", () => {
         createdAt: new Date(),
       };
 
-      const createdEmail = await context.adapter.create<MarketingEmail>({
+      const createdEmail = await context.adapter.create<FrameworkEmail>({
         model: "email",
         data: emailData,
       });
@@ -341,13 +341,13 @@ describe("Better Marketing with Memory Database", () => {
       };
 
       // Create email
-      await context.adapter.create<MarketingEmail>({
+      await context.adapter.create<FrameworkEmail>({
         model: "email",
         data: emailData,
       });
 
       // Update status to sent
-      const updatedEmail = await context.adapter.update<MarketingEmail>({
+      const updatedEmail = await context.adapter.update<FrameworkEmail>({
         model: "email",
         where: [{ field: "id", value: emailData.id }],
         update: { status: "sent" },
@@ -360,18 +360,18 @@ describe("Better Marketing with Memory Database", () => {
 
   describe("API Handler", () => {
     it("should create API handler successfully", () => {
-      expect(marketing.handler).toBeDefined();
-      expect(typeof marketing.handler).toBe("function");
+      expect(framework.handler).toBeDefined();
+      expect(typeof framework.handler).toBe("function");
     });
 
     it("should have API endpoints", () => {
-      expect(marketing.api).toBeDefined();
-      expect(typeof marketing.api).toBe("object");
+      expect(framework.api).toBeDefined();
+      expect(typeof framework.api).toBe("object");
     });
 
     it("should handle a simple request", async () => {
       // Create a test request to a basic endpoint
-      const request = new Request("http://localhost:3000/api/marketing/user", {
+      const request = new Request("http://localhost:3000/api/framework/user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -383,7 +383,7 @@ describe("Better Marketing with Memory Database", () => {
         }),
       });
 
-      const response = await marketing.handler(request);
+      const response = await framework.handler(request);
 
       expect(response).toBeDefined();
       expect(response.status).toBeLessThan(500); // Should not be a server error
@@ -393,11 +393,11 @@ describe("Better Marketing with Memory Database", () => {
   describe("Plugin Integration", () => {
     it("should have campaigns plugin endpoints", () => {
       // Check that campaigns plugin endpoints are available in the API
-      expect(marketing.api).toBeDefined();
+      expect(framework.api).toBeDefined();
 
       // The campaigns plugin should add campaign-related endpoints
       // We can test this by checking if the API object has campaign methods
-      const apiKeys = Object.keys(marketing.api);
+      const apiKeys = Object.keys(framework.api);
       expect(apiKeys.length).toBeGreaterThan(0);
     });
   });
@@ -407,25 +407,25 @@ describe("Better Marketing with Memory Database", () => {
       const testUser = createTestUser();
 
       // Create user
-      await context.adapter.create<MarketingUser>({
+      await context.adapter.create<FrameworkUser>({
         model: "user",
         data: testUser,
       });
 
       // Create event for user
       const testEvent = createTestEvent(testUser.id);
-      await context.adapter.create<MarketingEvent>({
+      await context.adapter.create<FrameworkEvent>({
         model: "event",
         data: testEvent,
       });
 
       // Verify both exist
-      const foundUser = await context.adapter.findOne<MarketingUser>({
+      const foundUser = await context.adapter.findOne<FrameworkUser>({
         model: "user",
         where: [{ field: "id", value: testUser.id }],
       });
 
-      const foundEvent = await context.adapter.findOne<MarketingEvent>({
+      const foundEvent = await context.adapter.findOne<FrameworkEvent>({
         model: "event",
         where: [{ field: "id", value: testEvent.id }],
       });

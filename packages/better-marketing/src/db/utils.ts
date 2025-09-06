@@ -1,20 +1,20 @@
 /**
- * Database utilities for Better Marketing
+ * Database utilities for Better Framework
  */
 
 import { createKyselyAdapter, kyselyAdapter } from "../adapters/kysely-adapter";
 import { memoryAdapter } from "../adapters/memory";
-import { BetterMarketingError } from "../error";
-import type { BetterMarketingOptions } from "../types";
+import { BetterFrameworkError } from "../error";
+import type { BetterFrameworkOptions } from "../types";
 import { Adapter } from "../types";
 import { FieldAttribute } from "./field";
-import { getMarketingTables } from "./get-tables";
+import { getFrameworkTables } from "./get-tables";
 
-export async function getMarketingAdapter(
-  options: BetterMarketingOptions
+export async function getFrameworkAdapter(
+  options: BetterFrameworkOptions
 ): Promise<Adapter> {
   if (!options.database) {
-    const tables = getMarketingTables(options);
+    const tables = getFrameworkTables(options);
     const memoryDB = Object.keys(tables).reduce((acc, key) => {
       // @ts-expect-error
       acc[key] = [];
@@ -33,7 +33,7 @@ export async function getMarketingAdapter(
 
   const { kysely, databaseType } = await createKyselyAdapter(options);
   if (!kysely) {
-    throw new BetterMarketingError("Failed to initialize database adapter");
+    throw new BetterFrameworkError("Failed to initialize database adapter");
   }
   return kyselyAdapter(kysely, {
     type: databaseType || "sqlite",

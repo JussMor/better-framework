@@ -5,7 +5,7 @@ import type {
 import { sql } from "kysely";
 import { createKyselyAdapter } from "../adapters/kysely-adapter/dialect";
 import type { KyselyDatabaseType } from "../adapters/kysely-adapter/types";
-import type { BetterMarketingOptions } from "../types";
+import type { BetterFrameworkOptions } from "../types";
 import { createLogger } from "../utils/logger";
 import type { FieldAttribute, FieldType } from "./field";
 import { getSchema } from "./get-schema";
@@ -82,7 +82,7 @@ export function matchType(
   return expected.includes(normalize(columnDataType));
 }
 
-export async function getMigrations(config: BetterMarketingOptions) {
+export async function getMigrations(config: BetterFrameworkOptions) {
   const betterAuthSchema = getSchema(config);
   const logger = createLogger(config.logger);
 

@@ -1,6 +1,6 @@
 import type { Migration } from "kysely";
 import type { HookEndpointContext } from ".";
-import { type MarketingMiddleware } from "../api/call";
+import { type FrameworkMiddleware } from "../api/call";
 import type { FieldAttribute } from "../db/field";
 import type {
   DeepPartial,
@@ -9,9 +9,9 @@ import type {
 } from "../types/helper";
 
 import type { Endpoint, Middleware } from "better-call";
-import type { BetterMarketingOptions, MarketingContext } from ".";
+import type { BetterFrameworkOptions, FrameworkContext } from ".";
 
-export type MarketingPluginSchema = {
+export type FrameworkPluginSchema = {
   [table in string]: {
     fields: {
       [field in string]: FieldAttribute;
@@ -21,7 +21,7 @@ export type MarketingPluginSchema = {
   };
 };
 
-export type BetterMarketingPlugin<
+export type BetterFrameworkPlugin<
   Endpoints extends Record<string, Endpoint> = Record<string, Endpoint>,
 > = {
   id: LiteralString;
@@ -29,9 +29,9 @@ export type BetterMarketingPlugin<
    * The init function is called when the plugin is initialized.
    * You can return a new context or modify the existing context.
    */
-  init?: (ctx: MarketingContext) => {
-    context?: DeepPartial<Omit<MarketingContext, "options">>;
-    options?: Partial<BetterMarketingOptions>;
+  init?: (ctx: FrameworkContext) => {
+    context?: DeepPartial<Omit<FrameworkContext, "options">>;
+    options?: Partial<BetterFrameworkOptions>;
   } | void;
   endpoints?: Endpoints; // preserve literal keys via generic
   middlewares?: {
@@ -40,7 +40,7 @@ export type BetterMarketingPlugin<
   }[];
   onRequest?: (
     request: Request,
-    ctx: MarketingContext
+    ctx: FrameworkContext
   ) => Promise<
     | {
         response: Response;
@@ -52,18 +52,18 @@ export type BetterMarketingPlugin<
   >;
   onResponse?: (
     response: Response,
-    ctx: MarketingContext
+    ctx: FrameworkContext
   ) => Promise<{
     response: Response;
   } | void>;
   hooks?: {
     before?: {
       matcher: (context: HookEndpointContext) => boolean;
-      handler: MarketingMiddleware;
+      handler: FrameworkMiddleware;
     }[];
     after?: {
       matcher: (context: HookEndpointContext) => boolean;
-      handler: MarketingMiddleware;
+      handler: FrameworkMiddleware;
     }[];
   };
   /**
@@ -93,7 +93,7 @@ export type BetterMarketingPlugin<
    * } as AuthPluginSchema
    * ```
    */
-  schema?: MarketingPluginSchema;
+  schema?: FrameworkPluginSchema;
   /**
    * The migrations of the plugin. If you define schema that will automatically create
    * migrations for you.
@@ -124,7 +124,7 @@ export type BetterMarketingPlugin<
   $ERROR_CODES?: Record<string, string>;
 };
 
-export type InferOptionSchema<S extends MarketingPluginSchema> =
+export type InferOptionSchema<S extends FrameworkPluginSchema> =
   S extends Record<string, { fields: infer Fields }>
     ? {
         [K in keyof S]?: {
@@ -136,10 +136,10 @@ export type InferOptionSchema<S extends MarketingPluginSchema> =
       }
     : never;
 
-export type InferPluginErrorCodes<O extends BetterMarketingOptions> =
+export type InferPluginErrorCodes<O extends BetterFrameworkOptions> =
   O["plugins"] extends Array<infer P>
     ? UnionToIntersection<
-        P extends BetterMarketingPlugin
+        P extends BetterFrameworkPlugin
           ? P["$ERROR_CODES"] extends Record<string, any>
             ? P["$ERROR_CODES"]
             : {}

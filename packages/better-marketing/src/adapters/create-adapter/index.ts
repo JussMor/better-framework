@@ -1,6 +1,6 @@
 import type { FieldAttribute } from "../../db/field";
-import { getMarketingTables } from "../../db/get-tables";
-import type { Adapter, BetterMarketingOptions, Where } from "../../types";
+import { getFrameworkTables } from "../../db/get-tables";
+import type { Adapter, BetterFrameworkOptions, Where } from "../../types";
 import { generateId as defaultGenerateId } from "../../utils/id";
 import { safeJSONParse } from "../../utils/json";
 import { createLogger } from "../../utils/logger";
@@ -55,7 +55,7 @@ export const createAdapter =
     config: AdapterConfig;
     adapter: CreateCustomAdapter;
   }) =>
-  (options: BetterMarketingOptions): Adapter => {
+  (options: BetterFrameworkOptions): Adapter => {
     const config = {
       ...cfg,
       supportsBooleans: cfg.supportsBooleans ?? true,
@@ -74,8 +74,8 @@ export const createAdapter =
       );
     }
 
-    // End-user's Better Marketing instance's schema
-    const schema = getMarketingTables(options);
+    // End-user's Better Framework instance's schema
+    const schema = getFrameworkTables(options);
     const logger = createLogger();
 
     /**
@@ -90,7 +90,7 @@ export const createAdapter =
       model: string;
       field: string;
     }) => {
-      // Plugin `schema`s can't define their own `id`. Better Marketing auto provides `id` to every schema model.
+      // Plugin `schema`s can't define their own `id`. Better Framework auto provides `id` to every schema model.
       if (field === "id" || field === "_id") {
         return "id";
       }
@@ -962,8 +962,8 @@ export const createAdapter =
       },
 
       createSchema: adapterInstance.createSchema
-        ? async (options: BetterMarketingOptions, file?: string) => {
-            const tables = getMarketingTables(options);
+        ? async (options: BetterFrameworkOptions, file?: string) => {
+            const tables = getFrameworkTables(options);
             return adapterInstance.createSchema!({
               file,
               tables,

@@ -1,37 +1,37 @@
-# Marketing Demo App
+# Framework Demo App
 
-This is a demo Next.js application that showcases the features of the Better Marketing package.
+This is a demo Next.js application that showcases the features of the Better Framework package.
 
 ## Features Demonstrated
 
-- **User Management**: Create marketing users with custom properties
+- **User Management**: Create framework users with custom properties
 - **Event Tracking**: Track user interactions and behaviors
 - **Email Sending**: Send transactional emails (mock implementation)
-- **API Integration**: Full REST API for marketing operations
+- **API Integration**: Full REST API for framework operations
 - **Dashboard Interface**: Interactive web interface to test features
 
 ## Getting Started
 
 ### Prerequisites
 
-Make sure you're in the Better Marketing monorepo root and have installed dependencies:
+Make sure you're in the Better Framework monorepo root and have installed dependencies:
 
 ```bash
 pnpm install
 ```
 
-### Build the Better Marketing Package
+### Build the Better Framework Package
 
-First, build the better-marketing package:
+First, build the better-framework package:
 
 ```bash
-pnpm --filter better-marketing build
+pnpm --filter better-framework build
 ```
 
 ### Start the Demo App
 
 ```bash
-pnpm --filter marketing-demo dev
+pnpm --filter framework-demo dev
 ```
 
 The app will be available at [http://localhost:3001](http://localhost:3001)
@@ -39,31 +39,31 @@ The app will be available at [http://localhost:3001](http://localhost:3001)
 ## Project Structure
 
 ```
-apps/marketing-demo/
+apps/framework-demo/
 ├── app/                          # Next.js app directory
-│   ├── api/marketing/           # Better Marketing API routes
+│   ├── api/framework/           # Better Framework API routes
 │   ├── dashboard/               # Interactive dashboard
 │   ├── layout.tsx              # App layout
 │   └── page.tsx                # Home page
 ├── lib/
-│   └── marketing.ts            # Better Marketing configuration
+│   └── framework.ts            # Better Framework configuration
 └── package.json
 ```
 
 ## API Endpoints
 
-The demo exposes the full Better Marketing API at `/api/marketing/*`:
+The demo exposes the full Better Framework API at `/api/framework/*`:
 
-- `POST /api/marketing/user` - Create a user
-- `GET /api/marketing/user/:id` - Get a user
-- `POST /api/marketing/track` - Track an event
-- `POST /api/marketing/email/send` - Send an email
-- `POST /api/marketing/campaign/create` - Create a campaign
+- `POST /api/framework/user` - Create a user
+- `GET /api/framework/user/:id` - Get a user
+- `POST /api/framework/track` - Track an event
+- `POST /api/framework/email/send` - Send an email
+- `POST /api/framework/campaign/create` - Create a campaign
 - And many more...
 
 ## Configuration
 
-The marketing instance is configured in `lib/marketing.ts` with:
+The framework instance is configured in `lib/framework.ts` with:
 
 - **Memory Adapter**: For easy demo setup (no database required)
 - **Mock Email Provider**: Logs emails to console
@@ -76,7 +76,7 @@ The marketing instance is configured in `lib/marketing.ts` with:
 Optional environment variables:
 
 ```env
-MARKETING_SECRET=your-secret-key-here
+FRAMEWORK_SECRET=your-secret-key-here
 NEXT_PUBLIC_APP_URL=http://localhost:3001
 ```
 
@@ -85,7 +85,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3001
 ### Creating a User
 
 ```typescript
-const user = await marketing.api.user.create({
+const user = await framework.api.user.create({
   email: "user@example.com",
   firstName: "John",
   lastName: "Doe",
@@ -96,7 +96,7 @@ const user = await marketing.api.user.create({
 ### Tracking Events
 
 ```typescript
-await marketing.api.track({
+await framework.api.track({
   userId: user.id,
   eventName: "purchase",
   properties: { product: "Premium Plan", amount: 99.99 },
@@ -106,7 +106,7 @@ await marketing.api.track({
 ### Sending Emails
 
 ```typescript
-await marketing.api.email.send({
+await framework.api.email.send({
   to: "user@example.com",
   from: "noreply@yourapp.com",
   subject: "Welcome!",
@@ -118,14 +118,14 @@ await marketing.api.email.send({
 
 To make changes to the demo:
 
-1. Edit files in `apps/marketing-demo/`
+1. Edit files in `apps/framework-demo/`
 2. The dev server will automatically reload
-3. Changes to the `better-marketing` package require rebuilding:
+3. Changes to the `better-framework` package require rebuilding:
    ```bash
-   pnpm --filter better-marketing build
+   pnpm --filter better-framework build
    ```
 
 ## Learn More
 
-- [Better Marketing Documentation](../packages/better-marketing/README.md)
+- [Better Framework Documentation](../packages/better-framework/README.md)
 - [Next.js Documentation](https://nextjs.org/docs)

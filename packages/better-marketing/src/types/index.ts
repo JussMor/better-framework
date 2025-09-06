@@ -1,5 +1,5 @@
 /**
- * Core type definitions for Better Marketing
+ * Core type definitions for Better Framework
  */
 import { CookieOptions } from "better-call";
 import type { Database } from "better-sqlite3";
@@ -8,16 +8,16 @@ import type { Dialect, Kysely, MysqlPool, PostgresPool } from "kysely";
 import { DatabaseSync } from "node:sqlite";
 import { AdapterDebugLogs } from "../adapters/create-adapter/types";
 import { KyselyDatabaseType } from "../adapters/kysely-adapter";
-import { MarketingMiddleware } from "../api/call";
+import { FrameworkMiddleware } from "../api/call";
 import { Campaign, FieldAttribute } from "../db";
-import { getMarketingTables } from "../db/get-tables";
+import { getFrameworkTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import type { Logger } from "../utils/logger";
 import { createLogger } from "../utils/logger";
 import { Adapter, AdapterInstance } from "./adapter";
 import { GenericEndpointContext } from "./context";
 import { LiteralUnion, OmitId } from "./helper";
-import { BetterMarketingPlugin } from "./plugins";
+import { BetterFrameworkPlugin } from "./plugins";
 
 export * from "./adapter";
 export * from "./context";
@@ -25,9 +25,9 @@ export * from "./helper";
 export * from "./plugins";
 
 export type Models =
-  | "marketingUser"
-  | "marketingEvent"
-  | "marketingEmail"
+  | "frameworkUser"
+  | "frameworkEvent"
+  | "frameworkEmail"
   | "campaign"
   | "segment"
   | "user"
@@ -35,7 +35,7 @@ export type Models =
   | "session"
   | "verification";
 
-export interface MarketingUser {
+export interface FrameworkUser {
   id: string;
   email: string;
   firstName?: string;
@@ -47,7 +47,7 @@ export interface MarketingUser {
   updatedAt: Date;
 }
 
-export interface MarketingEvent {
+export interface FrameworkEvent {
   id: string;
   userId: string;
   eventName: string;
@@ -57,7 +57,7 @@ export interface MarketingEvent {
   source?: string;
 }
 
-export interface MarketingCampaign {
+export interface FrameworkCampaign {
   id: string;
   name: string;
   type: "email" | "sms" | "push" | "webhook";
@@ -70,7 +70,7 @@ export interface MarketingCampaign {
   updatedAt: Date;
 }
 
-export interface MarketingEmail {
+export interface FrameworkEmail {
   id: string;
   to: string;
   from: string;
@@ -258,101 +258,101 @@ export interface AnalyticsResult {
   error?: string;
 }
 
-export interface MarketingContext {
+export interface FrameworkContext {
   appName: string;
   session: {
     session: Record<string, any>;
-    user: MarketingUser & Record<string, any>;
+    user: FrameworkUser & Record<string, any>;
   } | null;
   adapter: Adapter;
   internalAdapter: ReturnType<typeof createInternalAdapter>;
-  options: BetterMarketingOptions;
+  options: BetterFrameworkOptions;
   secret: string;
   generateId: (options: {
     model: LiteralUnion<Models, string>;
     size?: number;
   }) => string | false;
-  tables: ReturnType<typeof getMarketingTables>;
+  tables: ReturnType<typeof getFrameworkTables>;
   logger: ReturnType<typeof createLogger>;
   baseURL?: string;
 }
 
-// Database hooks for marketing operations
-export interface MarketingDatabaseHooks {
-  marketingUser?: {
+// Database hooks for framework operations
+export interface FrameworkDatabaseHooks {
+  frameworkUser?: {
     create?: {
       before?: (
-        user: MarketingUser & Record<string, unknown>,
+        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
       >;
       after?: (
-        user: MarketingUser & Record<string, unknown>,
+        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
     update?: {
       before?: (
-        userData: Partial<MarketingUser & Record<string, unknown>>,
+        userData: Partial<FrameworkUser & Record<string, unknown>>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
       >;
       after?: (
-        user: MarketingUser & Record<string, unknown>,
+        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
   };
-  marketingEvent?: {
+  frameworkEvent?: {
     create?: {
       before?: (
-        event: MarketingEvent & Record<string, unknown>,
+        event: FrameworkEvent & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingEvent & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkEvent & Record<string, unknown>> }
       >;
       after?: (
-        event: MarketingEvent & Record<string, unknown>,
+        event: FrameworkEvent & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
     update?: {
       before?: (
-        eventData: Partial<MarketingEvent & Record<string, unknown>>,
+        eventData: Partial<FrameworkEvent & Record<string, unknown>>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingEvent & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkEvent & Record<string, unknown>> }
       >;
       after?: (
-        event: MarketingEvent & Record<string, unknown>,
+        event: FrameworkEvent & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
   };
-  marketingEmail?: {
+  frameworkEmail?: {
     create?: {
       before?: (
-        email: MarketingEmail & Record<string, unknown>,
+        email: FrameworkEmail & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingEmail & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkEmail & Record<string, unknown>> }
       >;
       after?: (
-        email: MarketingEmail & Record<string, unknown>,
+        email: FrameworkEmail & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
     update?: {
       before?: (
-        emailData: Partial<MarketingEmail & Record<string, unknown>>,
+        emailData: Partial<FrameworkEmail & Record<string, unknown>>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingEmail & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkEmail & Record<string, unknown>> }
       >;
       after?: (
-        email: MarketingEmail & Record<string, unknown>,
+        email: FrameworkEmail & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
@@ -360,25 +360,25 @@ export interface MarketingDatabaseHooks {
   user?: {
     create?: {
       before?: (
-        user: MarketingUser & Record<string, unknown>,
+        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
       >;
       after?: (
-        user: MarketingUser & Record<string, unknown>,
+        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
     update?: {
       before?: (
-        userData: Partial<MarketingUser & Record<string, unknown>>,
+        userData: Partial<FrameworkUser & Record<string, unknown>>,
         context?: GenericEndpointContext
       ) => Promise<
-        boolean | { data: Partial<MarketingUser & Record<string, unknown>> }
+        boolean | { data: Partial<FrameworkUser & Record<string, unknown>> }
       >;
       after?: (
-        user: MarketingUser & Record<string, unknown>,
+        user: FrameworkUser & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
@@ -437,8 +437,8 @@ export interface MarketingDatabaseHooks {
   };
 }
 
-// Additional types for Better Marketing
-export interface BetterMarketingOptions {
+// Additional types for Better Framework
+export interface BetterFrameworkOptions {
   database?:
     | PostgresPool
     | MysqlPool
@@ -488,7 +488,7 @@ export interface BetterMarketingOptions {
   emailProvider?: EmailProvider;
   smsProvider?: SMSProvider;
   analyticsProviders?: AnalyticsProvider[];
-  plugins?: BetterMarketingPlugin[];
+  plugins?: BetterFrameworkPlugin[];
   secret?: string;
   baseURL?: string;
   basePath?: string;
@@ -500,28 +500,28 @@ export interface BetterMarketingOptions {
   };
 
   user?: {
-    fields?: Partial<Record<keyof OmitId<MarketingUser>, string>>;
+    fields?: Partial<Record<keyof OmitId<FrameworkUser>, string>>;
     modelName?: string;
     additionalFields?: {
       [key: string]: FieldAttribute;
     };
   };
   event?: {
-    fields?: Partial<Record<keyof OmitId<MarketingEvent>, string>>;
+    fields?: Partial<Record<keyof OmitId<FrameworkEvent>, string>>;
     modelName?: string;
     additionalFields?: {
       [key: string]: FieldAttribute;
     };
   };
   campaign?: {
-    fields?: Partial<Record<keyof OmitId<MarketingCampaign>, string>>;
+    fields?: Partial<Record<keyof OmitId<FrameworkCampaign>, string>>;
     modelName?: string;
     additionalFields?: {
       [key: string]: FieldAttribute;
     };
   };
   email?: {
-    fields?: Partial<Record<keyof OmitId<MarketingEmail>, string>>;
+    fields?: Partial<Record<keyof OmitId<FrameworkEmail>, string>>;
     modelName?: string;
     additionalFields?: {
       [key: string]: FieldAttribute;
@@ -730,11 +730,11 @@ export interface BetterMarketingOptions {
     /**
      * Before a request is processed
      */
-    before?: MarketingMiddleware;
+    before?: FrameworkMiddleware;
     /**
      * After a request is processed
      */
-    after?: MarketingMiddleware;
+    after?: FrameworkMiddleware;
   };
-  databaseHooks?: MarketingDatabaseHooks;
+  databaseHooks?: FrameworkDatabaseHooks;
 }

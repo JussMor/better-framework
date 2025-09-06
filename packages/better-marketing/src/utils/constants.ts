@@ -1,10 +1,10 @@
 /**
- * Constants for Better Marketing
+ * Constants for Better Framework
  */
 
-export const DEFAULT_SECRET = "better-marketing-secret-change-in-production";
+export const DEFAULT_SECRET = "better-framework-secret-change-in-production";
 
-export const DEFAULT_BASE_PATH = "/api/marketing";
+export const DEFAULT_BASE_PATH = "/api/framework";
 
 export const DEFAULT_SESSION_EXPIRES_IN = 60 * 60 * 24 * 7; // 7 days
 

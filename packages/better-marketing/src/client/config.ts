@@ -8,7 +8,7 @@ import type { AtomListener, ClientOptions } from "./types";
 export function getClientConfig(options?: ClientOptions) {
   /* check if the credentials property is supported. Useful for cf workers */
   const isCredentialsSupported = "credentials" in Request.prototype;
-  const baseURL = options?.baseURL || "http://localhost:3001/api/marketing";
+  const baseURL = options?.baseURL || "http://localhost:3001/api/framework";
   const apiKey = options?.apiKey || "";
 
   const pluginsFetchPlugins =

@@ -1,11 +1,11 @@
-import { MarketingClientPlugin } from "../types";
-import type {  BetterMarketingOptions } from "../../types";
+import { FrameworkClientPlugin } from "../types";
+import type {  BetterFrameworkOptions } from "../../types";
 
 export const InferServerPlugin = <
 	AuthOrOption extends
-		| BetterMarketingOptions
+		| BetterFrameworkOptions
 		| {
-				options: BetterMarketingOptions;
+				options: BetterFrameworkOptions;
 		  },
 	ID extends string,
 >() => {
@@ -20,5 +20,5 @@ export const InferServerPlugin = <
 	return {
 		id: "infer-server-plugin",
 		$InferServerPlugin: {} as Plugin,
-	} satisfies MarketingClientPlugin;
+	} satisfies FrameworkClientPlugin;
 };

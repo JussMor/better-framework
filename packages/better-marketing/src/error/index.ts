@@ -1,28 +1,28 @@
 /**
- * Error handling for Better Marketing
+ * Error handling for Better Framework
  */
 
-export class BetterMarketingError extends Error {
+export class BetterFrameworkError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "BetterMarketingError";
+    this.name = "BetterFrameworkError";
   }
 }
 
-export class BetterMarketingAPIError extends BetterMarketingError {
+export class BetterFrameworkAPIError extends BetterFrameworkError {
   constructor(
     message: string,
     public statusCode: number = 500,
     public code?: string
   ) {
     super(message);
-    this.name = "BetterMarketingAPIError";
+    this.name = "BetterFrameworkAPIError";
   }
 }
 
-export class BetterMarketingConfigError extends BetterMarketingError {
+export class BetterFrameworkConfigError extends BetterFrameworkError {
   constructor(message: string) {
     super(message);
-    this.name = "BetterMarketingConfigError";
+    this.name = "BetterFrameworkConfigError";
   }
 }

@@ -1,10 +1,10 @@
 /**
- * Environment utilities for Better Marketing
+ * Environment utilities for Better Framework
  */
 
 export const env = {
-  BETTER_MARKETING_SECRET: process.env.BETTER_MARKETING_SECRET,
-  MARKETING_SECRET: process.env.MARKETING_SECRET,
+  BETTER_FRAMEWORK_SECRET: process.env.BETTER_FRAMEWORK_SECRET,
+  FRAMEWORK_SECRET: process.env.FRAMEWORK_SECRET,
   NODE_ENV: process.env.NODE_ENV,
 };
 

@@ -1,10 +1,10 @@
 import { APIError, createRouter, type Middleware } from "better-call";
 import type {
-  BetterMarketingOptions,
-  MarketingContext,
+  BetterFrameworkOptions,
+  FrameworkContext,
   UnionToIntersection,
 } from "../types";
-import { createMarketingMiddleware } from "./call";
+import { createFrameworkMiddleware } from "./call";
 import { error } from "./routes/error";
 import { ok } from "./routes/ok";
 // import { getAnalytics, trackEvent } from "./routes/analytics";
@@ -15,11 +15,11 @@ import { ok } from "./routes/ok";
 //   updateCampaign,
 // } from "./routes/campaign";
 // import { sendBulkEmail, sendEmail } from "./routes/email";
-import { BetterMarketingPlugin } from "../types/plugins";
+import { BetterFrameworkPlugin } from "../types/plugins";
 import { createUser, deleteUser, getUser, updateUser } from "./routes/user";
-import { toMarketingEndpoints } from "./to-marketing-endpoints";
+import { toFrameworkEndpoints } from "./to-framework-endpoints";
 
-const originCheckMiddleware = createMarketingMiddleware(async (ctx) => {
+const originCheckMiddleware = createFrameworkMiddleware(async (ctx) => {
   if (ctx.request?.method !== "POST" || !ctx.request) {
     return;
   }
@@ -47,7 +47,7 @@ const originCheckMiddleware = createMarketingMiddleware(async (ctx) => {
     if (!isTrustedOrigin) {
       ctx.context.logger?.error(`Invalid origin: ${originToCheck}`);
       ctx.context.logger?.info(
-        `If it's a valid URL, please add ${originToCheck} to trustedOrigins in your marketing config\n`,
+        `If it's a valid URL, please add ${originToCheck} to trustedOrigins in your framework config\n`,
         `Current list of trustedOrigins: ${trustedOrigins}`
       );
       throw new APIError("FORBIDDEN", { message: "Invalid origin" });
@@ -60,8 +60,8 @@ const originCheckMiddleware = createMarketingMiddleware(async (ctx) => {
 });
 
 export function getEndpoints<
-  C extends MarketingContext,
-  Option extends BetterMarketingOptions,
+  C extends FrameworkContext,
+  Option extends BetterFrameworkOptions,
 >(ctx: Promise<C> | C, options?: Option) {
   // Simple plugin endpoint collection like Better Auth
   const pluginEndpoints =
@@ -77,7 +77,7 @@ export function getEndpoints<
 
   type PluginEndpoints = UnionToIntersection<
     Option["plugins"] extends Array<infer T>
-      ? T extends BetterMarketingPlugin
+      ? T extends BetterFrameworkPlugin
         ? T extends { endpoints: infer E }
           ? E
           : {}
@@ -89,11 +89,11 @@ export function getEndpoints<
       ?.map((plugin: any) =>
         plugin.middlewares?.map((m: any) => {
           const middleware = (async (context: any) => {
-            const marketingCtx = await ctx;
+            const frameworkCtx = await ctx;
             return m.middleware({
               ...context,
               context: {
-                ...marketingCtx,
+                ...frameworkCtx,
                 ...context.context,
               },
             });
@@ -108,7 +108,7 @@ export function getEndpoints<
       .filter((p: any) => p !== undefined)
       .flat() || [];
 
-  // Create base marketing endpoints similar to Better Auth
+  // Create base framework endpoints similar to Better Auth
   const baseEndpoints = {
     // User management
     createUser: createUser(),
@@ -138,7 +138,7 @@ export function getEndpoints<
     error,
   } as const;
 
-  const api = toMarketingEndpoints(endpoints, ctx);
+  const api = toFrameworkEndpoints(endpoints, ctx);
 
   return {
     api: api as typeof endpoints & PluginEndpoints,
@@ -146,9 +146,9 @@ export function getEndpoints<
   };
 }
 
-export const router = (ctx: MarketingContext, options?: any) => {
+export const router = (ctx: FrameworkContext, options?: any) => {
   const { api, middlewares } = getEndpoints(ctx, options);
-  const basePath = ctx.options?.basePath || "/api/marketing";
+  const basePath = ctx.options?.basePath || "/api/framework";
 
   const routerInstance = createRouter(api, {
     routerContext: ctx,
@@ -177,7 +177,7 @@ export const router = (ctx: MarketingContext, options?: any) => {
         }
       }
 
-      // No default rate limiter for marketing yet
+      // No default rate limiter for framework yet
       return;
     },
     async onResponse(res) {

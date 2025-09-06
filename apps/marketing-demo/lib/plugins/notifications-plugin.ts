@@ -1,11 +1,11 @@
 import {
-  BetterMarketingPlugin,
-  createMarketingEndpoint,
-} from "better-marketing";
+  BetterFrameworkPlugin,
+  createFrameworkEndpoint,
+} from "better-framework";
 import { z } from "zod";
 
 const createNotification = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/notification/create",
     {
       method: "POST",
@@ -52,7 +52,7 @@ const createNotification = () =>
   );
 
 const getNotification = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/notification/get/:id",
     {
       method: "GET",
@@ -74,7 +74,7 @@ const getNotification = () =>
   );
 
 const getUserNotifications = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/notification/user/:userId",
     {
       method: "GET",
@@ -104,7 +104,7 @@ const getUserNotifications = () =>
   );
 
 const markAsRead = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/notification/mark-read/:id",
     {
       method: "PUT",
@@ -126,7 +126,7 @@ const markAsRead = () =>
   );
 
 const deleteNotification = () =>
-  createMarketingEndpoint(
+  createFrameworkEndpoint(
     "/notification/delete/:id",
     {
       method: "DELETE",
@@ -202,6 +202,6 @@ export const notificationsPlugin = () =>
         },
       },
     },
-  }) satisfies BetterMarketingPlugin;
+  }) satisfies BetterFrameworkPlugin;
 
 export type NotificationsPlugin = ReturnType<typeof notificationsPlugin>;

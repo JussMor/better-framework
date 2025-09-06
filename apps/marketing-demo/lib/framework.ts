@@ -1,20 +1,20 @@
-import { betterMarketing } from "better-marketing";
-import { campaignsPlugin } from "better-marketing/plugins/campaigns";
+import { betterFramework } from "better-framework";
+import { campaignsPlugin } from "better-framework/plugins/campaigns";
 import { db } from "./kysely-db";
 import { notificationsPlugin } from "./plugins/notifications-plugin";
 
-export const marketing = betterMarketing({
+export const framework = betterFramework({
   // Kysely SQLite configuration for schema generation support
   database: {
     db: db,
     type: "sqlite" as const,
   },
   secret:
-    process.env.MARKETING_SECRET ||
+    process.env.FRAMEWORK_SECRET ||
     "your-secret-key-for-development-must-be-at-least-32-characters-long",
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
 
-  basePath: "/api/marketing",
+  basePath: "/api/framework",
   plugins: [campaignsPlugin(), notificationsPlugin()],
 
   // Email provider configuration (mock for demo)
@@ -83,13 +83,13 @@ export const marketing = betterMarketing({
 });
 
 // Debug: Log available API methods
-console.log("Available API methods:", Object.keys(marketing.api));
+console.log("Available API methods:", Object.keys(framework.api));
 console.log(
   "Campaign methods:",
-  Object.keys(marketing.api).filter((k) => k.includes("Campaign"))
+  Object.keys(framework.api).filter((k) => k.includes("Campaign"))
 );
 
-marketing.api.createUser({
+framework.api.createUser({
   body: {
     email: "user@example.com",
     firstName: "John",
@@ -100,7 +100,7 @@ marketing.api.createUser({
   },
 });
 
-marketing.api.createCampaign({
+framework.api.createCampaign({
   body: {
     name: "New Campaign",
     type: "email", // required field
