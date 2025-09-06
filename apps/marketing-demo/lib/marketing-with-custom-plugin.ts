@@ -1,8 +1,9 @@
+// Example showing how to add your custom plugin to the marketing framework
+
 import { betterFramework } from "better-framework";
 import { campaignsPlugin } from "better-framework/plugins/campaigns";
-import { db } from "./kysely-db";
 import { myCustomPlugin } from "./custom-plugin";
-import { testPlugin } from "./test-plugin";
+import { db } from "./kysely-db";
 
 export const marketing = betterFramework({
   // Kysely SQLite configuration for schema generation support
@@ -16,7 +17,12 @@ export const marketing = betterFramework({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001",
 
   basePath: "/api/framework",
-  plugins: [campaignsPlugin()], // Only built-in plugins at compile time
+
+  // Add plugins here - both built-in and custom
+  plugins: [
+    campaignsPlugin(),
+    myCustomPlugin(), // Your custom plugin
+  ],
 
   // Session configuration
   session: {
@@ -31,6 +37,3 @@ export const marketing = betterFramework({
     max: 100, // requests per window
   },
 });
-
-marketing.addPlugin(myCustomPlugin());
-marketing.addPlugin(testPlugin());

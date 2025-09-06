@@ -13,6 +13,7 @@ export default function Dashboard() {
 
   const createCampaign = async () => {
     try {
+      await clientMk.custom.status();
       const client = clientMk.user.create({
         lastName: "Doe",
         firstName: "John",
