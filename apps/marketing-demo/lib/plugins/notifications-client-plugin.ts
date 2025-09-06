@@ -12,8 +12,9 @@ type ServerPluginReturn = ReturnType<typeof notificationsPlugin>;
 export const notificationsClientPlugin = () =>
   ({
     id: "notifications",
-    $InferServerPlugin: {} as ServerPluginReturn,
-    // Optionally specify HTTP methods for endpoints if needed
+    // Provide route->method mapping so the client proxy can resolve
+    // parameterized routes (e.g., /notification/get/:id) and use
+    // the correct HTTP verb.
     pathMethods: {
       "/notification/create": "POST",
       "/notification/get/:id": "GET",
@@ -21,6 +22,7 @@ export const notificationsClientPlugin = () =>
       "/notification/mark-read/:id": "PUT",
       "/notification/delete/:id": "DELETE",
     },
+    $InferServerPlugin: {} as ServerPluginReturn,
   }) satisfies FrameworkClientPlugin;
 
 export type NotificationsClientPlugin = ReturnType<

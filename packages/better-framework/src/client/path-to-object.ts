@@ -24,9 +24,13 @@ export type PathToObject<
   T extends string,
   Fn extends (...args: any[]) => any,
 > = T extends `/${infer Segment}/${infer Rest}`
-  ? { [K in CamelCase<Segment>]: PathToObject<`/${Rest}`, Fn> }
+  ? Segment extends `:${string}`
+    ? Fn // If this segment is a parameter (starts with :), treat as callable
+    : { [K in CamelCase<Segment>]: PathToObject<`/${Rest}`, Fn> }
   : T extends `/${infer Segment}`
-    ? { [K in CamelCase<Segment>]: Fn }
+    ? Segment extends `:${string}`
+      ? Fn // If this segment is a parameter (starts with :), treat as callable
+      : { [K in CamelCase<Segment>]: Fn }
     : never;
 
 export type InferSignUpEmailCtx<
@@ -56,23 +60,18 @@ export type InferCtx<
   C extends InputContext<any, any>,
   FetchOptions extends BetterFetchOption,
 > =
-  C["body"] extends Record<string, any>
-    ? C["body"] & {
-        fetchOptions?: FetchOptions;
-      }
-    : C["query"] extends Record<string, any>
-      ? {
-          query: C["query"];
-          fetchOptions?: FetchOptions;
-        }
-      : C["query"] extends Record<string, any> | undefined
-        ? {
-            query?: C["query"];
-            fetchOptions?: FetchOptions;
-          }
-        : {
-            fetchOptions?: FetchOptions;
-          };
+  // Include body fields if present
+  (C["body"] extends Record<string, any> ? C["body"] : {}) &
+    // Include query under a `query` key (always optional)
+    (C["query"] extends Record<string, any> | undefined
+      ? { query?: C["query"] }
+      : {}) &
+    // Include route params as top-level fields and also allow nested `params`
+    (C["params"] extends Record<string, any>
+      ? C["params"] & { params?: C["params"] }
+      : {}) & {
+      fetchOptions?: FetchOptions;
+    };
 
 export type MergeRoutes<T> = UnionToIntersection<T>;
 

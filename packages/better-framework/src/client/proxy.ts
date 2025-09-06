@@ -30,6 +30,30 @@ export type AuthProxySignal = {
   matcher: (path: string) => boolean;
 };
 
+// --- Small helpers to keep logic concise ---
+function normalizePath(p: string) {
+  // Collapse multiple slashes and remove trailing slash
+  let out = p;
+  while (out.includes("//")) out = out.replace(/\/\//g, "/");
+  if (out.length > 1 && out.endsWith("/")) out = out.slice(0, -1);
+  return out;
+}
+
+function routeBase(route: string) {
+  return normalizePath(route.replace(/:[\w]+/g, ""));
+}
+
+function findActualRoutePath(
+  basePath: string,
+  known: Record<string, "POST" | "GET" | "PUT" | "DELETE">
+) {
+  const baseNorm = normalizePath(basePath);
+  const match = Object.keys(known).find(
+    (route) => routeBase(route) === baseNorm
+  );
+  return match || basePath;
+}
+
 export function createDynamicPathProxy<T extends Record<string, any>>(
   routes: T,
   client: BetterFetch,
@@ -62,22 +86,54 @@ export function createDynamicPathProxy<T extends Record<string, any>>(
         return createProxy(fullPath);
       },
       apply: async (_, __, args) => {
-        const routePath =
+        const basePath =
           "/" +
           path
             .map((segment) =>
               segment.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
             )
             .join("/");
+
+        // Resolve the actual route path, supporting routes with params like /x/:id/y
+        const actualRoutePath = findActualRoutePath(basePath, knownPathMethods);
+
         const arg = (args[0] || {}) as ProxyRequest;
         const fetchOptions = (args[1] || {}) as BetterFetchOption;
-        const { query, fetchOptions: argFetchOptions, ...body } = arg;
+        const {
+          query,
+          fetchOptions: argFetchOptions,
+          params: explicitParams,
+          ...rawBody
+        } = arg as any;
+
+        // Derive route params from either explicit `params` or top-level fields matching token names
+        const paramNames = Array.from(
+          actualRoutePath.matchAll(/:([\w]+)/g)
+        ).map((m) => m[1]);
+        const inferredParams = Object.fromEntries(
+          paramNames
+            .map((name) => [name, (arg as any)[name]])
+            .filter(([, v]) => v !== undefined)
+        ) as Record<string, any>;
+        const resolvedParams =
+          (explicitParams as Record<string, any>) ?? inferredParams;
+
+        // Remove params keys from body payload so they don't get sent as body
+        const body = { ...rawBody } as Record<string, any>;
+        for (const p of paramNames) {
+          if (p in body) delete body[p];
+        }
+
         const options = {
           ...fetchOptions,
           ...argFetchOptions,
+          ...(Object.keys(resolvedParams || {}).length > 0
+            ? { params: resolvedParams }
+            : {}),
         } as BetterFetchOption;
-        const method = getMethod(routePath, knownPathMethods, arg);
-        return await client(routePath, {
+
+        const method = getMethod(actualRoutePath, knownPathMethods, arg);
+        return await client(actualRoutePath, {
           ...options,
           body:
             method === "GET"
@@ -93,7 +149,9 @@ export function createDynamicPathProxy<T extends Record<string, any>>(
             /**
              * We trigger listeners
              */
-            const matches = atomListeners?.find((s) => s.matcher(routePath));
+            const matches = atomListeners?.find((s) =>
+              s.matcher(actualRoutePath)
+            );
             if (!matches) return;
             const signal = atoms[matches.signal as any];
             if (!signal) return;

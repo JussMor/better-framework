@@ -1,8 +1,8 @@
-import { betterFramework, type Framework } from "better-framework";
+import { betterFramework } from "better-framework";
 import { db } from "./kysely-db";
 import { notificationsPlugin } from "./plugins/notifications-plugin";
 
-export const framework: Framework = betterFramework({
+export const framework = betterFramework({
   // Kysely SQLite configuration for schema generation support
   database: {
     db: db,
@@ -29,3 +29,5 @@ export const framework: Framework = betterFramework({
     max: 100, // requests per window
   },
 });
+
+

@@ -13,16 +13,47 @@ export default function Dashboard() {
 
   const createCampaign = async () => {
     try {
-      const client = clientMk.user.create({
-        lastName: "Doe",
-        firstName: "John",
-        email: "john.doeddd@example.com",
-        phone: "08042219698",
+      // const client = clientMk.user.create({
+      //   lastName: "Doe",
+      //   firstName: "John",
+      //   email: "john.jusdds@example.com",
+      //   phone: "08042219698",
+      // });
+
+      // const client = await clientMk.notification.create({
+      //   userId: "ZUyWpp89hQLdOjQO", // Replace with actual user ID
+      //   title: "New Campaign Created",
+      //   message: "A new marketing campaign has been created.",
+      //   type: "info",
+      // });
+
+      // Now using the intuitive client syntax - no more [":id"] brackets!
+
+      // Option 1: Get a specific notification by ID
+      const notificationId = "ur3g1lfT0qHd14Le";
+      const notificationResult = await clientMk.notification.get({
+        id: notificationId, // Route parameter
       });
 
+      const userId = "ZUyWpp89hQLdOjQO";
+      // Option 2: Get all notifications for a user
+      const userNotifications = await clientMk.notification.user({
+        userId: userId,
+      });
+
+      // Option 3: Get user notifications with query parameters
+      // const filteredNotifications = await clientMk.notification.user({
+      //   params: { userId: notificationId },
+      //   query: { unreadOnly: true, limit: 10 }
+      // });
+
+      console.log("Notification result:", notificationResult);
+      setUser(notificationResult);
+      // });
 
       // Reusing `user` state to display campaign info for now
-      setUser(client);
+      // setUser(client);
+      // console.log("Created user:", client);
       setMessage("Campaign created successfully!");
       setMessageType("success");
     } catch (error) {
