@@ -20,8 +20,8 @@ export const init = async (rawOptions: BetterFrameworkOptions) => {
   // Resolve secret with fallbacks
   const secret =
     rawOptions.secret ||
-    env.BETTER_FRAMEWORK-SECRET ||
-    env.FRAMEWORK-SECRET ||
+    env.BETTER_FRAMEWORK_SECRET ||
+    env.FRAMEWORK_SECRET ||
     DEFAULT_SECRET;
   if (secret === DEFAULT_SECRET && isProduction) {
     logger.error(

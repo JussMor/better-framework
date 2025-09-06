@@ -1,5 +1,5 @@
 import type { Endpoint } from "better-call";
-import type { PrettifyDeep, UnionToIntersection } from "../types/helper";
+import type { PrettifyDeep, UnionToIntersection } from "./helper";
 
 // Helper to extract keys that are considered "actions" (isAction !== false)
 type ActionKeys<API> = {

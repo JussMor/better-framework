@@ -1,5 +1,5 @@
-import { betterFramework } from "better-framework";
 import { campaignsPlugin } from "better-framework/plugins/campaigns";
+import { betterFramework } from "../../../packages/better-framework/dist";
 import { db } from "./kysely-db";
 import { notificationsPlugin } from "./plugins/notifications-plugin";
 

@@ -2,11 +2,7 @@ import type { Migration } from "kysely";
 import type { HookEndpointContext } from ".";
 import { type FrameworkMiddleware } from "../api/call";
 import type { FieldAttribute } from "../db/field";
-import type {
-  DeepPartial,
-  LiteralString,
-  UnionToIntersection,
-} from "../types/helper";
+import type { DeepPartial, LiteralString, UnionToIntersection } from "./helper";
 
 import type { Endpoint, Middleware } from "better-call";
 import type { BetterFrameworkOptions, FrameworkContext } from ".";

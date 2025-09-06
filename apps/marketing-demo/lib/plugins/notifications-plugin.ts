@@ -1,8 +1,8 @@
+import { z } from "zod";
 import {
   BetterFrameworkPlugin,
   createFrameworkEndpoint,
-} from "better-framework";
-import { z } from "zod";
+} from "../../../../packages/better-framework/dist";
 
 const createNotification = () =>
   createFrameworkEndpoint(
