@@ -9,7 +9,7 @@ import { DatabaseSync } from "node:sqlite";
 import { AdapterDebugLogs } from "../adapters/create-adapter/types";
 import { KyselyDatabaseType } from "../adapters/kysely-adapter";
 import { FrameworkMiddleware } from "../api/call";
-import { Campaign, FieldAttribute } from "../db";
+import { FieldAttribute } from "../db";
 import { getFrameworkTables } from "../db/get-tables";
 import { createInternalAdapter } from "../db/internal-adapter";
 import type { Logger } from "../utils/logger";
@@ -55,207 +55,6 @@ export interface FrameworkEvent {
   timestamp: Date;
   sessionId?: string;
   source?: string;
-}
-
-export interface FrameworkCampaign {
-  id: string;
-  name: string;
-  type: "email" | "sms" | "push" | "webhook";
-  status: "draft" | "active" | "paused" | "completed";
-  subject?: string;
-  content: string;
-  segmentIds: string[];
-  scheduledAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface FrameworkEmail {
-  id: string;
-  to: string;
-  from: string;
-  subject: string;
-  content: string;
-  status: "sent" | "failed" | "pending";
-  messageId?: string;
-  createdAt: Date;
-}
-
-
-
-export interface Segment {
-  id: string;
-  name: string;
-  description?: string;
-  conditions: SegmentCondition[];
-  userCount?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface SegmentCondition {
-  property: string;
-  operator:
-    | "equals"
-    | "not_equals"
-    | "contains"
-    | "not_contains"
-    | "greater_than"
-    | "less_than"
-    | "in"
-    | "not_in";
-  value: any;
-  logicalOperator?: "AND" | "OR";
-}
-
-export interface AutomationFlow {
-  id: string;
-  name: string;
-  description?: string;
-  trigger: AutomationTrigger;
-  steps: AutomationStep[];
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface AutomationTrigger {
-  type: "event" | "segment_entry" | "segment_exit" | "date" | "webhook";
-  config: Record<string, any>;
-}
-
-export interface AutomationStep {
-  id: string;
-  type:
-    | "email"
-    | "sms"
-    | "wait"
-    | "condition"
-    | "webhook"
-    | "tag"
-    | "update_property";
-  config: Record<string, any>;
-  delay?: number;
-}
-
-export interface ABTest {
-  id: string;
-  name: string;
-  description?: string;
-  variants: ABTestVariant[];
-  trafficSplit: number[];
-  metric: string;
-  status: "draft" | "running" | "completed" | "paused";
-  startDate?: Date;
-  endDate?: Date;
-  winner?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface ABTestVariant {
-  id: string;
-  name: string;
-  content: string;
-  isControl: boolean;
-}
-
-export interface EmailProvider {
-  name: string;
-  sendEmail: (options: SendEmailOptions) => Promise<EmailResult>;
-  sendBulkEmail?: (options: SendBulkEmailOptions) => Promise<BulkEmailResult>;
-}
-
-export interface SendEmailOptions {
-  to: string | string[];
-  from: string;
-  subject: string;
-  html?: string;
-  text?: string;
-  attachments?: EmailAttachment[];
-  headers?: Record<string, string>;
-}
-
-export interface SendBulkEmailOptions {
-  messages: SendEmailOptions[];
-}
-
-export interface EmailResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-export interface BulkEmailResult {
-  success: boolean;
-  results: EmailResult[];
-  error?: string;
-}
-
-export interface EmailAttachment {
-  filename: string;
-  content: Buffer | string;
-  contentType?: string;
-}
-
-export interface SMSProvider {
-  name: string;
-  sendSMS: (options: SendSMSOptions) => Promise<SMSResult>;
-  sendBulkSMS?: (options: SendBulkSMSOptions) => Promise<BulkSMSResult>;
-}
-
-export interface SendSMSOptions {
-  to: string;
-  from: string;
-  body: string;
-}
-
-export interface SendBulkSMSOptions {
-  messages: SendSMSOptions[];
-}
-
-export interface SMSResult {
-  success: boolean;
-  messageId?: string;
-  error?: string;
-}
-
-export interface BulkSMSResult {
-  success: boolean;
-  results: SMSResult[];
-  error?: string;
-}
-
-export interface AnalyticsProvider {
-  name: string;
-  track: (options: AnalyticsTrackOptions) => Promise<AnalyticsResult>;
-  identify: (options: AnalyticsIdentifyOptions) => Promise<AnalyticsResult>;
-  page?: (options: AnalyticsPageOptions) => Promise<AnalyticsResult>;
-}
-
-export interface AnalyticsTrackOptions {
-  userId: string;
-  event: string;
-  properties?: Record<string, any>;
-  timestamp?: Date;
-}
-
-export interface AnalyticsIdentifyOptions {
-  userId: string;
-  traits?: Record<string, any>;
-  timestamp?: Date;
-}
-
-export interface AnalyticsPageOptions {
-  userId: string;
-  name?: string;
-  properties?: Record<string, any>;
-  timestamp?: Date;
-}
-
-export interface AnalyticsResult {
-  success: boolean;
-  error?: string;
 }
 
 export interface FrameworkContext {
@@ -331,32 +130,6 @@ export interface FrameworkDatabaseHooks {
       ) => Promise<void> | void;
     };
   };
-  frameworkEmail?: {
-    create?: {
-      before?: (
-        email: FrameworkEmail & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<FrameworkEmail & Record<string, unknown>> }
-      >;
-      after?: (
-        email: FrameworkEmail & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-    update?: {
-      before?: (
-        emailData: Partial<FrameworkEmail & Record<string, unknown>>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<FrameworkEmail & Record<string, unknown>> }
-      >;
-      after?: (
-        email: FrameworkEmail & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-  };
   user?: {
     create?: {
       before?: (
@@ -379,58 +152,6 @@ export interface FrameworkDatabaseHooks {
       >;
       after?: (
         user: FrameworkUser & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-  };
-  campaign?: {
-    create?: {
-      before?: (
-        campaign: Campaign & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<Campaign & Record<string, unknown>> }
-      >;
-      after?: (
-        campaign: Campaign & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-    update?: {
-      before?: (
-        campaignData: Partial<Campaign & Record<string, unknown>>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<Campaign & Record<string, unknown>> }
-      >;
-      after?: (
-        campaign: Campaign & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-  };
-  segment?: {
-    create?: {
-      before?: (
-        segment: Segment & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<Segment & Record<string, unknown>> }
-      >;
-      after?: (
-        segment: Segment & Record<string, unknown>,
-        context?: GenericEndpointContext
-      ) => Promise<void> | void;
-    };
-    update?: {
-      before?: (
-        segmentData: Partial<Segment & Record<string, unknown>>,
-        context?: GenericEndpointContext
-      ) => Promise<
-        boolean | { data: Partial<Segment & Record<string, unknown>> }
-      >;
-      after?: (
-        segment: Segment & Record<string, unknown>,
         context?: GenericEndpointContext
       ) => Promise<void> | void;
     };
@@ -485,9 +206,6 @@ export interface BetterFrameworkOptions {
          */
         debugLogs?: AdapterDebugLogs;
       };
-  emailProvider?: EmailProvider;
-  smsProvider?: SMSProvider;
-  analyticsProviders?: AnalyticsProvider[];
   plugins?: BetterFrameworkPlugin[];
   secret?: string;
   baseURL?: string;
@@ -508,27 +226,6 @@ export interface BetterFrameworkOptions {
   };
   event?: {
     fields?: Partial<Record<keyof OmitId<FrameworkEvent>, string>>;
-    modelName?: string;
-    additionalFields?: {
-      [key: string]: FieldAttribute;
-    };
-  };
-  campaign?: {
-    fields?: Partial<Record<keyof OmitId<FrameworkCampaign>, string>>;
-    modelName?: string;
-    additionalFields?: {
-      [key: string]: FieldAttribute;
-    };
-  };
-  email?: {
-    fields?: Partial<Record<keyof OmitId<FrameworkEmail>, string>>;
-    modelName?: string;
-    additionalFields?: {
-      [key: string]: FieldAttribute;
-    };
-  };
-  segment?: {
-    fields?: Partial<Record<keyof OmitId<Segment>, string>>;
     modelName?: string;
     additionalFields?: {
       [key: string]: FieldAttribute;

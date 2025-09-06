@@ -34,56 +34,11 @@ export const frameworkEventSchema = z.object({
   source: z.string().optional(),
 });
 
-export const campaignSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  type: z.enum(["email", "sms", "push", "webhook"]),
-  status: z.enum(["draft", "active", "paused", "completed"]).default("draft"),
-  subject: z.string().optional(),
-  content: z.string(),
-  segmentIds: z.array(z.string()).default([]),
-  scheduledAt: z.date().optional(),
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().default(() => new Date()),
-});
-
-export const segmentSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().optional(),
-  conditions: z
-    .array(
-      z.object({
-        property: z.string(),
-        operator: z.string(),
-        value: z.any(),
-      })
-    )
-    .default([]),
-  userCount: z.number().optional(),
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().default(() => new Date()),
-});
-
-export const frameworkEmailSchema = z.object({
-  id: z.string(),
-  to: z.string(),
-  from: z.string(),
-  subject: z.string(),
-  content: z.string(),
-  status: z.enum(["sent", "failed", "pending"]).default("pending"),
-  messageId: z.string().optional(),
-  createdAt: z.date().default(() => new Date()),
-});
-
 /**
  * Infer TypeScript types from Zod schemas
  */
 export type FrameworkUser = z.infer<typeof frameworkUserSchema>;
 export type FrameworkEvent = z.infer<typeof frameworkEventSchema>;
-export type FrameworkEmail = z.infer<typeof frameworkEmailSchema>;
-export type Campaign = z.infer<typeof campaignSchema>;
-export type Segment = z.infer<typeof segmentSchema>;
 
 /**
  * Parse output data using schema fields
@@ -218,75 +173,6 @@ export function parseFrameworkEventInput(
 ) {
   const schema = getAllFields(options, "event");
   return parseInputData(event || {}, { fields: schema, action });
-}
-
-/**
- * Parse campaign output
- */
-export function parseCampaignOutput(
-  options: BetterFrameworkOptions,
-  campaign: Campaign
-) {
-  const schema = getAllFields(options, "campaign");
-  return parseOutputData(campaign, { fields: schema });
-}
-
-/**
- * Parse campaign input
- */
-export function parseCampaignInput(
-  options: BetterFrameworkOptions,
-  campaign?: Record<string, any>,
-  action?: "create" | "update"
-) {
-  const schema = getAllFields(options, "campaign");
-  return parseInputData(campaign || {}, { fields: schema, action });
-}
-
-/**
- * Parse segment output
- */
-export function parseSegmentOutput(
-  options: BetterFrameworkOptions,
-  segment: Segment
-) {
-  const schema = getAllFields(options, "segment");
-  return parseOutputData(segment, { fields: schema });
-}
-
-/**
- * Parse segment input
- */
-export function parseSegmentInput(
-  options: BetterFrameworkOptions,
-  segment?: Record<string, any>,
-  action?: "create" | "update"
-) {
-  const schema = getAllFields(options, "segment");
-  return parseInputData(segment || {}, { fields: schema, action });
-}
-
-/**
- * Parse framework email output
- */
-export function parseFrameworkEmailOutput(
-  options: BetterFrameworkOptions,
-  email: FrameworkEmail
-) {
-  const schema = getAllFields(options, "email");
-  return parseOutputData(email, { fields: schema });
-}
-
-/**
- * Parse framework email input
- */
-export function parseFrameworkEmailInput(
-  options: BetterFrameworkOptions,
-  email?: Record<string, any>,
-  action?: "create" | "update"
-) {
-  const schema = getAllFields(options, "email");
-  return parseInputData(email || {}, { fields: schema, action });
 }
 
 /**

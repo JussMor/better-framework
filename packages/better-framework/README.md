@@ -1,16 +1,11 @@
 # Better Framework
 
-A comprehensive framework framework for TypeScript applications, inspired by the Better Auth approach.
+A user-focused framework for TypeScript applications, providing scaffolding for user management and event tracking.
 
 ## Features
 
 - **User Management**: Create and manage framework users with custom properties
 - **Event Tracking**: Track user events and behaviors
-- **Campaign Management**: Create and send framework campaigns
-- **Segmentation**: Create user segments based on properties and behaviors
-- **Email & SMS**: Send transactional and framework messages
-- **Analytics Integration**: Connect with multiple analytics providers
-- **Plugin System**: Extensible architecture with plugins
 - **Database Agnostic**: Support for multiple database adapters
 - **Type-Safe**: Full TypeScript support
 
@@ -35,13 +30,6 @@ const framework = betterFramework({
   secret: "your-secret-key-here",
   baseURL: "http://localhost:3000",
   basePath: "/api/framework",
-  emailProvider: {
-    name: "resend",
-    sendEmail: async (options) => {
-      // Your email sending logic
-      return { success: true, messageId: "msg_123" };
-    },
-  },
 });
 
 // Use as a request handler (Next.js example)
@@ -192,61 +180,6 @@ const event = await framework.api.track({
   },
   sessionId: "session-123",
   source: "webapp",
-});
-```
-
-### Campaign Management
-
-```typescript
-// Create campaign
-const campaign = await framework.api.campaign.create({
-  name: "Welcome Series",
-  type: "email",
-  status: "draft",
-  subject: "Welcome to our platform!",
-  content: "<h1>Welcome!</h1>",
-  segmentIds: ["segment-1", "segment-2"],
-});
-
-// Send campaign
-await framework.api.campaign.send("campaign-id");
-```
-
-### Segmentation
-
-```typescript
-// Create segment
-const segment = await framework.api.segment.create({
-  name: "Premium Users",
-  description: "Users with premium subscription",
-  conditions: {
-    properties: {
-      plan: "premium",
-    },
-  },
-});
-
-// Get users in segment
-const users = await framework.api.segment.getUsers("segment-id");
-```
-
-### Direct Messaging
-
-```typescript
-// Send email
-const result = await framework.api.email.send({
-  to: "user@example.com",
-  from: "noreply@yourapp.com",
-  subject: "Welcome!",
-  html: "<h1>Welcome to our platform!</h1>",
-  text: "Welcome to our platform!",
-});
-
-// Send SMS
-const result = await framework.api.sms.send({
-  to: "+1234567890",
-  from: "+0987654321",
-  body: "Welcome to our platform!",
 });
 ```
 
