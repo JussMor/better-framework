@@ -43,15 +43,61 @@ function routeBase(route: string) {
   return normalizePath(route.replace(/:[\w]+/g, ""));
 }
 
+function staticSegments(path: string) {
+  return normalizePath(path)
+    .split("/")
+    .filter(Boolean)
+    .filter((seg) => !seg.startsWith(":"));
+}
+
 function findActualRoutePath(
   basePath: string,
-  known: Record<string, "POST" | "GET" | "PUT" | "DELETE">
+  known: Record<string, "POST" | "GET" | "PUT" | "DELETE">,
+  arg?: any
 ) {
   const baseNorm = normalizePath(basePath);
   const match = Object.keys(known).find(
     (route) => routeBase(route) === baseNorm
   );
-  return match || basePath;
+  if (match) return match;
+
+  // Fallback: try matching by first and last static segments
+  const baseStatics = staticSegments(baseNorm);
+  if (baseStatics.length >= 2) {
+    const [first, last] = [baseStatics[0], baseStatics[baseStatics.length - 1]];
+    const candidates = Object.keys(known).filter((route) => {
+      const segs = staticSegments(route);
+      if (segs.length < 2) return false;
+      return segs[0] === first && segs[segs.length - 1] === last;
+    });
+    if (candidates.length > 0) {
+      // If args provided, prefer route whose param names best match provided keys
+      const provided = new Set(Object.keys((arg?.params as any) || arg || {}));
+      const score = (route: string) => {
+        const names = Array.from(route.matchAll(/:([\w]+)/g)).map((m) => m[1]);
+        const matchCount = names.filter((n) => provided.has(n)).length;
+        return { names, matchCount };
+      };
+      const ranked = candidates
+        .map((r) => ({ r, ...score(r) }))
+        .sort((a, b) => {
+          if (b.matchCount !== a.matchCount) return b.matchCount - a.matchCount;
+          // If equal match count, prefer fewer required params when provided is smaller
+          if (a.matchCount === provided.size) {
+            // prefer exact match on param count
+            const diff =
+              Math.abs(a.names.length - a.matchCount) -
+              Math.abs(b.names.length - b.matchCount);
+            if (diff !== 0) return diff;
+          }
+          // As a final tie-breaker, prefer route with more static specificity (more static segments)
+          return staticSegments(b.r).length - staticSegments(a.r).length;
+        });
+      return ranked[0].r;
+    }
+  }
+
+  return basePath;
 }
 
 export function createDynamicPathProxy<T extends Record<string, any>>(
@@ -94,11 +140,14 @@ export function createDynamicPathProxy<T extends Record<string, any>>(
             )
             .join("/");
 
-        // Resolve the actual route path, supporting routes with params like /x/:id/y
-        const actualRoutePath = findActualRoutePath(basePath, knownPathMethods);
-
         const arg = (args[0] || {}) as ProxyRequest;
         const fetchOptions = (args[1] || {}) as BetterFetchOption;
+        // Resolve the actual route path, supporting routes with params like /x/:id/y
+        const actualRoutePath = findActualRoutePath(
+          basePath,
+          knownPathMethods,
+          arg
+        );
         const {
           query,
           fetchOptions: argFetchOptions,

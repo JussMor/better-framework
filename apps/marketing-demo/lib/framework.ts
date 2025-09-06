@@ -29,5 +29,3 @@ export const framework = betterFramework({
     max: 100, // requests per window
   },
 });
-
-

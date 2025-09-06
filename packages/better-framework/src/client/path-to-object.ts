@@ -20,17 +20,31 @@ export type CamelCase<S extends string> =
     ? `${Lowercase<P1>}${Uppercase<P2>}${CamelCase<P3>}`
     : Lowercase<S>;
 
-export type PathToObject<
-  T extends string,
-  Fn extends (...args: any[]) => any,
-> = T extends `/${infer Segment}/${infer Rest}`
-  ? Segment extends `:${string}`
-    ? Fn // If this segment is a parameter (starts with :), treat as callable
-    : { [K in CamelCase<Segment>]: PathToObject<`/${Rest}`, Fn> }
-  : T extends `/${infer Segment}`
-    ? Segment extends `:${string}`
-      ? Fn // If this segment is a parameter (starts with :), treat as callable
-      : { [K in CamelCase<Segment>]: Fn }
+// Extract static (non-parameter) segments from a path as camelCased strings
+type StaticSegments<T extends string> = T extends `/${infer Seg}/${infer Rest}`
+  ? Seg extends `:${string}`
+    ? StaticSegments<`/${Rest}`>
+    : [CamelCase<Seg>, ...StaticSegments<`/${Rest}`>]
+  : T extends `/${infer Seg}`
+    ? Seg extends `:${string}`
+      ? []
+      : [CamelCase<Seg>]
+    : [];
+
+// Build nested object from static segments with Fn at the deepest static segment
+type BuildNested<Segs extends string[], Fn> = Segs extends [
+  infer H extends string,
+  ...infer R extends string[],
+]
+  ? { [K in H]: BuildNested<R, Fn> }
+  : Fn;
+
+// Map path to nested static segments; params (e.g., :id) are skipped.
+export type PathToObject<T extends string, Fn extends (...args: any[]) => any> =
+  StaticSegments<T> extends infer Segs extends string[]
+    ? Segs extends []
+      ? never
+      : BuildNested<Segs, Fn>
     : never;
 
 export type InferSignUpEmailCtx<

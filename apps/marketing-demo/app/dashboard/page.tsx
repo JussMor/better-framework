@@ -30,14 +30,19 @@ export default function Dashboard() {
       // Now using the intuitive client syntax - no more [":id"] brackets!
 
       // Option 1: Get a specific notification by ID
-      const notificationId = "ur3g1lfT0qHd14Le";
-      const notificationResult = await clientMk.notification.get({
-        id: notificationId, // Route parameter
-      });
+      // const notificationId = "ur3g1lfT0qHd14Le";
+      // const notificationResult = await clientMk.notification.get({
+      //   id: notificationId, // Route parameter
+      // });
 
       const userId = "ZUyWpp89hQLdOjQO";
       // Option 2: Get all notifications for a user
-      const userNotifications = await clientMk.notification.user({
+      //       const userNotifications = await clientMk.notification.user({
+      //         userId: userId,
+      // // Just to demonstrate multiple route params
+      //       });
+
+      const test = await clientMk.notification.user({
         userId: userId,
       });
 
@@ -47,8 +52,6 @@ export default function Dashboard() {
       //   query: { unreadOnly: true, limit: 10 }
       // });
 
-      console.log("Notification result:", notificationResult);
-      setUser(notificationResult);
       // });
 
       // Reusing `user` state to display campaign info for now
