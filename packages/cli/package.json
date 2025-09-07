@@ -1,14 +1,14 @@
 {
   "name": "@better-framework/cli",
-  "version": "1.3.8-beta.6",
+  "version": "0.1.0",
   "description": "The CLI for Better Framework",
   "module": "dist/index.mjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/better-auth/better-auth",
+    "url": "https://github.com/JussMor/better-framework.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://www.better-auth.com/docs/concepts/cli",
+  "homepage": "https://www.better-framework.com/docs/concepts/cli",
   "main": "./dist/index.mjs",
   "scripts": {
     "build": "unbuild",

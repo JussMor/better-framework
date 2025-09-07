@@ -15,12 +15,12 @@
   "homepage": "https://better-framework.dev",
   "repository": {
     "type": "git",
-    "url": "https://github.com/everfaz/better-framework.git"
+    "url": "https://github.com/JussMor/better-framework.git"
   },
   "license": "MIT",
   "author": {
     "name": "Everfaz Team",
-    "email": "hello@everfaz.com"
+    "email": "contact@everfaz.com"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
