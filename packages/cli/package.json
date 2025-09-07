@@ -1,5 +1,5 @@
 {
-  "name": "@better-framework/cli",
+  "name": "better-framework-cli",
   "version": "0.1.0",
   "description": "The CLI for Better Framework",
   "module": "dist/index.mjs",
