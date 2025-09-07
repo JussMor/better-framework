@@ -76,7 +76,15 @@ export function getClientConfig(options?: ClientOptions) {
     $sessionSignal,
     session,
   } as Record<string, WritableAtom<any>>;
-  let pluginPathMethods: Record<string, "POST" | "GET" | "PUT" | "DELETE"> = {};
+
+  // Include internal framework endpoints in pathMethods
+  let pluginPathMethods: Record<string, "POST" | "GET" | "PUT" | "DELETE"> = {
+    "/user/create": "POST",
+    "/user/get/:id": "GET",
+    "/user/update/:id": "PUT",
+    "/user/delete/:id": "DELETE",
+  };
+
   const atomListeners: AtomListener[] = [
     {
       signal: "$sessionSignal",

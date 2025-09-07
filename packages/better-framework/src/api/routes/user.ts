@@ -18,24 +18,14 @@ export const createUser = () =>
     async (ctx) => {
       const { body } = ctx;
 
-      // Use the internal adapter to create user
-      const generatedId = ctx.context.generateId({ model: "user" });
-      const fallbackId = ctx.context.generateId({
-        model: "user",
-        size: 16,
-      });
+      // Use the internal adapter to create user - let adapter handle ID generation
       const user = await ctx.context.internalAdapter.createUser({
-        id:
-          (typeof generatedId === "string" && generatedId) ||
-          (typeof fallbackId === "string" && fallbackId) ||
-          "mk_" + Math.random().toString(36).slice(2, 10),
         email: body.email,
         firstName: body.firstName,
         lastName: body.lastName,
         phone: body.phone,
         properties: body.properties || {},
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        segments: [], // Initialize with empty segments array
       });
 
       return {

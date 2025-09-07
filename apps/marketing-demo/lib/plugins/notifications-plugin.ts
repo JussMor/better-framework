@@ -22,10 +22,8 @@ const createNotification = () =>
     async (ctx) => {
       try {
         const now = new Date();
-        const id = ctx.context.generateId({ model: "notification" });
 
         const notificationData = {
-          id,
           title: ctx.body.title,
           message: ctx.body.message,
           type: ctx.body.type,
@@ -81,8 +79,24 @@ const getUserNotifications = () =>
       metadata: { isAction: true },
       params: z.object({ userId: z.string() }),
       query: z.object({
-        unreadOnly: z.boolean().optional(),
-        limit: z.number().optional(),
+        unreadOnly: z
+          .union([z.boolean(), z.string()])
+          .transform((val) => {
+            if (typeof val === "string") {
+              return val.toLowerCase() === "true";
+            }
+            return val;
+          })
+          .optional(),
+        limit: z
+          .union([z.number(), z.string()])
+          .transform((val) => {
+            if (typeof val === "string") {
+              return parseInt(val, 10);
+            }
+            return val;
+          })
+          .optional(),
       }),
     },
     async (ctx) => {
@@ -98,6 +112,7 @@ const getUserNotifications = () =>
         limit: ctx.query.limit,
         sortBy: { field: "createdAt", direction: "desc" },
       });
+      console.log("Fetched notifications:", notifications);
 
       return { notifications: notifications || [] };
     }
