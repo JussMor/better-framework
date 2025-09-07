@@ -112,7 +112,6 @@ const getUserNotifications = () =>
         limit: ctx.query.limit,
         sortBy: { field: "createdAt", direction: "desc" },
       });
-      console.log("Fetched notifications:", notifications);
 
       return { notifications: notifications || [] };
     }
