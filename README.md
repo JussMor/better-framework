@@ -15,7 +15,7 @@ This repo includes:
 🔒 **Full Type Safety**: End-to-end TypeScript with inference from server to client  
 🚀 **Zero Config**: Dynamic proxy client with automatic route resolution  
 🔌 **Plugin-Driven**: Extensible with custom endpoints and schemas  
-📱 **Framework Agnostic**: Works with Next.js, React, Vue, or any frontend  
+📱 **Framework Agnostic**: Works with Next.js, React, Vue, or any frontend
 
 ## How it works: Backend → Frontend SDK
 
@@ -60,15 +60,15 @@ For direct access to the framework's internal methods:
 // Direct API access (bypasses the generated client)
 const user = await framework.api.createUser({
   email: "demo@example.com",
-  firstName: "John"
+  firstName: "John",
 });
 
 // Or access the full framework context
 const context = await framework.$ctx;
 const adapter = context.internalAdapter;
-const directUser = await adapter.createUser({ 
+const directUser = await adapter.createUser({
   email: "demo@example.com",
-  segments: []
+  segments: [],
 });
 ```
 
@@ -130,6 +130,7 @@ pnpm --filter @better-framework/cli start [command]
 ### Available Commands
 
 #### `better-framework init`
+
 Bootstrap a new Better Framework project with interactive setup:
 
 ```bash
@@ -141,6 +142,7 @@ better-framework init
 ```
 
 Features:
+
 - 📦 **Project scaffolding**: Creates starter files and folder structure
 - 🔧 **Dependency management**: Installs required packages
 - ⚙️ **Configuration setup**: Generates framework config with database
@@ -149,6 +151,7 @@ Features:
 - 🗄️ **Database adapters**: Configures SQLite, PostgreSQL, MySQL, etc.
 
 #### `better-framework generate`
+
 Generate database schema and types from your framework configuration:
 
 ```bash
@@ -163,12 +166,14 @@ node packages/cli/dist/index.mjs generate --output ./generated
 ```
 
 Features:
+
 - 🏗️ **Schema generation**: Creates database schema from plugins
 - 📝 **Type generation**: Generates TypeScript types
 - 🔄 **Auto-sync**: Keeps schema in sync with code changes
 - 🎯 **Smart detection**: Analyzes your endpoints and plugins
 
 #### `better-framework migrate`
+
 Run database migrations:
 
 ```bash
@@ -180,12 +185,14 @@ node packages/cli/dist/index.mjs migrate --yes
 ```
 
 Features:
+
 - 🚀 **Auto-migration**: Generates and runs migrations
 - 📊 **Schema diff**: Shows changes before applying
 - 🛡️ **Safe migrations**: Validates before execution
 - 📝 **Migration history**: Tracks applied changes
 
 #### `better-framework secret`
+
 Generate secure secrets for your application:
 
 ```bash
@@ -194,6 +201,7 @@ node packages/cli/dist/index.mjs secret
 ```
 
 Output:
+
 ```bash
 Add the following to your .env file:
 # Auth Secret
@@ -201,6 +209,7 @@ BETTER_AUTH_SECRET=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
 ```
 
 #### `better-framework info`
+
 Display framework and project information:
 
 ```bash
@@ -211,18 +220,21 @@ node packages/cli/dist/index.mjs info
 ### CLI Development Workflow
 
 1. **Initialize project**:
+
    ```bash
    better-framework init
    # Follow interactive prompts
    ```
 
 2. **Generate schema**:
+
    ```bash
    better-framework generate
    # Creates schema files and types
    ```
 
 3. **Run migrations**:
+
    ```bash
    better-framework migrate
    # Applies database changes
@@ -244,8 +256,12 @@ The CLI reads configuration from your framework setup file:
 ```ts
 // framework.ts
 export const framework = betterFramework({
-  database: { /* ... */ },
-  plugins: [ /* ... */ ],
+  database: {
+    /* ... */
+  },
+  plugins: [
+    /* ... */
+  ],
   // CLI will use this config for generation and migration
 });
 ```
@@ -254,7 +270,7 @@ export const framework = betterFramework({
 
 - 📦 **Plugin marketplace**: Install community plugins
 - 🔄 **Code generation**: Generate CRUD endpoints
-- 📊 **Analytics**: Performance and usage insights  
+- 📊 **Analytics**: Performance and usage insights
 - 🧪 **Testing**: Generate test files
 - 🚀 **Deployment**: Deploy to various platforms
 
@@ -263,27 +279,30 @@ export const framework = betterFramework({
 The framework provides three levels of API access:
 
 ### 1. **Generated Client SDK** (Recommended)
+
 The automatic type-safe client generated from your backend endpoints:
 
 ```ts
-await client.user.create({ email, firstName, fetchOptions: { throw: true } })
-await client.notification.user({ userId, query: { unreadOnly: true } })
+await client.user.create({ email, firstName, fetchOptions: { throw: true } });
+await client.notification.user({ userId, query: { unreadOnly: true } });
 ```
 
 ### 2. **Framework API** (Direct server access)
+
 Direct access to framework methods for advanced use cases:
 
 ```ts
-await framework.api.createUser({ email, firstName })
-await framework.api.getUserNotifications({ userId, unreadOnly: true })
+await framework.api.createUser({ email, firstName });
+await framework.api.getUserNotifications({ userId, unreadOnly: true });
 ```
 
 ### 3. **Raw Adapter** (Lowest level)
+
 Direct database adapter access:
 
 ```ts
 const ctx = await framework.$ctx;
-await ctx.internalAdapter.createUser({ email, segments: [] })
+await ctx.internalAdapter.createUser({ email, segments: [] });
 ```
 
 ### Client Generation Rules
@@ -429,14 +448,14 @@ const notifications = await client.notification.user({
 // Access framework API directly (bypasses generated client)
 const directUser = await framework.api.createUser({
   email: "direct@example.com",
-  firstName: "Direct"
+  firstName: "Direct",
 });
 
 // Access raw adapter for custom operations
 const context = await framework.$ctx;
 const allUsers = await context.internalAdapter.findMany({
   model: "user",
-  where: [{ field: "email", operator: "contains", value: "@example.com" }]
+  where: [{ field: "email", operator: "contains", value: "@example.com" }],
 });
 ```
 
@@ -445,40 +464,48 @@ const allUsers = await context.internalAdapter.findMany({
 The framework automatically generates a type-safe frontend SDK from your backend API definitions:
 
 ### 1. **Server Endpoint Definition**
+
 ```ts
 // Define once on the server
 const createUser = () =>
-  createFrameworkEndpoint("/user/create", {
-    method: "POST",
-    body: z.object({
-      email: z.string().email(),
-      firstName: z.string().optional(),
-    }),
-  }, async (ctx) => {
-    const user = await ctx.context.internalAdapter.createUser(ctx.body);
-    return { user };
-  });
+  createFrameworkEndpoint(
+    "/user/create",
+    {
+      method: "POST",
+      body: z.object({
+        email: z.string().email(),
+        firstName: z.string().optional(),
+      }),
+    },
+    async (ctx) => {
+      const user = await ctx.context.internalAdapter.createUser(ctx.body);
+      return { user };
+    }
+  );
 ```
 
 ### 2. **Automatic Client Generation**
+
 ```ts
 // Use anywhere on the frontend - fully typed!
 const result = await client.user.create({
   email: "demo@example.com", // ✅ Type-safe
-  firstName: "John",         // ✅ Optional, as defined
+  firstName: "John", // ✅ Optional, as defined
   // invalidField: "error",   // ❌ TypeScript error
-  fetchOptions: { throw: true }
+  fetchOptions: { throw: true },
 });
 // result.user is typed based on server return ✨
 ```
 
 ### 3. **Route Resolution Magic**
+
 - **Static segments** (`/user`, `/notification`) → **Nested properties** (`client.user`, `client.notification`)
-- **Dynamic segments** (`/:id`, `/:userId`) → **Function parameters** (`{ id }`, `{ userId }`)  
+- **Dynamic segments** (`/:id`, `/:userId`) → **Function parameters** (`{ id }`, `{ userId }`)
 - **HTTP methods** → **Automatically inferred** from `pathMethods` and heuristics
 - **Types** → **End-to-end inference** from server schema to client response
 
 ### 4. **Plugin System**
+
 Extend with custom endpoints that automatically generate client methods:
 
 ```ts
@@ -488,7 +515,7 @@ export const notificationsPlugin = () => ({
     createNotification: createNotificationEndpoint(),
     getUserNotifications: getUserNotificationsEndpoint(),
     // ... more endpoints
-  }
+  },
 });
 
 // Client automatically gets:
