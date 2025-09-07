@@ -496,6 +496,12 @@ export const notificationsPlugin = () => ({
 // client.notification.user(...)
 ```
 
+## Acknowledgments
+
+This framework is inspired by and builds upon the excellent work of the [Better Auth](https://www.better-auth.com) team. Better Auth provides a comprehensive authentication solution with similar principles of type safety and developer experience that we've adopted for this full-stack framework.
+
+Special thanks to the Better Auth community for pioneering many of the patterns we use here for automatic SDK generation and type-safe client-server communication.
+
 ## Notes
 
 - Memory adapter is used in the demo. Swap adapters via core config to persist data.
